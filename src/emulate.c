@@ -18,6 +18,8 @@ struct pState {
 	bool C;
 	bool V;
 }
+// global var so initialised to false's
+struct pState PSTATE;
 
 /* Private functions */
 
