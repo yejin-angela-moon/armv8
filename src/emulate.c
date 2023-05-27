@@ -15,11 +15,6 @@ struct pState {
 	bool V;
 }
 
-struct ZR {
-	int zero;
-}
-
-
 /* Private functions */
 
 static void inc_PC (){
