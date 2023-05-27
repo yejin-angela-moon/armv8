@@ -4,9 +4,13 @@
 #include <assert.h>
 #include <stdbool.h>
 
-int currAddress = 0x0;
-
 /*registers*/
+
+int currAddress = 0x0; // this represents PC
+
+// ZR not needed as no fields
+
+int generalRegisters[31]; // global var so initialised to 0s
 
 struct pState {
 	bool N;
