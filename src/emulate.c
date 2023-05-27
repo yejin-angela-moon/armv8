@@ -23,9 +23,25 @@ struct pState {
 
 static void inc_PC (){
 	currAddress += 4;
-};
+}
 
 static void readInstruction ( int objectCode ) {
+}
+
+static int readRegister (int registerIndex) {
+	// registerIndex = 11111 (bin) -> reading from ZR
+	if (registerIndex == 31) {
+		return 0;
+	}
+	return generalRegisters[registerIndex];
+}
+
+static void writeRegister (int registerIndex, int newValue) {
+	// registerIndex = 11111 (bin) -> writing to ZR
+	if (registerIndex == 31) {
+		return;
+	}
+	generalRegisters[registerIndex] = newValue;
 }
 
 int main(int argc, char **argv) {
