@@ -21,6 +21,12 @@ struct pState {
 
 /* Private functions */
 
+static int extractBits(int n, int startIndex, int endIndex) {
+	// start/endIndex is inclusive, right-to-left starting from 0
+	int mask = (1 << (endIndex - startIndex + 1)) - 1;
+	return (n >> startIndex) & mask;
+}
+
 static void inc_PC (){
 	currAddress += 4;
 }
