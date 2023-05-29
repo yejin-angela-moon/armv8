@@ -91,6 +91,23 @@ void update_pstate(uint64_t result, uint64_t operand1, uint64_t operand2, bool i
     }
 }
 
+/* Decode instruction */
+void decode_instruction(uint32_t instruction) {
+	uint8_t op0 = (instruction >> 25) & 0x0F; // extract bits 28-25
+	
+	if ((op0 & 0x0E) == 0x08) {
+		// data_processing_immediate;
+	} else if ((op0 & 0x05) == 0x05) {
+        	// data_processing_registers;
+	} else if ((op0 & 0x0A) == 0x02) {
+        	// loads_and_stores
+	} else if ((op0 & 0x0E) == 0x0A) {
+		// brances
+	} else {
+        	// error - unknown instructon
+    }
+}
+
 
 /* Data Processing Instructions */
 
