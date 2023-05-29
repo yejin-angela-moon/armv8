@@ -65,26 +65,22 @@ static int extractBits(uint32_t n, int startIndex, int endIndex) {
     return (n >> startIndex) & mask;
 }
 
-void update_pstate(uint64_t result, uint64_t operand1, uint64_t operand2, bool is_subtraction) {
-    // Update N and Z flags
-    pstate.N = result & (1ULL << 63);  // check the most significant bit
-    pstate.Z = (result == 0);
+void update_pstate(Pstate* pstate, uint64_t result, uint64_t rd, uint8_t rn, uint32_t op2, bool is_sub) {
+	// Update N (Negative Flag): Set to the sign bit of the result
+    	pstate->N = result & (1ULL << 31);
 
-    if (is_subtraction) {
-        // For subtraction, carry is set if operand1 >= operand2
-        pstate.C = operand1 >= operand2;
+	// Update Z (Zero Flag): Set only when the result is all zero
+    	pstate->Z = (result == 0);
 
-        // Overflow for subtraction is set if operand1 and operand2 have different signs,
-        // and operand1 and the result have different signs
-        pstate.V = ((operand1 ^ operand2) & (operand1 ^ result)) >> 63;
-    } else {
-        // For addition, carry is set if result is less than either operand (meaning it wrapped around)
-        pstate.C = result < operand1 || result < operand2;
+	if (is_sub) {
+        	// In a subtraction, C is set to zero if the subtraction produces a borrow, otherwise it is set to one
+        	pstate->C = (rn >= op2);
+		
+    	} else {
+        	// In an addition, C is set when the addition produces a carry (unsigned overflow), or zero otherwise
+        	pstate->C = (result < rn);
+    	}
 
-        // Overflow for addition is set if operand1 and operand2 have the same sign,
-        // and operand1 and the result have different signs
-        pstate.V = (~(operand1 ^ operand2) & (operand1 ^ result)) >> 63;
-    }
 }
 
 static void DPImm(uint32_t instruction) {
@@ -128,17 +124,30 @@ void arithmetic_immediate(uint8_t sf, uint8_t opc, uint32_t operand, uint8_t Rd)
 	uint8_t sh = (operand >> 17) & 0x01;     // extract bit 22
         uint16_t imm12 = (operand >> 5) & 0x0FFF; // extract bits 21-10
         uint8_t rn = operand & 0x1F;             // extract bits 9-5 
-	uint32_t result;
+	uint64_t result;
+	
+	// Store result in the destination register
+      	if (sf) {
+		imm12 <<= 12;
+        	generalRegisters[Rd] = result;  // 64-bit
+	
+      	} else {
+        	generalRegisters[Rd] = (uint32_t)result;  // 32-bit
+      	}
   
-      // Store result in the destination register
-      if (sf) {
-          generalRegisters[Rd] = result;  // 64-bit
-      } else {
-         generalRegisters[Rd] = (uint32_t)result;  // 32-bit
-      }
-  
-      // Update condition flags for 'adds' and 'subs' instructions
-
+      	// Operations performed depending on opc
+      	switch (opc) {
+		case 0x0:
+	  		result += rn;
+		case 0x1:
+			result += rn;
+			update_pstate(&pstate, result,  Rd, rn, imm12, 0);
+		case 0x2:
+			result -= rn;
+		case 0x3:
+			result -= rn;
+			update_pstate(&pstate, result, Rd, rn, imm12, 1);
+	}
   
 }
   
