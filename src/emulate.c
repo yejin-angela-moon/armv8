@@ -56,7 +56,7 @@ static int readRegister (int registerIndex) {
 	if (registerIndex == 31) {
 		return 0;
 	}
-	return generalRegisters[registerIndex];
+	return registers[registerIndex];
 }
 
 static void writeRegister (int registerIndex, int newValue) {
@@ -64,7 +64,7 @@ static void writeRegister (int registerIndex, int newValue) {
 	if (registerIndex == 31) {
 		return;
 	}
-	generalRegisters[registerIndex] = newValue;
+	registers[registerIndex] = newValue;
 }
 
 void update_pstate(uint64_t result, uint64_t operand1, uint64_t operand2, bool is_subtraction) {
