@@ -120,5 +120,21 @@ static void readInstruction (uint32_t instruction) {
 }
 
 int main(int argc, char **argv) {
-  return EXIT_SUCCESS;
+    FILE *file = fopen("emulateOutput.out", "w");
+
+    for (int registerIndex = 0; registerIndex < NUM_REGISTERS; registerIndex++) {
+        if (registerIndex < 10) {
+            fprintf(file, "X0%d = %016lx\n", registerIndex, readRegister(registerIndex));
+        } else {
+            fprintf(file, "X%d = %016lx\n", registerIndex, readRegister(registerIndex));
+        }
+    }
+
+    fprintf(file, "PC = %016x\n", currAddress);
+
+    fprintf(file, "PSTATE : %s%s%s%s", pstate.N ? "N" : "-", pstate.Z ? "Z" : "-", pstate.C ? "C" : "-", pstate.V ? "V" : "-");
+
+    fclose(file);
+
+    return EXIT_SUCCESS;
 }
