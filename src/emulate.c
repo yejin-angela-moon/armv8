@@ -85,6 +85,40 @@ void update_pstate(uint64_t result, uint64_t operand1, uint64_t operand2, bool i
     }
 }
 
+static void DPImm(uint32_t instruction) {
+    
+}
+static void DPReg(uint32_t instruction) {
+
+}
+static void SDT(uint32_t instruction) {
+
+}
+static void LL(uint32_t instruction) {
+
+}
+static void B(uint32_t instruction) {
+
+}
+
+/* Decode instruction */
+static void readInstruction (uint32_t instruction) {
+    if (extractBits(instruction, 26, 28) == 0b100){
+        DPImm(instruction);
+    }else if (extractBits(instruction, 25, 27) == 0b101)
+    {
+        DPReg(instruction);
+    }else if(extractBits(instruction, 25, 28) == 0b1100 ){
+        if (extractBits(instruction, 31,31) == 1){
+            SDT(instruction);
+        } else {
+            LL(instruction);
+        }
+    } else {
+        B(instruction);
+    }
+}
+
 int main(int argc, char **argv) {
   return EXIT_SUCCESS;
 }
