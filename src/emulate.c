@@ -7,27 +7,28 @@
 
 /*registers*/
 
-int currAddress = 0x0; // this represents PC
+int currAddress = 0x0; // hexadecimal address to represents PC
 
-// ZR not needed as no fields
+// ZR always returns 0. No fields needed. 
 
-// initialise registers
+// Initialise number of registers
 #define NUM_REGISTERS 31
 
 uint64_t registers[NUM_REGISTERS];
 
-void initialize_registers() {
+void initialise_registers() {
     for (int i = 0; i < NUM_REGISTERS; ++i) {
         registers[i] = 0;
     }
 }
 
-// initialise memory
+// Initialise memory size
 #define MEMORY_SIZE 1024 * 1024  // 1 MiB, for example
 
 uint8_t memory[MEMORY_SIZE];  // each element represents 1 byte of memory
+// but could also be 2D array?
 
-void initialize_memory() {
+void initialise_memory() {
     memset(memory, 0, sizeof(memory));
 }
 
@@ -40,7 +41,7 @@ typedef struct {
 	bool V;
 } Pstate;
 
-Pstate pstate = {false, false, false, false}; // initialisation of pState
+Pstate pstate = {false, false, false, false}; // initialise of Pstate register
 
 /* Private functions */
 
@@ -49,6 +50,7 @@ static void inc_PC (){
 }
 
 static void readInstruction ( int objectCode ) {
+	
 }
 
 static int readRegister (int registerIndex) {
