@@ -92,12 +92,6 @@ void update_pstate(uint64_t result, uint64_t operand1, uint64_t operand2, bool i
 
 /* Data Processing Instructions */
 
-// ADD instruction with register
-void add_reg(int Rd, int Rn, int Rm) {
-    registers[Rd] = registers[Rn] + registers[Rm];
-    update_pstate(registers[Rd], Rd, Rn, Rm);
-}
-
 // ADD instruction with immediate value
 void arithmetic_imm(int opc, int sf, int Rd, int Rn, int sh, uint32_t imm12) {
 
