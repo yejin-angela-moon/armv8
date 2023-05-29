@@ -120,21 +120,25 @@ static void readInstruction (uint32_t instruction) {
 }
 
 int main(int argc, char **argv) {
-    FILE *file = fopen("emulateOutput.out", "w");
 
+    FILE* inputFile = fopen("input.bin", "rb");
+    uint32_t instruction;
+    do {
+        fread(&instruction, sizeof(instruction), 1, inputFile);
+        readInstruction(instruction);
+    } while (instruction != 0x8a000000);
+
+    FILE *outputFile = fopen("emulateOutput.out", "w");
     for (int registerIndex = 0; registerIndex < NUM_REGISTERS; registerIndex++) {
         if (registerIndex < 10) {
-            fprintf(file, "X0%d = %016lx\n", registerIndex, readRegister(registerIndex));
+            fprintf(outputFile, "X0%d = %016lx\n", registerIndex, readRegister(registerIndex));
         } else {
-            fprintf(file, "X%d = %016lx\n", registerIndex, readRegister(registerIndex));
+            fprintf(outputFile, "X%d = %016lx\n", registerIndex, readRegister(registerIndex));
         }
     }
-
-    fprintf(file, "PC = %016x\n", currAddress);
-
-    fprintf(file, "PSTATE : %s%s%s%s\n", pstate.N ? "N" : "-", pstate.Z ? "Z" : "-", pstate.C ? "C" : "-", pstate.V ? "V" : "-");
-
-    fclose(file);
+    fprintf(outputFile, "PC = %016x\n", currAddress);
+    fprintf(outputFile, "PSTATE : %s%s%s%s\n", pstate.N ? "N" : "-", pstate.Z ? "Z" : "-", pstate.C ? "C" : "-", pstate.V ? "V" : "-");
+    fclose(outputFile);
 
     return EXIT_SUCCESS;
 }
