@@ -7,7 +7,7 @@
 
 /*registers*/
 
-int currAddress = 0x0; // hexadecimal address to represents PC
+uint32_t currAddress; // hexadecimal address to represents PC
 
 // ZR always returns 0. No fields needed. 
 
@@ -15,12 +15,6 @@ int currAddress = 0x0; // hexadecimal address to represents PC
 #define NUM_REGISTERS 31
 
 uint64_t registers[NUM_REGISTERS];
-
-void initialise_registers() {
-    for (int i = 0; i < NUM_REGISTERS; ++i) {
-        registers[i] = 0;
-    }
-}
 
 // Initialise memory size
 #define MEMORY_SIZE 1024 * 1024  // 1 MiB, for example
@@ -30,7 +24,7 @@ uint8_t memory[MEMORY_SIZE];  // each element represents 1 byte of memory
 
 void initialise_memory() {
     memset(memory, 0, sizeof(memory));
-}
+} // later
 
 //int generalRegisters[31]; // global var so initialised to 0s
 
@@ -41,7 +35,7 @@ typedef struct {
 	bool V;
 } Pstate;
 
-Pstate pstate = {false, false, false, false}; // initialise of Pstate register
+Pstate pstate;
 
 /* Private functions */
 
@@ -91,32 +85,42 @@ void update_pstate(uint64_t result, uint64_t operand1, uint64_t operand2, bool i
     }
 }
 
-/* Decode instruction */
-void decode_instruction(uint32_t instruction) {
-	uint8_t op0 = (instruction >> 25) & 0x0F; // extract bits 28-25
-	
-	if ((op0 & 0x0E) == 0x08) { // data processing (immediate)
-		uint8_t sf  = (instruction >> 31) & 0x01;        // extract bit 31
-    		uint8_t opc = (instruction >> 29) & 0x03;       // extract bits 30-29
-    		uint8_t opi = (instruction >> 24) & 0x03;       // extract bits 25-24
-    		uint32_t operand = (instruction >> 5) & 0x3FFFF; // extract bits 22-5
-    		uint8_t rd = instruction & 0x1F;                // extract bits 4-0
-		data_process_immediate(sf, opc, opi, operand, rd);
-	} else if ((op0 & 0x05) == 0x05) {
-        ii	// data_processing_registers;
-	} else if ((op0 & 0x0A) == 0x02) {
-        	// loads_and_stores
-	} else if ((op0 & 0x0E) == 0x0A) {
-		// brances
-	} else {
-        	// error - unknown instructon
-    }
+static int extractBits(uint32_t n, int startIndex, int endIndex) {
+	// start/endIndex is inclusive, right-to-left starting from 0
+	int mask = (1 << (endIndex - startIndex + 1)) - 1;
+	return (n >> startIndex) & mask;
 }
+
+
+/* Decode instruction */
+static void readInstruction (uint32_t instruction) {
+	if (extractBits(instruction, 26, 28) == 0b100){
+		return data_process_immediate(instruction);
+	}else if (extractBits(instruction, 25, 27) == 0b101)
+	{
+		return DPReg;
+	}else if(extractBits(instruction, 25, 28) == 0b1100 ){
+		if (extractBits(instruction, 31,31) == 1){
+			return SDT;
+		} else {
+			return LL;
+		}
+	} else {
+		return B;
+	}
+}
+
 
 
 /* Data Processing Instructions */
 
-void data_process_immediate(uint8_t sf, uint8_t opc, uint8_t opi, uint32_t operand, uint8_t rd) {
+void data_process_immediate(uint32_t instruction) {
+	uint8_t sf  = extracBits(instruction, 31, 31);        // extract bit 31
+    	uint8_t opc = extracBits(instruction, 29, 30);       // extract bits 30-29
+    	uint8_t opi = extracBits(instruction, 24, 25);       // extract bits 25-24
+    	uint32_t operand = extracBits(instruction, 5, 22); // extract bits 22-5
+    	uint8_t rd = extracBits(instruction, 0, 4);                // extract bits 4-0
+
 	if (opi == 0x2) {
 		arithmetic_immediate(opc, operand);
 	} else if (opi == 0x5) {
