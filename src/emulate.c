@@ -132,7 +132,7 @@ int main(int argc, char **argv) {
 
     fprintf(file, "PC = %016x\n", currAddress);
 
-    fprintf(file, "PSTATE : %s%s%s%s", pstate.N ? "N" : "-", pstate.Z ? "Z" : "-", pstate.C ? "C" : "-", pstate.V ? "V" : "-");
+    fprintf(file, "PSTATE : %s%s%s%s\n", pstate.N ? "N" : "-", pstate.Z ? "Z" : "-", pstate.C ? "C" : "-", pstate.V ? "V" : "-");
 
     fclose(file);
 
