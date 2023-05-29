@@ -95,10 +95,15 @@ void update_pstate(uint64_t result, uint64_t operand1, uint64_t operand2, bool i
 void decode_instruction(uint32_t instruction) {
 	uint8_t op0 = (instruction >> 25) & 0x0F; // extract bits 28-25
 	
-	if ((op0 & 0x0E) == 0x08) {
-		// data_processing_immediate;
+	if ((op0 & 0x0E) == 0x08) { // data processing (immediate)
+		uint8_t sf  = (instruction >> 31) & 0x01;        // extract bit 31
+    		uint8_t opc = (instruction >> 29) & 0x03;       // extract bits 30-29
+    		uint8_t opi = (instruction >> 24) & 0x03;       // extract bits 25-24
+    		uint32_t operand = (instruction >> 5) & 0x3FFFF; // extract bits 22-5
+    		uint8_t rd = instruction & 0x1F;                // extract bits 4-0
+		data_process_immediate(sf, opc, opi, operand, rd);
 	} else if ((op0 & 0x05) == 0x05) {
-        	// data_processing_registers;
+        ii	// data_processing_registers;
 	} else if ((op0 & 0x0A) == 0x02) {
         	// loads_and_stores
 	} else if ((op0 & 0x0E) == 0x0A) {
@@ -111,25 +116,24 @@ void decode_instruction(uint32_t instruction) {
 
 /* Data Processing Instructions */
 
+void data_process_immediate(uint8_t sf, uint8_t opc, uint8_t opi, uint32_t operand, uint8_t rd) {
+	if (opi == 0x2) {
+		arithmetic_immediate(opc, operand);
+	} else if (opi == 0x5) {
+		wide_move_immediate(opc, operand);
+	}
+}
+
 // ADD instruction with immediate value
-void arithmetic_imm(int opc, int sf, int Rd, int Rn, int sh, uint32_t imm12) {
-
-    // Initialize operand based on imm12 and sh
-    uint64_t operand = (sh == 1) ? imm12 << 12 : imm12;
-
-    // Initialize result based on the opcode and the values of registers[Rn] and operand
-    uint64_t result;      
+void arithmetic_immediate(uint8_t opc, uint32_t operand)  {
+	uint8_t sh = (operand >> 17) & 0x01;     // extract bit 22
+	uint16_t imm12 = (operand >> 5) & 0x0FFF; // extract bits 21-10
+	uint8_t rn = operand & 0x1F;             // extract bits 9-5 
 
     switch (opc) {
-        case 0: // add
-        case 1: // adds
-            result = registers[Rn] + operand;
-            break;
-        case 2: // sub
-        case 3: // subs
-            result = registers[Rn] - operand;
-            break;
-    }
+	case 0x0:
+		
+	}
 
     // Store result in the destination register
     if (sf) {
@@ -143,6 +147,12 @@ void arithmetic_imm(int opc, int sf, int Rd, int Rn, int sh, uint32_t imm12) {
         bool is_subtraction = (opc == 2 || opc == 3);
         update_pstate(result, registers[Rn], operand, is_subtraction);
     }	
+    
+}
+
+void wide_move_immediate(uint8_t opc, uint32_t operand) {
+	uint8_t hw = (operand >> 17) & 0x03;
+	uint16_t imm16 = operand & 0xFFFF;
 }
 
 
