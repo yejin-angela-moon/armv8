@@ -109,11 +109,11 @@ static void B(uint32_t instruction) {
 		uint32_t simm26 = extractBits(instruction, 0, 25);
 		uint64_t offset = signExtension(simm26) * 4;
 		PC = PC + offset;
-	} else if (reg2 == 0x0 && reg1 == 0x3508160) {
+	} else if (reg2 == 0x0 && reg1 == 0x3587c0) {
 		//Register
 		uint8_t xn = extractBits(instruction, 5, 9);
 		PC = readRegister(xn);
-	} else if (condition2 == 0x0 && condition1 == 0x84) {
+	} else if (condition2 == 0x0 && condition1 == 0x54) {
 		//Conditional
 		uint32_t simm19 = extractBits(instruction, 5, 23);
 		uint64_t offset = signExtension(simm19) * 4;
@@ -126,11 +126,11 @@ static void B(uint32_t instruction) {
 			currAddress += offset;
 		} else if (cond == 0x7 && pstate.N != 1) {
 			currAddress += offset;
-		} else if (cond == 0x12 && pstate.Z == 0 && pstate.N == pstate.V) {
+		} else if (cond == 0xC && pstate.Z == 0 && pstate.N == pstate.V) {
 			currAddress += offset;
-		} else if (cond == 0x13 && (pstate.Z == 0 || pstate.N == pstate.V)) {
+		} else if (cond == 0xD && (pstate.Z == 0 || pstate.N == pstate.V)) {
 			currAddress += offset;
-		} else if (cond == 0x14) {
+		} else if (cond == 0xE) {
 			currAddress += offset;
 		} 
 	}
