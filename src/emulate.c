@@ -90,6 +90,7 @@ void update_pstate(uint64_t result, uint64_t operand1, uint64_t operand2, bool i
 static void DPImm(uint32_t instruction) {
     
 }
+
 static void DPReg(uint32_t instruction) {
 
 }
@@ -107,33 +108,34 @@ static uint64_t unsignedOffset(int sf, int offset, int baseRegister){
 	return readRegister(baseRegister) + ((uint64_t) offset);
 }
 
-static int indexed(int baseRegister, int simm, int i){
-	if (i == 1){
-		return readRegister(baseRegister) + 8 * simm;
-	} else {
-		return readRegister(baseRegister);
-	}
-}
-
-
 static void SDT(uint32_t instruction) {
 	int sf = extractBits(instruction, 30, 30);
 	int offset = extractBits(instruction, 10, 21);
 	int xn = extractBits(instruction, 5, 9);
 	int rt = extractBits(instruction, 5, 9);
 	uint64_t addr;
+	bool indexFlag = false;
+	int val;
 	
 	if (extractBits(instruction, 24, 24) == 1){
-		//Unsigned Immediate Offset
+		//Unsigned Immediate Offset when U = 1, addr = xn + imm12
 		addr = unsignedOffset(sf, offset, xn);
 	} else if (extractBits(instruction, 21, 21) == 0){
 		//Pre/Post-Index
+		//when i = 1 (pre indexed), addr = xn + simm9 and xn = xn + simm9
+		//when i = 0 (post indexed), addr = xn and xn = xn + simm9
 		int simm = extractBits(instruction, 12, 20);
 		int i = extractBits(instruction, 11, 11);
-		addr = indexed(xn, simm, i);
-		xn = xn + simm;
+		val = readRegister(xn) + 8 * simm;
+		if (i == 1){
+			addr = val;
+		} else {
+			addr = readRegister(xn);
+		}
+		indexFlag = true;
 	} else {
 		//Register Offset
+		//addr = xn + xm
 		int xm = extractBits(instruction, 16, 20);
 		addr = readRegister(xn) + readRegister(xm);
 	}
@@ -171,15 +173,24 @@ static void SDT(uint32_t instruction) {
 			}
 		}
 	}
+
+	if (indexFlag){
+		writeRegister(xn, val);
+	}
 }
 
 static void LL(uint32_t instruction) {
 	int simm = extractBits(instruction, 5, 23);
 	int rt = extractBits(instruction, 0, 4);
-	int64_t offset = (int64_t) (simm * 4);
-	writeRegister(rt, memory[currAddress + offset]);
+	int64_t offset = simm * 4;
 
+	if (offset & (1<<18)){
+		offset = offset | 0xFFFFFFFFFFFA0000;
+	}
+
+	writeRegister(rt, memory[currAddress + offset]);
 }
+
 static void B(uint32_t instruction) {
 
 }
