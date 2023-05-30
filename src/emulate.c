@@ -1,13 +1,11 @@
 #include <stdio.h>
-#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
 #include <stdbool.h>
 #include <stdint.h>
 
-#define NUMREGISTER 31
-#define INITIALADDR 0x0
+// ZR always returns 0. No fields needed.
 
 uint32_t currAddress; // hexadecimal address to represents PC
 
@@ -17,16 +15,6 @@ uint32_t currAddress; // hexadecimal address to represents PC
 #define NUM_REGISTERS 31
 
 uint64_t generalRegisters[NUM_REGISTERS];
-
-// Initialise memory size
-#define MEMORY_SIZE (1024 * 1024)  // 1 MiB, for example
-
-uint8_t memory[MEMORY_SIZE];  // each element represents 1 byte of memory
-// but could also be 2D array?
-
-void initialise_memory() {
-    memset(memory, 0, sizeof(memory));
-} // later
 
 typedef struct {
     bool N;
@@ -113,6 +101,7 @@ static uint64_t unsignedOffset(int sf, int offset, int baseRegister){
 	}
 	return readRegister(baseRegister) + ((uint64_t) offset);
 }
+static void DPReg(uint32_t instruction) {
 
 static void SDT(uint32_t instruction, uint32_t *memory) {
 	int sf = extractBits(instruction, 30, 30);
@@ -184,6 +173,10 @@ static void SDT(uint32_t instruction, uint32_t *memory) {
 		writeRegister(xn, val);
 	}
 }
+static void LL(uint32_t instruction) {
+
+}
+static void B(uint32_t instruction) {
 
 static void LL(uint32_t instruction) {
 	int simm = extractBits(instruction, 5, 23);
@@ -219,6 +212,59 @@ static void readInstruction (uint32_t instruction, uint32_t *memory) {
     }
 }
 
-int main(int argc, char **argv) {
-  return EXIT_SUCCESS;
+/* Decode instruction */
+static void readInstruction (uint32_t instruction) {
+    if (extractBits(instruction, 26, 28) == 0b100){
+        DPImm(instruction);
+    }else if (extractBits(instruction, 25, 27) == 0b101)
+    {
+        DPReg(instruction);
+    }else if(extractBits(instruction, 25, 28) == 0b1100 ){
+        if (extractBits(instruction, 31,31) == 1){
+            SDT(instruction);
+        } else {
+            LL(instruction);
+        }
+    } else {
+        B(instruction);
+    }
+}
+
+static void initialise() {
+    currAddress = 0;
+    memset(generalRegisters, 0, sizeof(generalRegisters));
+    pstate.C = 0;
+    pstate.N = 0;
+    pstate.V = 0;
+    pstate.Z = 0;
+}
+
+#define MEMORY_SIZE (2 * 1024 * 1024)  // 2 MiB
+
+int main() {
+    initialise();
+    uint32_t* memory = (uint32_t*)malloc(MEMORY_SIZE * sizeof(uint32_t));
+    // each element represents 1 byte of memory
+
+    FILE* inputFile = fopen("input.bin", "rb");
+    uint32_t instruction;
+    do {
+        fread(&instruction, sizeof(instruction), 1, inputFile);
+        readInstruction(instruction);
+    } while (instruction != 0x8a000000);
+
+    FILE *outputFile = fopen("emulateOutput.out", "w");
+    for (int registerIndex = 0; registerIndex < NUM_REGISTERS; registerIndex++) {
+        if (registerIndex < 10) {
+            fprintf(outputFile, "X0%d = %016lx\n", registerIndex, readRegister(registerIndex));
+        } else {
+            fprintf(outputFile, "X%d = %016lx\n", registerIndex, readRegister(registerIndex));
+        }
+    }
+    fprintf(outputFile, "PC = %016x\n", currAddress);
+    fprintf(outputFile, "PSTATE : %s%s%s%s\n", pstate.N ? "N" : "-", pstate.Z ? "Z" : "-", pstate.C ? "C" : "-", pstate.V ? "V" : "-");
+    fclose(outputFile);
+
+    free(memory);
+    return EXIT_SUCCESS;
 }
