@@ -55,21 +55,23 @@ static int extractBits(uint64_t n, int startIndex, int endIndex) {
     return (n >> startIndex) & mask;
 }
 
-void update_pstate(Pstate* pstate, uint64_t result, uint64_t rd, uint8_t rn, uint32_t op2, bool is_sub) {
+void update_pstate(uint64_t result, uint8_t rn, uint32_t op2, bool is_sub) {
 	// Update N (Negative Flag): Set to the sign bit of the result
-    	pstate->N = result & (1ULL << 31);
+    	pstate.N = result & (1ULL << 31);
 
 	// Update Z (Zero Flag): Set only when the result is all zero
-    	pstate->Z = (result == 0);
+    	pstate.Z = (result == 0);
 
 	if (is_sub) {
         	// In a subtraction, C is set to zero if the subtraction produces a borrow, otherwise it is set to one
-        	pstate->C = (rn >= op2);
+        	pstate.C = (rn >= op2);
 		
     	} else {
         	// In an addition, C is set when the addition produces a carry (unsigned overflow), or zero otherwise
-        	pstate->C = (result < rn);
+        	pstate.C = (result < rn);
     	}
+	// if we add two numbers with the same sign and the sign changes then it's overflow
+	
 
 }
 
@@ -89,7 +91,6 @@ static uint64_t unsignedOffset(int sf, int offset, int baseRegister){
 	}
 	return readRegister(baseRegister) + ((uint64_t) offset);
 }
-static void DPReg(uint32_t instruction) {}
 
 static void SDT(uint32_t instruction, uint32_t *memory) {
 	int sf = extractBits(instruction, 30, 30);
@@ -217,20 +218,22 @@ static void LL(uint32_t instruction) {
 
 /* Decode instruction */
 static void readInstruction (uint32_t instruction, uint32_t *memory) {
-    if (extractBits(instruction, 26, 28) == 0b100){
+    if (instruction == 0x3573751839) {
+	//nop
+	inc_PC();
+	return;
+    }
+    if (extractBits(instruction, 26, 28) == 0x4){
         DPImm(instruction);
-    }else if (extractBits(instruction, 25, 27) == 0b101)
-    {
+    }else if (extractBits(instruction, 25, 27) == 0x5)
+    
         DPReg(instruction);
-    }else if(extractBits(instruction, 25, 28) == 0b1100 ){
-        if (extractBits(instruction, 31,31) == 1){
+    }else if(extractBits(instruction, 25, 28) == 0xC ){
+        if (extractBits(instruction, 31,31) == 0x1){
             SDT(instruction, memory);
         } else {
             LL(instruction);
         }
-    } else if (instruction == 0x3573751839) {
-	    //nop
-	    PC = PC + 4;
     } else {
         B(instruction);
     }
