@@ -97,9 +97,147 @@ static uint64_t unsignedOffset(int sf, int offset, int baseRegister) {
 	}
 	return readRegister(baseRegister) + ((uint64_t) offset);
 }
-static void DPReg(uint32_t instruction) {
+
+
+static uint8_t bitShift(uint8_t shift, int64_t n, uint8_t operand) {
+    switch (shift) {
+        case 0:
+            //lsl
+            return n << operand;
+        case 1:
+            //lsr
+            return n >> operand;
+        case 2:
+            //asr
+            if (n < 0 && shift > 0) {
+                return (n >> shift) | ~(~0U >> shift);
+            } else {
+                return n >> shift;
+            }
+        case 3: {
+            //ror
+            int bitCount = sizeof(n) * 8; // Calculates the total number of bits for the data type
+            operand %= bitCount; // Just in case, reduce the number of rotations to a number less than bitCount
+            return (n >> operand) | (n << (bitCount - operand));
+        }
+        default: ;
+    }
+}
+
+static void arithmeticDPReg(uint8_t opc, uint8_t opr, uint8_t rd, uint8_t rn, uint8_t rm, uint8_t operand) {
+    uint8_t shift = extractBits(opr, 1, 2);
+    uint8_t op2 = bitShift(shift, rm, operand);
+    switch (opc) {
+        case 0: {
+            int result = readRegister(rn) + op2;
+            writeRegister(rd, result);
+            break;
+         }
+         case 1: {
+             int result = readRegister(rn) + op2;
+             writeRegister(rd, result);
+             update_pstate(result,  rn, op2, 0);
+             break;
+         }
+        case 2: {
+            int result = readRegister(rn) - op2;
+            writeRegister(rd, result);
+            break;
+        }
+        case 3: {
+            int result = readRegister(rn) - op2;
+            writeRegister(rd, result);
+            update_pstate(result, rn, op2, 1);
+            break;
+        }
+        default: ;
+    }
 
 }
+
+static unsigned int get_MSB(unsigned int num) {
+    unsigned int MSB = 0;
+    while (num != 0) {
+        num = num / 2;
+        MSB++;
+    }
+    return MSB;
+}
+
+static void logicalDPReg(uint8_t opc, uint8_t opr, uint8_t rd, uint8_t rn, uint8_t rm, uint8_t operand) {
+    uint8_t shift = extractBits(opr, 1, 2);
+    uint8_t op2 = bitShift(shift, rm, operand);
+    bool n = opr % 2;
+
+    if (opc == 0) {
+        if (n) {
+            writeRegister(rd, readRegister(rn) & ~op2);
+        } else {
+            writeRegister(rd, readRegister(rn) & op2);
+        }
+    } else if (opc == 1) {
+        if (n) {
+            writeRegister(rd, readRegister(rn) | ~op2);
+        } else {
+            writeRegister(rd, readRegister(rn) | op2);
+        }
+    } else if (opc == 2) {
+        if (n) {
+            writeRegister(rd, readRegister(rn) ^ op2);
+        } else {
+            writeRegister(rd, readRegister(rn) ^ ~op2);
+        }
+    } else if (opc == 3) {
+        int result;
+        if (n) {
+            result = readRegister(rn) & ~op2;
+            writeRegister(rd, result);
+        } else {
+            result = readRegister(rn) & op2;
+            writeRegister(rd, result);
+        }
+        pstate.N = get_MSB(result); // but change size of vars?
+        pstate.Z = result == 0;
+        pstate.C = 0;
+        pstate.V = 0;
+    }
+}
+
+static void multiplyDPReg(uint32_t instruction, bool sf, uint8_t rd, uint8_t rn, uint8_t rm, uint8_t operand) {
+    bool x = extractBits(operand, 5, 5);
+    uint8_t ra = extractBits(operand, 0, 4);
+
+    if (x) {
+        writeRegister(rd, readRegister(ra) + readRegister(rn) * readRegister(rm));
+    } else {
+        writeRegister(rd, readRegister(ra) - readRegister(rn) * readRegister(rm));
+    }
+}
+
+static void DPReg(uint32_t instruction) {
+    uint8_t rd = extractBits(instruction, 0, 4);
+    uint8_t rn = extractBits(instruction, 5, 9);
+    uint8_t rm = extractBits(instruction, 16, 20);
+    uint8_t operand = extractBits(instruction, 10, 15);
+    bool sf = extractBits(instruction, 31, 31);
+    uint8_t opc = extractBits(instruction, 29, 30);
+    bool m = extractBits(instruction, 28, 28);
+    uint8_t opr = extractBits(instruction, 21, 24);
+
+    if (m == 1) {
+        multiplyDPReg(instruction, sf, rd, rn, rm, operand);
+    } else {
+        if (extractBits(opr, 4, 4)) {
+            arithmeticDPReg(opc, opr, rd, rn, rm, operand);
+        } else {
+            logicalDPReg(opc, opr, rd, rn, rm, operand);
+        }
+    }
+}
+
+// haven't implemented sf (64 vs 32-bit mode for registers)
+
+
 
 static void SDT(uint32_t instruction, uint32_t *memory) {
 	int sf = extractBits(instruction, 30, 30);
@@ -171,9 +309,7 @@ static void SDT(uint32_t instruction, uint32_t *memory) {
 		writeRegister(xn, val);
 	}
 }
-static void LL(uint32_t instruction) {
 
-}
 static void B(uint32_t instruction) {
     
 }
