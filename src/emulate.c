@@ -119,7 +119,17 @@ static void readInstruction (uint32_t instruction) {
     }
 }
 
-int main(int argc, char **argv) {
+static void initialise() {
+    currAddress = 0;
+    memset(generalRegisters, 0, sizeof(generalRegisters));
+    pstate.C = 0;
+    pstate.N = 0;
+    pstate.V = 0;
+    pstate.Z = 0;
+}
+
+int main() {
+    initialise();
 
     FILE* inputFile = fopen("input.bin", "rb");
     uint32_t instruction;
