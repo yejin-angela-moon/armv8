@@ -16,16 +16,6 @@ uint32_t currAddress; // hexadecimal address to represents PC
 
 uint64_t generalRegisters[NUM_REGISTERS];
 
-// Initialise memory size
-#define MEMORY_SIZE (1024 * 1024)  // 1 MiB, for example
-
-uint8_t memory[MEMORY_SIZE];  // each element represents 1 byte of memory
-// but could also be 2D array?
-
-void initialise_memory() {
-    memset(memory, 0, sizeof(memory));
-} // later
-
 typedef struct {
     bool N;
     bool Z;
@@ -128,8 +118,12 @@ static void initialise() {
     pstate.Z = 0;
 }
 
+#define MEMORY_SIZE (2 * 1024 * 1024)  // 2 MiB
+
 int main() {
     initialise();
+    uint32_t* memory = (uint32_t*)malloc(MEMORY_SIZE * sizeof(uint32_t));
+    // each element represents 1 byte of memory
 
     FILE* inputFile = fopen("input.bin", "rb");
     uint32_t instruction;
@@ -150,5 +144,6 @@ int main() {
     fprintf(outputFile, "PSTATE : %s%s%s%s\n", pstate.N ? "N" : "-", pstate.Z ? "Z" : "-", pstate.C ? "C" : "-", pstate.V ? "V" : "-");
     fclose(outputFile);
 
+    free(memory);
     return EXIT_SUCCESS;
 }
