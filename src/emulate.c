@@ -85,11 +85,7 @@ static void DPImm(uint32_t instruction) {
     
 }
 
-static void DPReg(uint32_t instruction) {
-
-}
-
-static uint64_t unsignedOffset(int sf, int offset, int baseRegister){
+static uint64_t unsignedOffset(int sf, int offset, int baseRegister) {
 	if (sf == 1){
 		if (offset % 8 != 0 || offset > 32760){
 			return 0;
@@ -102,6 +98,8 @@ static uint64_t unsignedOffset(int sf, int offset, int baseRegister){
 	return readRegister(baseRegister) + ((uint64_t) offset);
 }
 static void DPReg(uint32_t instruction) {
+
+}
 
 static void SDT(uint32_t instruction, uint32_t *memory) {
 	int sf = extractBits(instruction, 30, 30);
@@ -177,6 +175,8 @@ static void LL(uint32_t instruction) {
 
 }
 static void B(uint32_t instruction) {
+    
+}
 
 static void LL(uint32_t instruction) {
 	int simm = extractBits(instruction, 5, 23);
@@ -204,24 +204,6 @@ static void readInstruction (uint32_t instruction, uint32_t *memory) {
     }else if(extractBits(instruction, 25, 28) == 0b1100 ){
         if (extractBits(instruction, 31,31) == 1){
             SDT(instruction, memory);
-        } else {
-            LL(instruction);
-        }
-    } else {
-        B(instruction);
-    }
-}
-
-/* Decode instruction */
-static void readInstruction (uint32_t instruction) {
-    if (extractBits(instruction, 26, 28) == 0b100){
-        DPImm(instruction);
-    }else if (extractBits(instruction, 25, 27) == 0b101)
-    {
-        DPReg(instruction);
-    }else if(extractBits(instruction, 25, 28) == 0b1100 ){
-        if (extractBits(instruction, 31,31) == 1){
-            SDT(instruction);
         } else {
             LL(instruction);
         }
