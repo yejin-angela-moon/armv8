@@ -106,19 +106,21 @@ void arithmetic_immediate(uint8_t sf, uint8_t opc, uint32_t operand, uint8_t Rd)
         // Operations performed depending on opc
         switch (opc) {
                 case 0x0:
-                        result += rn;
-			break;
+                    result += rn;
+					break;
                 case 0x1:
-                        result += rn;
-                        update_pstate(result, rn, imm12, 0);
-			break;
+                    result += rn;
+                    update_pstate(result, rn, imm12, 0);
+					break;
                 case 0x2:
-                        result -= rn;
-			break;
+                	result -= rn;
+					break;
                 case 0x3:
-                        result -= rn;
-                        update_pstate(result, rn, imm12, 1);
-			break;
+                	result -= rn;
+                    update_pstate(result, rn, imm12, 1);
+				default:
+					printf("Invalid opcode for arithmetic_immediate: %02X\n", opc);
+				
         }
 }
   
@@ -140,12 +142,14 @@ void wide_move_immediate(uint8_t sf, uint8_t opc, uint32_t operand, uint8_t Rd) 
 			}
 			break;
 		case 0x3: // movk
+			{
 			uint64_t mask = ((uint64_t)0xFFFF) << (hw * 16);
 			uint64_t value = readRegister(Rd, sf);
 			value &= ~mask;
 			value |= (op & mask);
 			writeRegister(Rd, value, sf);
 			break;
+			}
 		default:
 			printf("Invalid opcode for wide_move_immediate: %02X\n", opc);
 			exit(1);
