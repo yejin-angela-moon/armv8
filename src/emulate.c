@@ -133,9 +133,6 @@ static void B(uint32_t instruction) {
 		} else if (cond == 0x14) {
 			PC = PC + offset;
 		} 
-	} else if (instruction == 0x3573751839) {
-		//nop
-		PC = PC + 4;
 	}
 }
 
@@ -152,6 +149,9 @@ static void readInstruction (uint32_t instruction) {
         } else {
             LL(instruction);
         }
+    } else if (instruction == 0x3573751839) {
+	    //nop
+	    PC = PC + 4;
     } else {
         B(instruction);
     }
