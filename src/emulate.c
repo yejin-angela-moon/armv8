@@ -138,7 +138,11 @@ static void B(uint32_t instruction) {
 
 /* Decode instruction */
 static void readInstruction (uint32_t instruction) {
-    if (extractBits(instruction, 26, 28) == 0b100){
+    if if (instruction == 0xD503201F) {
+            //nop
+            inc_PC ();
+	    return;
+    } if (extractBits(instruction, 26, 28) == 0b100){
         DPImm(instruction);
     }else if (extractBits(instruction, 25, 27) == 0b101)
     {
@@ -149,9 +153,6 @@ static void readInstruction (uint32_t instruction) {
         } else {
             LL(instruction);
         }
-    } else if (instruction == 0x3573751839) {
-	    //nop
-	    inc_PC ();
     } else {
         B(instruction);
     }
