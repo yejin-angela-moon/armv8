@@ -75,6 +75,58 @@ void update_pstate(uint64_t result, uint8_t rn, uint32_t op2, bool is_sub) {
 
 }
 
+void arithmetic_immediate(uint8_t sf, uint8_t opc, uint32_t operand, uint8_t Rd)  {
+          uint8_t sh = (operand >> 17) & 0x01;     // extract bit 22
+          uint16_t imm12 = (operand >> 5) & 0x0FFF; // extract bits 21-10
+          uint8_t rn = operand & 0x1F;             // extract bits 9-5 
+          uint64_t result;
+  
+          // Store result in the destination register
+          if (sf) {
+                  imm12 <<= 12;
+                  generalRegisters[Rd] = result;  // 64-bit
+  
+          } else {
+                  generalRegisters[Rd] = (uint32_t)result;  // 32-bit
+          }
+  
+          // Operations performed depending on opc
+          switch (opc) {
+                  case 0x0:
+                          result += rn;
+                  case 0x1:
+                          result += rn;
+                          update_pstate(result, rn, imm12, 0);
+                  case 0x2:
+                          result -= rn;
+                  case 0x3:
+                          result -= rn;
+                          update_pstate(result, rn, imm12, 1);
+          }
+  
+  }
+  
+void wide_move_immediate(uint8_t sf, uint8_t opc, uint32_t operand) {
+            uint8_t hw = (operand >> 17) & 0x03;
+            uint16_t imm16 = operand & 0xFFFF;
+    }
+  
+static void DPImm(uint32_t instruction) {
+          uint8_t sf  = extractBits(instruction, 31, 31);        // extract bit 31
+          uint8_t opc = extractBits(instruction, 29, 30);       // extract bits 30-29
+          uint8_t opi = extractBits(instruction, 24, 25);       // extract bits 25-24
+          uint32_t operand = extractBits(instruction, 5, 22); // extract bits 22-5
+          uint8_t rd = extractBits(instruction, 0, 4);                // extract bits 4-0
+  
+          if (opi == 0x2) {
+                  arithmetic_immediate(sf, opc, operand, rd);
+          } else if (opi == 0x5) {
+                  wide_move_immediate(sf, opc, operand);
+          }
+  }
+
+
+
 static void DPReg(uint32_t instruction) {
 
 }
@@ -92,11 +144,11 @@ static uint64_t unsignedOffset(int sf, int offset, int baseRegister){
 	return readRegister(baseRegister) + ((uint64_t) offset);
 }
 
-static void SDT(uint32_t instruction, uint32_t *memory) {
+static void SDT(uint32_t instruction, uint64_t *memory) {
 	int sf = extractBits(instruction, 30, 30);
 	int offset = extractBits(instruction, 10, 21);
 	int xn = extractBits(instruction, 5, 9);
-	int rt = extractBits(instruction, 5, 9);
+	int rt = extractBits(instruction, 0, 4);
 	uint64_t addr;
 	bool indexFlag = false;
 	int val;
@@ -175,11 +227,11 @@ static void B(uint32_t instruction) {
 		//Unconditional
 		uint32_t simm26 = extractBits(instruction, 0, 25);
 		uint64_t offset = signExtension(simm26) * 4;
-		PC = PC + offset;
+		currAddress += offset;
 	} else if (reg2 == 0x0 && reg1 == 0x3587c0) {
 		//Register
 		uint8_t xn = extractBits(instruction, 5, 9);
-		PC = readRegister(xn);
+		currAddress = readRegister(xn);
 	} else if (condition2 == 0x0 && condition1 == 0x54) {
 		//Conditional
 		uint32_t simm19 = extractBits(instruction, 5, 23);
@@ -203,7 +255,7 @@ static void B(uint32_t instruction) {
 	}
 }
 
-static void LL(uint32_t instruction) {
+static void LL(uint32_t instruction, uint64_t *memory) {
 	int simm = extractBits(instruction, 5, 23);
 	int rt = extractBits(instruction, 0, 4);
 	int64_t offset = simm * 4;
@@ -212,12 +264,12 @@ static void LL(uint32_t instruction) {
 		offset = offset | 0xFFFFFFFFFFFA0000;
 	}
 
-	writeRegister(rt, memory[currAddress + offset]);
+	writeRegister(rt, *(memory + currAddress + offset));
 }
 
 
 /* Decode instruction */
-static void readInstruction (uint32_t instruction, uint32_t *memory) {
+static void readInstruction (uint32_t instruction, uint64_t *memory) {
     if (instruction == 0xD503201F) {
 	//nop
 	inc_PC();
@@ -225,71 +277,20 @@ static void readInstruction (uint32_t instruction, uint32_t *memory) {
     }
     if (extractBits(instruction, 26, 28) == 0x4){
         DPImm(instruction);
-    }else if (extractBits(instruction, 25, 27) == 0x5)
+    } else if (extractBits(instruction, 25, 27) == 0x5) {
     
         DPReg(instruction);
-    }else if(extractBits(instruction, 25, 28) == 0xC ){
+    } else if(extractBits(instruction, 25, 28) == 0xC ){
         if (extractBits(instruction, 31,31) == 0x1){
             SDT(instruction, memory);
         } else {
-            LL(instruction);
+            LL(instruction, memory);
         }
     } else {
         B(instruction);
     }
 }
 
-/* Data Processing Instructions */
-
-void arithmetic_immediate(uint8_t sf, uint8_t opc, uint32_t operand, uint8_t Rd)  {
-	uint8_t sh = (operand >> 17) & 0x01;     // extract bit 22
-        uint16_t imm12 = (operand >> 5) & 0x0FFF; // extract bits 21-10
-        uint8_t rn = operand & 0x1F;             // extract bits 9-5 
-	uint64_t result;
-	
-	// Store result in the destination register
-      	if (sf) {
-		imm12 <<= 12;
-        	generalRegisters[Rd] = result;  // 64-bit
-	
-      	} else {
-        	generalRegisters[Rd] = (uint32_t)result;  // 32-bit
-      	}
-  
-      	// Operations performed depending on opc
-      	switch (opc) {
-		case 0x0:
-	  		result += rn;
-		case 0x1:
-			result += rn;
-			update_pstate(&pstate, result,  Rd, rn, imm12, 0);
-		case 0x2:
-			result -= rn;
-		case 0x3:
-			result -= rn;
-			update_pstate(&pstate, result, Rd, rn, imm12, 1);
-	}
-  
-}
-  
-void wide_move_immediate(uint8_t sf, uint8_t opc, uint32_t operand) {
-          uint8_t hw = (operand >> 17) & 0x03;
-          uint16_t imm16 = operand & 0xFFFF;
-  }
-
-void data_process_immediate(uint32_t instruction) {
-	uint8_t sf  = extractBits(instruction, 31, 31);        // extract bit 31
-    	uint8_t opc = extractBits(instruction, 29, 30);       // extract bits 30-29
-    	uint8_t opi = extractBits(instruction, 24, 25);       // extract bits 25-24
-    	uint32_t operand = extractBits(instruction, 5, 22); // extract bits 22-5
-    	uint8_t rd = extractBits(instruction, 0, 4);                // extract bits 4-0
-
-	if (opi == 0x2) {
-		arithmetic_immediate(sf, opc, operand, rd);
-	} else if (opi == 0x5) {
-		wide_move_immediate(sf, opc, operand);
-	}
-}
 
 static void initialise() {
     currAddress = 0;
@@ -304,14 +305,14 @@ static void initialise() {
 
 int main() {
     initialise();
-    uint32_t* memory = (uint32_t*)malloc(MEMORY_SIZE * sizeof(uint32_t));
+    uint64_t* memory = (uint64_t*)malloc(MEMORY_SIZE * sizeof(uint64_t));
     // each element represents 1 byte of memory
 
     FILE* inputFile = fopen("input.bin", "rb");
     uint32_t instruction;
     do {
         fread(&instruction, sizeof(instruction), 1, inputFile);
-        readInstruction(instruction);
+        readInstruction(instruction, memory);
     } while (instruction != 0x8a000000);
 
     FILE *outputFile = fopen("emulateOutput.out", "w");
