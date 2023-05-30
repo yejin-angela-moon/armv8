@@ -14,7 +14,7 @@ uint32_t currAddress; // hexadecimal address to represents PC
 // Initialise number of registers
 #define NUM_REGISTERS 31
 
-uint64_t generalRegisters[NUM_REGISTERS];
+int64_t generalRegisters[NUM_REGISTERS];
 
 typedef struct {
     bool N;
@@ -31,7 +31,7 @@ static void inc_PC (){
     currAddress += 4;
 }
 
-static uint64_t readRegister (int registerIndex) {
+static uint64_t readRegister (uint8_t registerIndex) {
     // registerIndex = 11111 (bin) -> reading from ZR
     if (registerIndex == 31) {
         return 0;
@@ -39,7 +39,7 @@ static uint64_t readRegister (int registerIndex) {
     return generalRegisters[registerIndex];
 }
 
-static void writeRegister (int registerIndex, int newValue) {
+static void writeRegister (uint8_t registerIndex, int64_t newValue) {
     // registerIndex = 11111 (bin) -> writing to ZR
     if (registerIndex == 31) {
         return;
@@ -47,7 +47,7 @@ static void writeRegister (int registerIndex, int newValue) {
     generalRegisters[registerIndex] = newValue;
 }
 
-static int extractBits(uint64_t n, int startIndex, int endIndex) {
+static uint64_t extractBits(uint64_t n, uint8_t startIndex, uint8_t endIndex) {
     // start/endIndex is inclusive, right-to-left starting from 0
     int mask = (1 << (endIndex - startIndex + 1)) - 1;
     return (n >> startIndex) & mask;
