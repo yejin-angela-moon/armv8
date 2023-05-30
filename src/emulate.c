@@ -122,9 +122,35 @@ void arithmetic_immediate(uint8_t sf, uint8_t opc, uint32_t operand, uint8_t Rd)
         }
 }
   
-void wide_move_immediate(uint8_t sf, uint8_t opc, uint32_t operand) {
-        //    uint8_t hw = (operand >> 17) & 0x03;
-          //  uint16_t imm16 = operand & 0xFFFF;
+void wide_move_immediate(uint8_t sf, uint8_t opc, uint32_t operand, uint8_t Rd) {
+	uint8_t hw = (operand >> 17) & 0x03;
+        uint16_t imm16 = operand & 0xFFFF;
+
+	uint64_t op = ((uint64_t)imm16) << (hw * 16); // calculate op
+
+	switch (opc) {
+		case 0x0: // movz
+			writeRegister(Rd, op, sf);
+			break;
+		case 0x2: // movn
+			if (sf) {
+				writeRegister(Rd, ~op, sf);
+			} else {
+				writeRegister(Rd, ~((uint32_t)op), sf);
+			}
+			break;
+		case 0x3: // movk
+			uint64_t mask = ((uint64_t)0xFFFF) << (hw * 16);
+			uint64_t value = readRegister(Rd, sf);
+			value &= ~mask;
+			value |= (op & mask);
+			writeRegister(Rd, value, sf);
+			break;
+		default:
+			printf("Invalid opcode for wide_move_immediate: %02X\n", opc);
+			exit(1);
+	}
+		
 	
     }
   
@@ -138,7 +164,7 @@ static void DPImm(uint32_t instruction) {
           if (opi == 0x2) {
                   arithmetic_immediate(sf, opc, operand, rd);
           } else if (opi == 0x5) {
-                  wide_move_immediate(sf, opc, operand);
+                  wide_move_immediate(sf, opc, operand, rd);
           }
   }
 
