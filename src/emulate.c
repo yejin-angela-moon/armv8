@@ -119,19 +119,19 @@ static void B(uint32_t instruction) {
 		uint64_t offset = signExtension(simm19) * 4;
 		uint8_t cond = extractBits(instruction, 0, 3);
 		if (cond == 0x0 && pstate.Z == 1) {
-			PC = PC + offset;
+			currAddress += offset;
 		} else if (cond == 0x1 && pstate.Z == 0) {
-			PC = PC + offset;
+			currAddress += offset;
 		} else if (cond == 0x6 && pstate.N == 1) {
-			PC = PC + offset;
+			currAddress += offset;
 		} else if (cond == 0x7 && pstate.N != 1) {
-			PC = PC + offset;
+			currAddress += offset;
 		} else if (cond == 0x12 && pstate.Z == 0 && pstate.N == pstate.V) {
-			PC = PC + offset;
+			currAddress += offset;
 		} else if (cond == 0x13 && (pstate.Z == 0 || pstate.N == pstate.V)) {
-			PC = PC + offset;
+			currAddress += offset;
 		} else if (cond == 0x14) {
-			PC = PC + offset;
+			currAddress += offset;
 		} 
 	}
 }
@@ -151,7 +151,7 @@ static void readInstruction (uint32_t instruction) {
         }
     } else if (instruction == 0x3573751839) {
 	    //nop
-	    PC = PC + 4;
+	    inc_PC ();
     } else {
         B(instruction);
     }
