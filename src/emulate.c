@@ -79,35 +79,37 @@ void update_pstate(uint64_t result, uint64_t operand1, uint64_t operand2, bool i
 
 
 void arithmetic_immediate(uint8_t sf, uint8_t opc, uint32_t operand, uint8_t Rd)  {
-          uint8_t sh = (operand >> 17) & 0x01;     // extract bit 22
-          uint16_t imm12 = (operand >> 5) & 0x0FFF; // extract bits 21-10
-          uint8_t rn = operand & 0x1F;             // extract bits 9-5 
-          uint64_t result = 0;
+	uint8_t sh = (operand >> 17) & 0x01;     // extract bit 22
+        uint16_t imm12 = (operand >> 5) & 0x0FFF; // extract bits 21-10
+        uint8_t rn = operand & 0x1F;             // extract bits 9-5 
+        uint64_t result = 0;
   
-          // Store result in the destination register
-          if (sh) {
-                  imm12 <<= 12;
-                  writeRegister(Rd, result);  // 64-bit
+        // Store result in the destination register
+        if (sh) {
+                imm12 <<= 12;
+                writeRegister(Rd, result);  // 64-bit
+        } else {
+                generalRegisters[Rd] = (uint32_t)result;  // 32-bit
+        }
   
-          } else {
-                  generalRegisters[Rd] = (uint32_t)result;  // 32-bit
-          }
-  
-          // Operations performed depending on opc
-          switch (opc) {
-                  case 0x0:
-                          result += rn;
-                  case 0x1:
-                          result += rn;
-                          update_pstate(result, rn, imm12, 0);
-                  case 0x2:
-                          result -= rn;
-                  case 0x3:
-                          result -= rn;
-                          update_pstate(result, rn, imm12, 1);
-          }
-  
-  }
+        // Operations performed depending on opc
+        switch (opc) {
+                case 0x0:
+                        result += rn;
+			break;
+                case 0x1:
+                        result += rn;
+                        update_pstate(result, rn, imm12, 0);
+			break;
+                case 0x2:
+                        result -= rn;
+			break;
+                case 0x3:
+                        result -= rn;
+                        update_pstate(result, rn, imm12, 1);
+			break;
+        }
+}
   
 void wide_move_immediate(uint8_t sf, uint8_t opc, uint32_t operand) {
         //    uint8_t hw = (operand >> 17) & 0x03;
