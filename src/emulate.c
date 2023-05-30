@@ -33,21 +33,32 @@ static void inc_PC (){
     currAddress += 4;
 }
 
-static uint64_t readRegister (int registerIndex) {
-    // registerIndex = 11111 (bin) -> reading from ZR
-    if (registerIndex == 31) {
-        return 0;
-    }
-    return generalRegisters[registerIndex];
-}
-
-static void writeRegister (int registerIndex, int newValue) {
-    // registerIndex = 11111 (bin) -> writing to ZR
+static void writeRegister (int registerIndex, uint64_t newValue, uint8_t sf) {
     if (registerIndex == 31) {
         return;
     }
-    generalRegisters[registerIndex] = newValue;
+    if (sf == 0) {
+        // Write to W-register: zero out the upper 32 bits
+        generalRegisters[registerIndex] = newValue & 0xFFFFFFFF;
+    } else {
+        // Write to X-register: use the whole 64-bit value
+        generalRegisters[registerIndex] = newValue;
+    }
 }
+
+static uint64_t readRegister (int registerIndex, uint8_t sf) {
+    if (registerIndex == 31) {
+        return 0;
+    }
+    if (sf == 0) {
+        // Read from W-register: return only the lower 32 bits
+        return generalRegisters[registerIndex] & 0xFFFFFFFF;
+    } else {
+        // Read from X-register: return the whole 64-bit value
+        return generalRegisters[registerIndex];
+    }
+}
+
 
 static int extractBits(uint64_t n, int startIndex, int endIndex) {
     // start/endIndex is inclusive, right-to-left starting from 0
@@ -87,7 +98,7 @@ void arithmetic_immediate(uint8_t sf, uint8_t opc, uint32_t operand, uint8_t Rd)
         // Store result in the destination register
         if (sh) {
                 imm12 <<= 12;
-                writeRegister(Rd, result);  // 64-bit
+                writeRegister(Rd, result, sf);  // 64-bit
         } else {
                 generalRegisters[Rd] = (uint32_t)result;  // 32-bit
         }
@@ -147,7 +158,7 @@ static uint64_t unsignedOffset(int sf, int offset, int baseRegister){
 			return 0;
 		}
 	}
-	return readRegister(baseRegister) + ((uint64_t) offset);
+	return readRegister(baseRegister, sf) + ((uint64_t) offset);
 }
 
 static void SDT(uint32_t instruction, uint64_t *memory) {
@@ -168,18 +179,18 @@ static void SDT(uint32_t instruction, uint64_t *memory) {
 		//when i = 0 (post indexed), addr = xn and xn = xn + simm9
 		int simm = extractBits(instruction, 12, 20);
 		int i = extractBits(instruction, 11, 11);
-		val = readRegister(xn) + simm;
+		val = readRegister(xn, sf) + simm;
 		if (i == 1){
 			addr = val;
 		} else {
-			addr = readRegister(xn);
+			addr = readRegister(xn, sf);
 		}
 		indexFlag = true;
 	} else {
 		//Register Offset
 		//addr = xn + xm
 		int xm = extractBits(instruction, 16, 20);
-		addr = readRegister(xn) + readRegister(xm);
+		addr = readRegister(xn, sf) + readRegister(xm, sf);
 	}
 	
 	if (extractBits(instruction, 30, 30) == 1){
@@ -190,10 +201,10 @@ static void SDT(uint32_t instruction, uint64_t *memory) {
 				wt = wt | ((uint32_t) *(memory + (addr + i))) << 8*i;
 			}
 
-			writeRegister(rt, wt);
+			writeRegister(rt, wt, sf);
 		}else{
 			//store operation
-			uint32_t wt = (uint32_t) readRegister(rt);
+			uint32_t wt = (uint32_t) readRegister(rt, sf);
 			for (int i = 0; i < 3; i++){
 				*(memory + (addr + i)) = extractBits(wt, 8*i + 7,8*i);
 			} 
@@ -206,10 +217,10 @@ static void SDT(uint32_t instruction, uint64_t *memory) {
 				xt = xt | ((uint64_t) *(memory + (addr + i))) << 8*i;
 			}
 
-			writeRegister(rt, xt);
+			writeRegister(rt, xt, sf);
 		}else{
 			//store operation
-			uint64_t xt = (uint64_t) readRegister(rt);
+			uint64_t xt = (uint64_t) readRegister(rt, sf);
 			for (int i = 0; i < 7; i++) {
 				*(memory + (addr + i)) = extractBits(xt, 8*i + 7,8*i);
 			}
@@ -217,7 +228,7 @@ static void SDT(uint32_t instruction, uint64_t *memory) {
 	}
 
 	if (indexFlag){
-		writeRegister(xn, val);
+		writeRegister(xn, val, sf);
 	}
 }
 
@@ -237,7 +248,7 @@ static void B(uint32_t instruction) {
 	} else if (reg2 == 0x0 && reg1 == 0x3587c0) {
 		//Register
 		uint8_t xn = extractBits(instruction, 5, 9);
-		currAddress = readRegister(xn);
+		currAddress = readRegister(xn, 0);
 	} else if (condition2 == 0x0 && condition1 == 0x54) {
 		//Conditional
 		uint32_t simm19 = extractBits(instruction, 5, 23);
@@ -270,7 +281,7 @@ static void LL(uint32_t instruction, uint64_t *memory) {
 		offset = offset | 0xFFFFFFFFFFFA0000;
 	}
 
-	writeRegister(rt, *(memory + currAddress + offset));
+	writeRegister(rt, *(memory + currAddress + offset), 0);
 }
 
 
@@ -324,9 +335,9 @@ int main() {
     FILE *outputFile = fopen("emulateOutput.out", "w");
     for (int registerIndex = 0; registerIndex < NUM_REGISTERS; registerIndex++) {
         if (registerIndex < 10) {
-            fprintf(outputFile, "X0%d = %016lx\n", registerIndex, readRegister(registerIndex));
+            fprintf(outputFile, "X0%d = %016lx\n", registerIndex, readRegister(registerIndex, 0));
         } else {
-            fprintf(outputFile, "X%d = %016lx\n", registerIndex, readRegister(registerIndex));
+            fprintf(outputFile, "X%d = %016lx\n", registerIndex, readRegister(registerIndex, 0));
         }
     }
     fprintf(outputFile, "PC = %016x\n", currAddress);
