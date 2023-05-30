@@ -87,6 +87,12 @@ void update_pstate(uint64_t result, uint64_t operand1, uint64_t operand2, bool i
     }
 }
 
+void wide_move_immediate(uint8_t sf, uint8_t opc, uint32_t operand) {
+    uint8_t hw = extract;
+    uint16_t imm16 = operand & 0xFFFF;
+}
+
+
 static void DPImm(uint32_t instruction) {
     
 }
@@ -108,7 +114,7 @@ static uint64_t unsignedOffset(int sf, int offset, int baseRegister){
 	return readRegister(baseRegister) + ((uint64_t) offset);
 }
 
-static void SDT(uint32_t instruction) {
+static void SDT(uint32_t instruction, uint32_t *memory) {
 	int sf = extractBits(instruction, 30, 30);
 	int offset = extractBits(instruction, 10, 21);
 	int xn = extractBits(instruction, 5, 9);
@@ -126,7 +132,7 @@ static void SDT(uint32_t instruction) {
 		//when i = 0 (post indexed), addr = xn and xn = xn + simm9
 		int simm = extractBits(instruction, 12, 20);
 		int i = extractBits(instruction, 11, 11);
-		val = readRegister(xn) + 8 * simm;
+		val = readRegister(xn) + simm;
 		if (i == 1){
 			addr = val;
 		} else {
@@ -145,7 +151,7 @@ static void SDT(uint32_t instruction) {
 			//load operation
 			uint32_t wt;
 			for (int i = 0; i < 3; i++){
-				wt = wt | ((uint32_t) memory[addr + i]) << 8*i;
+				wt = wt | ((uint32_t) *(memory + (addr + i))) << 8*i;
 			}
 
 			writeRegister(rt, wt);
@@ -153,7 +159,7 @@ static void SDT(uint32_t instruction) {
 			//store operation
 			uint32_t wt = (uint32_t) readRegister(rt);
 			for (int i = 0; i < 3; i++){
-				memory[addr + i] = extractBits(wt, 8*i + 7,8*i);
+				*(memory + (addr + i)) = extractBits(wt, 8*i + 7,8*i);
 			} 
 		}
 	} else {
@@ -161,7 +167,7 @@ static void SDT(uint32_t instruction) {
 			//load operation
 			uint64_t xt;
 			for (int i = 0; i < 7; i++){
-				xt = xt | ((uint64_t) memory[addr + i]) << 8*i;
+				xt = xt | ((uint64_t) *(memory + (addr + i))) << 8*i;
 			}
 
 			writeRegister(rt, xt);
@@ -169,7 +175,7 @@ static void SDT(uint32_t instruction) {
 			//store operation
 			uint64_t xt = (uint64_t) readRegister(rt);
 			for (int i = 0; i < 7; i++) {
-				memory[addr + i] = extractBits(xt, 8*i + 7,8*i);
+				*(memory + (addr + i)) = extractBits(xt, 8*i + 7,8*i);
 			}
 		}
 	}
@@ -196,7 +202,7 @@ static void B(uint32_t instruction) {
 }
 
 /* Decode instruction */
-static void readInstruction (uint32_t instruction) {
+static void readInstruction (uint32_t instruction, uint32_t *memory) {
     if (extractBits(instruction, 26, 28) == 0b100){
         DPImm(instruction);
     }else if (extractBits(instruction, 25, 27) == 0b101)
@@ -204,7 +210,7 @@ static void readInstruction (uint32_t instruction) {
         DPReg(instruction);
     }else if(extractBits(instruction, 25, 28) == 0b1100 ){
         if (extractBits(instruction, 31,31) == 1){
-            SDT(instruction);
+            SDT(instruction, memory);
         } else {
             LL(instruction);
         }
