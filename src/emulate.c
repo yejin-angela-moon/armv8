@@ -131,7 +131,7 @@ static uint8_t bitShift(uint8_t shift, int64_t n, uint8_t operand) {
             operand %= bitCount; // Just in case, reduce the number of rotations to a number less than bitCount
             return (n >> operand) | (n << (bitCount - operand));
         }
-        default: ;
+        default: return 0;
     }
 }
 
