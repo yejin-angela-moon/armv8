@@ -32,7 +32,7 @@ static void inc_PC (){
 }
 
 
-static void writeRegister (int registerIndex, uint64_t newValue, bool sf) {
+static void writeRegister (uint8_t registerIndex, uint64_t newValue, bool sf) {
     if (registerIndex == 31) {
         return;
     }
@@ -45,7 +45,7 @@ static void writeRegister (int registerIndex, uint64_t newValue, bool sf) {
     }
 }
 
-static uint64_t readRegister (int registerIndex, bool sf) {
+static uint64_t readRegister (uint8_t registerIndex, bool sf) {
     if (registerIndex == 31) {
         return 0;
     }
@@ -177,7 +177,7 @@ static unsigned int get_MSB(unsigned int num) {
 
 static void logicalDPReg(uint8_t opc, uint8_t opr, uint8_t rd, uint8_t rn, uint8_t rm, uint8_t operand, bool sf) {
     uint8_t shift = extractBits(opr, 1, 2);
-    uint8_t op2 = bitShift(shift, rm, operand);
+    uint64_t op2 = bitShift(shift, rm, operand);
     bool n = opr % 2;
 
     if (opc == 0) {
@@ -207,7 +207,7 @@ static void logicalDPReg(uint8_t opc, uint8_t opr, uint8_t rd, uint8_t rn, uint8
             result = readRegister(rn, sf) & op2;
             writeRegister(rd, result, sf);
         }
-        pstate.N = get_MSB(result); // but change size of vars?
+        pstate.N = get_MSB(result);
         pstate.Z = result == 0;
         pstate.C = 0;
         pstate.V = 0;
@@ -245,10 +245,6 @@ static void DPReg(uint32_t instruction) {
         }
     }
 }
-
-// haven't implemented sf (64 vs 32-bit mode for registers)
-
-
 
 static void SDT(uint32_t instruction, uint32_t *memory) {
     bool sf = extractBits(instruction, 30, 30);
