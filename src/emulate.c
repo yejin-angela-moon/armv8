@@ -372,19 +372,19 @@ static void initialise() {
 
 #define MEMORY_SIZE (2 * 1024 * 1024)  // 2 MiB
 
-int main() {
+int main(int argc, char* argv[]) {
     initialise();
-    uint32_t* memory = (uint32_t*)malloc(MEMORY_SIZE * sizeof(uint32_t));
+    uint32_t* memory = (uint32_t*)calloc(MEMORY_SIZE, sizeof(uint32_t));
     // each element represents 1 byte of memory
 
-    FILE* inputFile = fopen("input.bin", "rb");
+    FILE* inputFile = fopen(argv[0], "rb");;
     uint32_t instruction;
     do {
         fread(&instruction, sizeof(instruction), 1, inputFile);
-        readInstruction(instruction, 1);
+        readInstruction(instruction, memory);
     } while (instruction != 0x8a000000);
 
-    FILE *outputFile = fopen("emulateOutput.out", "w");
+    FILE *outputFile = fopen(argv[1], "w");
     for (int registerIndex = 0; registerIndex < NUM_REGISTERS; registerIndex++) {
         if (registerIndex < 10) {
             fprintf(outputFile, "X0%d = %016lx\n", registerIndex, readRegister(registerIndex, 1));
