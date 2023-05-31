@@ -178,65 +178,50 @@ static void DPReg(uint32_t instruction) {
 
 }
 
-static uint64_t unsignedOffset(int sf, int offset, int baseRegister){
-	if (sf == 1){
-		if (offset % 8 != 0 || offset > 32760){
-			return 0;
-		}
-	} else{
-		if (offset % 4 != 0 || offset > 16380){
-			return 0;
-		}
-	}
-	return readRegister(baseRegister, sf) + ((uint64_t) offset);
-}
-
-static void SDT(uint32_t instruction, uint64_t *memory) {
+static void SDT(uint32_t instruction, uint64_t* memory) {
 	int sf = extractBits(instruction, 30, 30);
 	int offset = extractBits(instruction, 10, 21);
 	int xn = extractBits(instruction, 5, 9);
 	int rt = extractBits(instruction, 0, 4);
-	uint64_t addr;
+	uint32_t addr;
 	bool indexFlag = false;
 	int val;
 	
 	if (extractBits(instruction, 24, 24) == 1){
 		//Unsigned Immediate Offset when U = 1, addr = xn + imm12
-		addr = unsignedOffset(sf, offset, xn);
+		addr = readRegister(xn, 0) + offset;
 	} else if (extractBits(instruction, 21, 21) == 0){
 		//Pre/Post-Index
 		//when i = 1 (pre indexed), addr = xn + simm9 and xn = xn + simm9
 		//when i = 0 (post indexed), addr = xn and xn = xn + simm9
 		int simm = extractBits(instruction, 12, 20);
 		int i = extractBits(instruction, 11, 11);
-		val = readRegister(xn, sf) + simm;
+		val = readRegister(xn, 0) + simm;
 		if (i == 1){
 			addr = val;
 		} else {
-			addr = readRegister(xn, sf);
+			addr = readRegister(xn, 0);
 		}
 		indexFlag = true;
 	} else {
 		//Register Offset
 		//addr = xn + xm
 		int xm = extractBits(instruction, 16, 20);
-		addr = readRegister(xn, sf) + readRegister(xm, sf);
+		addr = readRegister(xn, 0) + readRegister(xm, 0);
 	}
-	
 	if (sf == 0){
 		if (extractBits(instruction, 22, 22) == 1){
 			//load operation
-			uint32_t wt;
+			uint32_t wt = 0;
 			for (int i = 0; i < 3; i++){
-				wt = wt | ((uint32_t) *(memory + (addr + i))) << 8*i;
+				wt |= ((uint32_t) memory[addr + i]) << (8*i);
 			}
-
 			writeRegister(rt, wt, sf);
 		}else{
 			//store operation
 			uint32_t wt = (uint32_t) readRegister(rt, sf);
 			for (int i = 0; i < 3; i++){
-				*(memory + (addr + i)) = extractBits(wt, 8*i + 7,8*i);
+				memory[addr + i] = extractBits(wt, 8*i + 7,8*i);
 			} 
 		}
 	} else {
@@ -244,15 +229,14 @@ static void SDT(uint32_t instruction, uint64_t *memory) {
 			//load operation
 			uint64_t xt;
 			for (int i = 0; i < 7; i++){
-				xt = xt | ((uint64_t) *(memory + (addr + i))) << 8*i;
+				xt |= ((uint64_t) memory[addr + i]) << (8*i);
 			}
-
 			writeRegister(rt, xt, sf);
 		}else{
 			//store operation
 			uint64_t xt = (uint64_t) readRegister(rt, sf);
 			for (int i = 0; i < 7; i++) {
-				*(memory + (addr + i)) = extractBits(xt, 8*i + 7,8*i);
+				memory[addr + i] = extractBits(xt, 8*i + 7,8*i);
 			}
 		}
 	}
@@ -303,6 +287,7 @@ static void B(uint32_t instruction) {
 }
 
 static void LL(uint32_t instruction, uint64_t *memory) {
+	int sf = extractBits(instruction, 30,30);
 	int simm = extractBits(instruction, 5, 23);
 	int rt = extractBits(instruction, 0, 4);
 	int64_t offset = simm * 4;
@@ -311,7 +296,7 @@ static void LL(uint32_t instruction, uint64_t *memory) {
 		offset = offset | 0xFFFFFFFFFFFA0000;
 	}
 
-	writeRegister(rt, *(memory + currAddress + offset), 0);
+	writeRegister(rt, memory[currAddress + offset], sf);
 }
 
 
@@ -354,9 +339,10 @@ int main(int argc, char* argv[]) {
 	assert(argc == 2);
 
     initialise();
-	
-    uint64_t* memory = (uint64_t*)malloc(MEMORY_SIZE * sizeof(uint64_t));
-    // each element represents 1 byte of memory
+
+    uint8_t* memory = (uint8_t*)calloc(MEMORY_SIZE, sizeof(uint8_t));
+    // each element represents 1 byte of memory and setting every element as 0
+	//using calloc
 
 	FILE *inputFile;
 	inputFile = fopen(argv[1], "rb");
