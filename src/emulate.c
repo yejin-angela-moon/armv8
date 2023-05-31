@@ -194,9 +194,9 @@ static void logicalDPReg(uint8_t opc, uint8_t opr, uint8_t rd, uint8_t rn, uint8
         }
     } else if (opc == 2) {
         if (n) {
-            writeRegister(rd, readRegister(rn, sf) ^ op2, sf);
-        } else {
             writeRegister(rd, readRegister(rn, sf) ^ ~op2, sf);
+        } else {
+            writeRegister(rd, readRegister(rn, sf) ^ op2, sf);
         }
     } else if (opc == 3) {
         int result;
