@@ -25,12 +25,12 @@ typedef struct {
     bool V;
 } Pstate;
 
-Pstate pstate;
+Pstate pstate = {false, true, false, false}; // Z is initialised
 
 /* Private functions */
 
 static void inc_PC (){
-    currAddress += 4;
+    currAddress += 0x4;
 }
 
 static void writeRegister (int registerIndex, uint64_t newValue, uint8_t sf) {
@@ -126,7 +126,7 @@ void arithmetic_immediate(uint8_t sf, uint8_t opc, uint32_t operand, uint8_t Rd)
   
 void wide_move_immediate(uint8_t sf, uint8_t opc, uint32_t operand, uint8_t Rd) {
 	uint8_t hw = (operand >> 17) & 0x03;
-        uint16_t imm16 = operand & 0xFFFF;
+    uint16_t imm16 = operand & 0xFFFF;
 
 	uint64_t op = ((uint64_t)imm16) << (hw * 16); // calculate op
 
@@ -154,31 +154,162 @@ void wide_move_immediate(uint8_t sf, uint8_t opc, uint32_t operand, uint8_t Rd) 
 			printf("Invalid opcode for wide_move_immediate: %02X\n", opc);
 			exit(1);
 	}
-		
-	
+}
+  
+static void DPImm(uint32_t instruction) { // data processing instruction (immediate)
+	uint8_t sf  = extractBits(instruction, 31, 31);        // extract bit 31
+	uint8_t opc = extractBits(instruction, 29, 30);       // extract bits 30-29
+	uint8_t opi = extractBits(instruction, 24, 25);       // extract bits 25-24
+	uint32_t operand = extractBits(instruction, 5, 22); // extract bits 22-5
+	uint8_t rd = extractBits(instruction, 0, 4);                // extract bits 4-0
+
+	if (opi == 0x2) {
+			arithmetic_immediate(sf, opc, operand, rd);
+	} else if (opi == 0x5) {
+			wide_move_immediate(sf, opc, operand, rd);
+	}
+}
+
+
+
+static uint8_t bitShift(uint8_t shift, int64_t n, uint8_t operand) {
+    switch (shift) {
+        case 0:
+            //lsl
+            return n << operand;
+        case 1:
+            //lsr
+            return n >> operand;
+        case 2:
+            //asr
+            if (n < 0 && shift > 0) {
+                return (n >> shift) | ~(~0U >> shift);
+            } else {
+                return n >> shift;
+            }
+        case 3: {
+            //ror
+            int bitCount = sizeof(n) * 8; // Calculates the total number of bits for the data type
+            operand %= bitCount; // Just in case, reduce the number of rotations to a number less than bitCount
+            return (n >> operand) | (n << (bitCount - operand));
+        }
+        default: return 0;
     }
-  
-static void DPImm(uint32_t instruction) {
-          uint8_t sf  = extractBits(instruction, 31, 31);        // extract bit 31
-          uint8_t opc = extractBits(instruction, 29, 30);       // extract bits 30-29
-          uint8_t opi = extractBits(instruction, 24, 25);       // extract bits 25-24
-          uint32_t operand = extractBits(instruction, 5, 22); // extract bits 22-5
-          uint8_t rd = extractBits(instruction, 0, 4);                // extract bits 4-0
-  
-          if (opi == 0x2) {
-                  arithmetic_immediate(sf, opc, operand, rd);
-          } else if (opi == 0x5) {
-                  wide_move_immediate(sf, opc, operand, rd);
-          }
-  }
+}
 
-
-
-static void DPReg(uint32_t instruction) {
+static void arithmeticDPReg(uint8_t opc, uint8_t opr, uint8_t rd, uint8_t rn, uint8_t rm, uint8_t operand, bool sf) {
+    uint8_t shift = extractBits(opr, 1, 2);
+    uint8_t op2 = bitShift(shift, rm, operand);
+    switch (opc) {
+        case 0: {
+            int result = readRegister(rn, sf) + op2;
+            writeRegister(rd, result, sf);
+            break;
+        }
+        case 1: {
+            int result = readRegister(rn, sf) + op2;
+            writeRegister(rd, result, sf);
+            update_pstate(result,  rn, op2, 0);
+            break;
+        }
+        case 2: {
+            int result = readRegister(rn, sf) - op2;
+            writeRegister(rd, result, sf);
+            break;
+        }
+        case 3: {
+            int result = readRegister(rn, sf) - op2;
+            writeRegister(rd, result, sf);
+            update_pstate(result, rn, op2, 1);
+            break;
+        }
+        default: ;
+    }
 
 }
 
-static void SDT(uint32_t instruction, uint64_t* memory) {
+static unsigned int get_MSB(unsigned int num) {
+    unsigned int MSB = 0;
+    while (num != 0) {
+        num = num / 2;
+        MSB++;
+    }
+    return MSB;
+}
+
+static void logicalDPReg(uint8_t opc, uint8_t opr, uint8_t rd, uint8_t rn, uint8_t rm, uint8_t operand, bool sf) {
+    uint8_t shift = extractBits(opr, 1, 2);
+    uint64_t op2 = bitShift(shift, rm, operand);
+    bool n = opr % 2;
+
+    if (opc == 0) {
+        if (n) {
+            writeRegister(rd, readRegister(rn, sf) & ~op2, sf);
+        } else {
+            writeRegister(rd, readRegister(rn, sf) & op2, sf);
+        }
+    } else if (opc == 1) {
+        if (n) {
+            writeRegister(rd, readRegister(rn, sf) | ~op2, sf);
+        } else {
+            writeRegister(rd, readRegister(rn, sf) | op2, sf);
+        }
+    } else if (opc == 2) {
+        if (n) {
+            writeRegister(rd, readRegister(rn, sf) ^ ~op2, sf);
+        } else {
+            writeRegister(rd, readRegister(rn, sf) ^ op2, sf);
+        }
+    } else if (opc == 3) {
+        int result;
+        if (n) {
+            result = readRegister(rn, sf) & ~op2;
+            writeRegister(rd, result, sf);
+        } else {
+            result = readRegister(rn, sf) & op2;
+            writeRegister(rd, result, sf);
+        }
+        pstate.N = get_MSB(result);
+        pstate.Z = result == 0;
+        pstate.C = 0;
+        pstate.V = 0;
+    }
+}
+
+static void multiplyDPReg(uint32_t instruction, uint8_t rd, uint8_t rn, uint8_t rm, uint8_t operand, bool sf) {
+    bool x = extractBits(operand, 5, 5);
+    uint8_t ra = extractBits(operand, 0, 4);
+
+    if (x) {
+        writeRegister(rd, readRegister(ra, sf) + readRegister(rn, sf) * readRegister(rm, sf), sf);
+    } else {
+        writeRegister(rd, readRegister(ra, sf) - readRegister(rn, sf) * readRegister(rm, sf), sf);
+    }
+}
+
+static void DPReg(uint32_t instruction) {
+    uint8_t rd = extractBits(instruction, 0, 4);
+    uint8_t rn = extractBits(instruction, 5, 9);
+    uint8_t rm = extractBits(instruction, 16, 20);
+    uint8_t operand = extractBits(instruction, 10, 15);
+    bool sf = extractBits(instruction, 31, 31);
+    uint8_t opc = extractBits(instruction, 29, 30);
+    bool m = extractBits(instruction, 28, 28);
+    uint8_t opr = extractBits(instruction, 21, 24);
+
+    if (m == 1) {
+        multiplyDPReg(instruction, rd, rn, rm, operand, sf);
+    } else {
+        if (extractBits(opr, 4, 4)) {
+            arithmeticDPReg(opc, opr, rd, rn, rm, operand, sf);
+        } else {
+            logicalDPReg(opc, opr, rd, rn, rm, operand, sf);
+        }
+    }
+}
+
+
+static void SDT(uint32_t instruction, uint32_t* memory) {
 	int sf = extractBits(instruction, 30, 30);
 	int offset = extractBits(instruction, 10, 21);
 	int xn = extractBits(instruction, 5, 9);
@@ -246,6 +377,18 @@ static void SDT(uint32_t instruction, uint64_t* memory) {
 	}
 }
 
+static void LL(uint32_t instruction, uint32_t *memory) {
+	int sf = extractBits(instruction, 30,30);
+	int simm = extractBits(instruction, 5, 23);
+	int rt = extractBits(instruction, 0, 4);
+	int64_t offset = simm * 4;
+
+	if (offset & (1<<18)){
+		offset = offset | 0xFFFFFFFFFFFA0000;
+	}
+
+	writeRegister(rt, memory[currAddress + offset], sf);
+}
 
 static void B(uint32_t instruction) {
 	#define signExtension(x) ((uint64_t)((uint32_t)x))
@@ -286,22 +429,8 @@ static void B(uint32_t instruction) {
 	}
 }
 
-static void LL(uint32_t instruction, uint64_t *memory) {
-	int sf = extractBits(instruction, 30,30);
-	int simm = extractBits(instruction, 5, 23);
-	int rt = extractBits(instruction, 0, 4);
-	int64_t offset = simm * 4;
-
-	if (offset & (1<<18)){
-		offset = offset | 0xFFFFFFFFFFFA0000;
-	}
-
-	writeRegister(rt, memory[currAddress + offset], sf);
-}
-
-
 /* Decode instruction */
-static void readInstruction (uint32_t instruction, uint64_t *memory) {
+static void readInstruction (uint32_t instruction, uint32_t *memory) {
     if (instruction == 0xD503201F) {
 	//nop
 	inc_PC();
@@ -330,48 +459,106 @@ static void initialise() {
     pstate.C = 0;
     pstate.N = 0;
     pstate.V = 0;
-    pstate.Z = 0;
+    pstate.Z = 1; 
 }
+
+#define HALT_INSTRUCTION 0x8a000000
 
 #define MEMORY_SIZE (2 * 1024 * 1024)  // 2 MiB
 
+static void readFile(uint32_t* memory, char* filename){
+	FILE *fp = fopen(filename, "rb");
+	
+	if (fp == NULL){
+		fprintf(stderr, "can't opern %s/n", filename);
+		exit(1);
+	}
+
+	fseek(fp, 0, SEEK_END);
+	long fileSize = ftell(fp);
+	fseek(fp, 0, SEEK_SET);
+
+	fread(memory, sizeof(uint32_t), fileSize/sizeof(uint32_t), fp);
+
+	fclose(fp);
+}
+
+static void execute(uint32_t* memory){
+	uint32_t instruction;
+	do
+	{
+		instruction = memory[currAddress / 4];
+		readInstruction(instruction, memory);
+		currAddress += 4;
+	} while (currAddress != HALT_INSTRUCTION);
+}
+
+static void printStateToFile(char* filename, uint32_t* memory){
+	FILE *outputFile = fopen(filename, "w");
+
+	if (outputFile == NULL){
+		printf("Error opeing file\n");
+		exit(1);
+	}
+
+	//print registers
+	fprintf(outputFile, "Register:\n");
+	for(int i = 0; i < NUM_REGISTERS; i++ ){
+		if (i < 10) {
+            fprintf(outputFile, "X0%d = %016lx\n", i, readRegister(i, 0));
+			printf( "X0%d = %016lx\n", i, readRegister(i, 0));
+        } else {
+            fprintf(outputFile, "X%d = %016lx\n", i, readRegister(i, 0));
+			printf("X%d = %016lx\n", i, readRegister(i, 0));
+        }
+	} 
+
+	//Print PC
+	fprintf(outputFile, "PC = %08x\n", currAddress);
+	fprintf(outputFile, "PSTATE : %s%s%s%s\n", 
+		pstate.N ? "N" : "-", 
+		pstate.Z ? "Z" : "-", 
+		pstate.C ? "C" : "-", 
+		pstate.V ? "V" : "-");
+
+	//print non-zero memory
+	fprintf(outputFile, "Non-zero memory:\n");
+	for (int i = 0; i < MEMORY_SIZE; i += 4) {
+        if (memory[i] != 0) {
+            fprintf(outputFile, "0x%08x: %08x\n", i, memory[i]);
+        }
+    }
+
+	fclose(outputFile);
+}
+
+
+
 int main(int argc, char* argv[]) {
+	printf("oh hey");
+
 	assert(argc == 2);
 
     initialise();
 
-    uint8_t* memory = (uint8_t*)calloc(MEMORY_SIZE, sizeof(uint8_t));
-    // each element represents 1 byte of memory and setting every element as 0
-	//using calloc
+	printf("hi");
 
-	FILE *inputFile;
-	inputFile = fopen(argv[1], "rb");
-    // FILE* inputFile = fopen("input.bin", "rb");
-    uint32_t instruction;
-    do {
-        fread(&instruction, sizeof(instruction), 1, inputFile);
-        readInstruction(instruction, memory);
-    } while (instruction != 0x8a000000);
+    uint32_t *memory = (uint32_t*)calloc(MEMORY_SIZE, sizeof(uint32_t));
+    printf("yo");
 
-    FILE *outputFile = fopen("emulateOutput.out", "w");
-    for (int registerIndex = 0; registerIndex < NUM_REGISTERS; registerIndex++) {
-        if (registerIndex < 10) {
-            // fprintf(outputFile, "X0%d = %016lx\n", registerIndex, readRegister(registerIndex, 0));
-			printf("X0%d = %016lx\n", registerIndex, readRegister(registerIndex, 0));
-        } else {
-            // fprintf(outputFile, "X%d = %016lx\n", registerIndex, readRegister(registerIndex, 0));
-			printf("X%d = %016lx\n", registerIndex, readRegister(registerIndex, 0));
-        }
-    }
-    // fprintf(outputFile, "PC = %016x\n", currAddress);
-    // fprintf(outputFile, "PSTATE : %s%s%s%s\n", pstate.N ? "N" : "-", pstate.Z ? "Z" : "-", pstate.C ? "C" : "-", pstate.V ? "V" : "-");
-	printf("PC = %016x\n", currAddress);
-	printf("PSTATE : %s%s%s%s\n", pstate.N ? "N" : "-", pstate.Z ? "Z" : "-", pstate.C ? "C" : "-", pstate.V ? "V" : "-");
+	//The memory stored in 32-bit words(4 bytes)
+
+	// FILE *inputFile = fopen(argv[1], "rb");
+	// FILE* inputFile = fopen("input.bin", "rb");
+	readFile(memory, argv[1]);
+	execute(memory);
+
+
+	char outputFileName[100];
+    snprintf(outputFileName, sizeof(outputFileName), "%s.out", argv[1]);
+	
+	printStateToFile(outputFileName, memory);
     
-
-	fclose(outputFile);
-
     free(memory);
     return EXIT_SUCCESS;
 }
-
