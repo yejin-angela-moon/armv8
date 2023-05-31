@@ -32,7 +32,7 @@ static void inc_PC (){
 }
 
 
-static void writeRegister (int registerIndex, uint64_t newValue, uint8_t sf) {
+static void writeRegister (int registerIndex, uint64_t newValue, bool sf) {
     if (registerIndex == 31) {
         return;
     }
@@ -45,7 +45,7 @@ static void writeRegister (int registerIndex, uint64_t newValue, uint8_t sf) {
     }
 }
 
-static uint64_t readRegister (int registerIndex, uint8_t sf) {
+static uint64_t readRegister (int registerIndex, bool sf) {
     if (registerIndex == 31) {
         return 0;
     }
@@ -87,26 +87,26 @@ void update_pstate(uint64_t result, uint64_t operand1, uint64_t operand2, bool i
 }
 
 void wide_move_immediate(uint8_t sf, uint8_t opc, uint32_t operand) {
-    uint8_t hw = extract;
+    uint8_t hw = 0;
     uint16_t imm16 = operand & 0xFFFF;
 }
 
 
 static void DPImm(uint32_t instruction) {
-    
+
 }
 
-static uint64_t unsignedOffset(int sf, int offset, int baseRegister) {
-	if (sf == 1){
-		if (offset % 8 != 0 || offset > 32760){
-			return 0;
-		}
-	} else{
-		if (offset % 4 != 0 || offset > 16380){
-			return 0;
-		}
-	}
-	return readRegister(baseRegister) + ((uint64_t) offset);
+static uint64_t unsignedOffset(bool sf, int offset, int baseRegister) {
+    if (sf == 1){
+        if (offset % 8 != 0 || offset > 32760){
+            return 0;
+        }
+    } else{
+        if (offset % 4 != 0 || offset > 16380){
+            return 0;
+        }
+    }
+    return readRegister(baseRegister, sf) + ((uint64_t) offset);
 }
 
 
@@ -135,29 +135,29 @@ static uint8_t bitShift(uint8_t shift, int64_t n, uint8_t operand) {
     }
 }
 
-static void arithmeticDPReg(uint8_t opc, uint8_t opr, uint8_t rd, uint8_t rn, uint8_t rm, uint8_t operand) {
+static void arithmeticDPReg(uint8_t opc, uint8_t opr, uint8_t rd, uint8_t rn, uint8_t rm, uint8_t operand, bool sf) {
     uint8_t shift = extractBits(opr, 1, 2);
     uint8_t op2 = bitShift(shift, rm, operand);
     switch (opc) {
         case 0: {
-            int result = readRegister(rn) + op2;
-            writeRegister(rd, result);
+            int result = readRegister(rn, sf) + op2;
+            writeRegister(rd, result, sf);
             break;
-         }
-         case 1: {
-             int result = readRegister(rn) + op2;
-             writeRegister(rd, result);
-             update_pstate(result,  rn, op2, 0);
-             break;
-         }
+        }
+        case 1: {
+            int result = readRegister(rn, sf) + op2;
+            writeRegister(rd, result, sf);
+            update_pstate(result,  rn, op2, 0);
+            break;
+        }
         case 2: {
-            int result = readRegister(rn) - op2;
-            writeRegister(rd, result);
+            int result = readRegister(rn, sf) - op2;
+            writeRegister(rd, result, sf);
             break;
         }
         case 3: {
-            int result = readRegister(rn) - op2;
-            writeRegister(rd, result);
+            int result = readRegister(rn, sf) - op2;
+            writeRegister(rd, result, sf);
             update_pstate(result, rn, op2, 1);
             break;
         }
@@ -175,37 +175,37 @@ static unsigned int get_MSB(unsigned int num) {
     return MSB;
 }
 
-static void logicalDPReg(uint8_t opc, uint8_t opr, uint8_t rd, uint8_t rn, uint8_t rm, uint8_t operand) {
+static void logicalDPReg(uint8_t opc, uint8_t opr, uint8_t rd, uint8_t rn, uint8_t rm, uint8_t operand, bool sf) {
     uint8_t shift = extractBits(opr, 1, 2);
     uint8_t op2 = bitShift(shift, rm, operand);
     bool n = opr % 2;
 
     if (opc == 0) {
         if (n) {
-            writeRegister(rd, readRegister(rn) & ~op2);
+            writeRegister(rd, readRegister(rn, sf) & ~op2, sf);
         } else {
-            writeRegister(rd, readRegister(rn) & op2);
+            writeRegister(rd, readRegister(rn, sf) & op2, sf);
         }
     } else if (opc == 1) {
         if (n) {
-            writeRegister(rd, readRegister(rn) | ~op2);
+            writeRegister(rd, readRegister(rn, sf) | ~op2, sf);
         } else {
-            writeRegister(rd, readRegister(rn) | op2);
+            writeRegister(rd, readRegister(rn, sf) | op2, sf);
         }
     } else if (opc == 2) {
         if (n) {
-            writeRegister(rd, readRegister(rn) ^ op2);
+            writeRegister(rd, readRegister(rn, sf) ^ op2, sf);
         } else {
-            writeRegister(rd, readRegister(rn) ^ ~op2);
+            writeRegister(rd, readRegister(rn, sf) ^ ~op2, sf);
         }
     } else if (opc == 3) {
         int result;
         if (n) {
-            result = readRegister(rn) & ~op2;
-            writeRegister(rd, result);
+            result = readRegister(rn, sf) & ~op2;
+            writeRegister(rd, result, sf);
         } else {
-            result = readRegister(rn) & op2;
-            writeRegister(rd, result);
+            result = readRegister(rn, sf) & op2;
+            writeRegister(rd, result, sf);
         }
         pstate.N = get_MSB(result); // but change size of vars?
         pstate.Z = result == 0;
@@ -214,14 +214,14 @@ static void logicalDPReg(uint8_t opc, uint8_t opr, uint8_t rd, uint8_t rn, uint8
     }
 }
 
-static void multiplyDPReg(uint32_t instruction, bool sf, uint8_t rd, uint8_t rn, uint8_t rm, uint8_t operand) {
+static void multiplyDPReg(uint32_t instruction, uint8_t rd, uint8_t rn, uint8_t rm, uint8_t operand, bool sf) {
     bool x = extractBits(operand, 5, 5);
     uint8_t ra = extractBits(operand, 0, 4);
 
     if (x) {
-        writeRegister(rd, readRegister(ra) + readRegister(rn) * readRegister(rm));
+        writeRegister(rd, readRegister(ra, sf) + readRegister(rn, sf) * readRegister(rm, sf), sf);
     } else {
-        writeRegister(rd, readRegister(ra) - readRegister(rn) * readRegister(rm));
+        writeRegister(rd, readRegister(ra, sf) - readRegister(rn, sf) * readRegister(rm, sf), sf);
     }
 }
 
@@ -236,12 +236,12 @@ static void DPReg(uint32_t instruction) {
     uint8_t opr = extractBits(instruction, 21, 24);
 
     if (m == 1) {
-        multiplyDPReg(instruction, sf, rd, rn, rm, operand);
+        multiplyDPReg(instruction, rd, rn, rm, operand, sf);
     } else {
         if (extractBits(opr, 4, 4)) {
-            arithmeticDPReg(opc, opr, rd, rn, rm, operand);
+            arithmeticDPReg(opc, opr, rd, rn, rm, operand, sf);
         } else {
-            logicalDPReg(opc, opr, rd, rn, rm, operand);
+            logicalDPReg(opc, opr, rd, rn, rm, operand, sf);
         }
     }
 }
@@ -251,94 +251,91 @@ static void DPReg(uint32_t instruction) {
 
 
 static void SDT(uint32_t instruction, uint32_t *memory) {
-	int sf = extractBits(instruction, 30, 30);
-	int offset = extractBits(instruction, 10, 21);
-	int xn = extractBits(instruction, 5, 9);
-	int rt = extractBits(instruction, 5, 9);
-	uint64_t addr;
-	bool indexFlag = false;
-	int val;
-	
-	if (extractBits(instruction, 24, 24) == 1){
-		//Unsigned Immediate Offset when U = 1, addr = xn + imm12
-		addr = unsignedOffset(sf, offset, xn);
-	} else if (extractBits(instruction, 21, 21) == 0){
-		//Pre/Post-Index
-		//when i = 1 (pre indexed), addr = xn + simm9 and xn = xn + simm9
-		//when i = 0 (post indexed), addr = xn and xn = xn + simm9
-		int simm = extractBits(instruction, 12, 20);
-		int i = extractBits(instruction, 11, 11);
-		val = readRegister(xn) + simm;
-		if (i == 1){
-			addr = val;
-		} else {
-			addr = readRegister(xn);
-		}
-		indexFlag = true;
-	} else {
-		//Register Offset
-		//addr = xn + xm
-		int xm = extractBits(instruction, 16, 20);
-		addr = readRegister(xn) + readRegister(xm);
-	}
-	
-	if (extractBits(instruction, 30, 30) == 1){
-		if (extractBits(instruction, 22, 22) == 1){
-			//load operation
-			uint32_t wt;
-			for (int i = 0; i < 3; i++){
-				wt = wt | ((uint32_t) *(memory + (addr + i))) << 8*i;
-			}
+    bool sf = extractBits(instruction, 30, 30);
+    int offset = extractBits(instruction, 10, 21);
+    int xn = extractBits(instruction, 5, 9);
+    int rt = extractBits(instruction, 5, 9);
+    uint64_t addr;
+    bool indexFlag = false;
+    int val;
 
-			writeRegister(rt, wt);
-		}else{
-			//store operation
-			uint32_t wt = (uint32_t) readRegister(rt);
-			for (int i = 0; i < 3; i++){
-				*(memory + (addr + i)) = extractBits(wt, 8*i + 7,8*i);
-			} 
-		}
-	} else {
-		if (extractBits(instruction, 22, 22) == 1){
-			//load operation
-			uint64_t xt;
-			for (int i = 0; i < 7; i++){
-				xt = xt | ((uint64_t) *(memory + (addr + i))) << 8*i;
-			}
+    if (extractBits(instruction, 24, 24) == 1){
+        //Unsigned Immediate Offset when U = 1, addr = xn + imm12
+        addr = unsignedOffset(sf, offset, xn);
+    } else if (extractBits(instruction, 21, 21) == 0){
+        //Pre/Post-Index
+        //when i = 1 (pre indexed), addr = xn + simm9 and xn = xn + simm9
+        //when i = 0 (post indexed), addr = xn and xn = xn + simm9
+        int simm = extractBits(instruction, 12, 20);
+        int i = extractBits(instruction, 11, 11);
+        val = readRegister(xn, sf) + simm;
+        if (i == 1){
+            addr = val;
+        } else {
+            addr = readRegister(xn, sf);
+        }
+        indexFlag = true;
+    } else {
+        //Register Offset
+        //addr = xn + xm
+        int xm = extractBits(instruction, 16, 20);
+        addr = readRegister(xn, sf) + readRegister(xm, sf);
+    }
 
-			writeRegister(rt, xt);
-		}else{
-			//store operation
-			uint64_t xt = (uint64_t) readRegister(rt);
-			for (int i = 0; i < 7; i++) {
-				*(memory + (addr + i)) = extractBits(xt, 8*i + 7,8*i);
-			}
-		}
-	}
+    if (extractBits(instruction, 30, 30) == 1){
+        if (extractBits(instruction, 22, 22) == 1){
+            //load operation
+            uint32_t wt;
+            for (int i = 0; i < 3; i++){
+                wt = wt | ((uint32_t) *(memory + (addr + i))) << 8*i;
+            }
 
-	if (indexFlag){
-		writeRegister(xn, val);
-	}
-}
+            writeRegister(rt, wt, sf);
+        }else{
+            //store operation
+            uint32_t wt = (uint32_t) readRegister(rt, sf);
+            for (int i = 0; i < 3; i++){
+                *(memory + (addr + i)) = extractBits(wt, 8*i + 7,8*i);
+            }
+        }
+    } else {
+        if (extractBits(instruction, 22, 22) == 1){
+            //load operation
+            uint64_t xt;
+            for (int i = 0; i < 7; i++){
+                xt = xt | ((uint64_t) *(memory + (addr + i))) << 8*i;
+            }
 
-static void B(uint32_t instruction) {
-    
-}
+            writeRegister(rt, xt, sf);
+        }else{
+            //store operation
+            uint64_t xt = (uint64_t) readRegister(rt, sf);
+            for (int i = 0; i < 7; i++) {
+                *(memory + (addr + i)) = extractBits(xt, 8*i + 7,8*i);
+            }
+        }
+    }
 
-static void LL(uint32_t instruction) {
-	int simm = extractBits(instruction, 5, 23);
-	int rt = extractBits(instruction, 0, 4);
-	int64_t offset = simm * 4;
-
-	if (offset & (1<<18)){
-		offset = offset | 0xFFFFFFFFFFFA0000;
-	}
-
-	writeRegister(rt, memory[currAddress + offset]);
+    if (indexFlag){
+        writeRegister(xn, val, sf);
+    }
 }
 
 static void B(uint32_t instruction) {
 
+}
+
+static void LL(uint32_t instruction, uint32_t *memory) {
+    int simm = extractBits(instruction, 5, 23);
+    int rt = extractBits(instruction, 0, 4);
+    bool sf = extractBits(instruction, 30, 30);
+    int64_t offset = simm * 4;
+
+    if (offset & (1<<18)){
+        offset = offset | 0xFFFFFFFFFFFA0000;
+    }
+
+    writeRegister(rt, memory[currAddress + offset], sf);
 }
 
 /* Decode instruction */
@@ -352,7 +349,7 @@ static void readInstruction (uint32_t instruction, uint32_t *memory) {
         if (extractBits(instruction, 31,31) == 1){
             SDT(instruction, memory);
         } else {
-            LL(instruction);
+            LL(instruction, memory);
         }
     } else {
         B(instruction);
@@ -379,15 +376,15 @@ int main() {
     uint32_t instruction;
     do {
         fread(&instruction, sizeof(instruction), 1, inputFile);
-        readInstruction(instruction);
+        readInstruction(instruction, 1);
     } while (instruction != 0x8a000000);
 
     FILE *outputFile = fopen("emulateOutput.out", "w");
     for (int registerIndex = 0; registerIndex < NUM_REGISTERS; registerIndex++) {
         if (registerIndex < 10) {
-            fprintf(outputFile, "X0%d = %016lx\n", registerIndex, readRegister(registerIndex));
+            fprintf(outputFile, "X0%d = %016lx\n", registerIndex, readRegister(registerIndex, 1));
         } else {
-            fprintf(outputFile, "X%d = %016lx\n", registerIndex, readRegister(registerIndex));
+            fprintf(outputFile, "X%d = %016lx\n", registerIndex, readRegister(registerIndex, 1));
         }
     }
     fprintf(outputFile, "PC = %016x\n", currAddress);
