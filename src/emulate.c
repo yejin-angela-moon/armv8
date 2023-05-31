@@ -350,8 +350,7 @@ static void initialise() {
 
 #define MEMORY_SIZE (2 * 1024 * 1024)  // 2 MiB
 
-int main(int argc, char* argv[]) {
-	assert(argc == 2);
+int main(char* argv[]) {
     initialise();
     uint64_t* memory = (uint64_t*)malloc(MEMORY_SIZE * sizeof(uint64_t));
     // each element represents 1 byte of memory
