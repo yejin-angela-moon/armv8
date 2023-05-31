@@ -335,17 +335,26 @@ static void LL(uint32_t instruction, uint32_t *memory) {
 }
 
 /* Decode instruction */
-static void readInstruction (uint32_t instruction, uint32_t *memory) {
+static void readInstruction (uint32_t instruction) {
+    if (instruction == 0xD503201F) {
+	//nop
+	inc_PC();
+	return;
+    }
     if (extractBits(instruction, 26, 28) == 0b100){
         DPImm(instruction);
+        inc_PC();
     }else if (extractBits(instruction, 25, 27) == 0b101)
     {
         DPReg(instruction);
-    }else if(extractBits(instruction, 25, 28) == 0b1100 ){
+        inc_PC();
+    }else if(extractBits(instruction, 25, 28) == 0b1100){
         if (extractBits(instruction, 31,31) == 1){
-            SDT(instruction, memory);
+            SDT(instruction);
+            inc_PC();
         } else {
-            LL(instruction, memory);
+            LL(instruction);
+            inc_PC();
         }
     } else {
         B(instruction);
