@@ -25,12 +25,12 @@ typedef struct {
     bool V;
 } Pstate;
 
-Pstate pstate;
+Pstate pstate = {false, true, false, false}; // Z is initialised
 
 /* Private functions */
 
 static void inc_PC (){
-    currAddress += 4;
+    currAddress += 0x4;
 }
 
 static void writeRegister (int registerIndex, uint64_t newValue, uint8_t sf) {
@@ -158,7 +158,7 @@ void wide_move_immediate(uint8_t sf, uint8_t opc, uint32_t operand, uint8_t Rd) 
 	
     }
   
-static void DPImm(uint32_t instruction) {
+static void DPImm(uint32_t instruction) { // data processing instruction (immediate)
           uint8_t sf  = extractBits(instruction, 31, 31);        // extract bit 31
           uint8_t opc = extractBits(instruction, 29, 30);       // extract bits 30-29
           uint8_t opi = extractBits(instruction, 24, 25);       // extract bits 25-24
@@ -191,7 +191,7 @@ static uint64_t unsignedOffset(int sf, int offset, int baseRegister){
 	return readRegister(baseRegister, sf) + ((uint64_t) offset);
 }
 
-static void SDT(uint32_t instruction, uint64_t *memory) {
+static void SDT(uint32_t instruction, uint64_t *memory) { // single data transfer
 	int sf = extractBits(instruction, 30, 30);
 	int offset = extractBits(instruction, 10, 21);
 	int xn = extractBits(instruction, 5, 9);
@@ -345,34 +345,56 @@ static void initialise() {
     pstate.C = 0;
     pstate.N = 0;
     pstate.V = 0;
-    pstate.Z = 0;
+    pstate.Z = 1; 
 }
 
 #define MEMORY_SIZE (2 * 1024 * 1024)  // 2 MiB
 
-int main() {
-    initialise();
-    uint64_t* memory = (uint64_t*)malloc(MEMORY_SIZE * sizeof(uint64_t));
-    // each element represents 1 byte of memory
+int main(int argc, char* argv[]) {
+	assert(argc == 2);
 
-    FILE* inputFile = fopen("input.bin", "rb");
+    initialise();
+
+    uint8_t* memory = (uint8_t*)calloc(MEMORY_SIZE, sizeof(uint8_t));
+    // each element represents 1 byte of memory and setting every element as 0
+	//using calloc
+
+	FILE *inputFile = fopen(argv[1], "rb");
+	// FILE* inputFile = fopen("input.bin", "rb");
+	if(inputFile == NULL){                    // check if the input file is empty
+    	printf("Error opening input file\n");
+    	return EXIT_FAILURE;
+	}	
+
     uint32_t instruction;
-    do {
+
+	do {
         fread(&instruction, sizeof(instruction), 1, inputFile);
-        readInstruction(instruction, memory);
+        readInstruction(instruction, (uint64_t*)memory);
     } while (instruction != 0x8a000000);
 
-    FILE *outputFile = fopen("emulateOutput.out", "w");
+    FILE *outputFile = fopen(argv[1], "w");
+	if(outputFile == NULL){                    //check if the output file is empty - needed?
+    	printf("Error opening output file\n");
+    	return EXIT_FAILURE;
+	}
+
     for (int registerIndex = 0; registerIndex < NUM_REGISTERS; registerIndex++) {
         if (registerIndex < 10) {
             fprintf(outputFile, "X0%d = %016lx\n", registerIndex, readRegister(registerIndex, 0));
+			//printf("X0%d = %016lx\n", registerIndex, readRegister(registerIndex, 0));
         } else {
             fprintf(outputFile, "X%d = %016lx\n", registerIndex, readRegister(registerIndex, 0));
+			//printf("X%d = %016lx\n", registerIndex, readRegister(registerIndex, 0));
         }
     }
     fprintf(outputFile, "PC = %016x\n", currAddress);
     fprintf(outputFile, "PSTATE : %s%s%s%s\n", pstate.N ? "N" : "-", pstate.Z ? "Z" : "-", pstate.C ? "C" : "-", pstate.V ? "V" : "-");
-    fclose(outputFile);
+	//printf("PC = %016x\n", currAddress);
+	//printf("PSTATE : %s%s%s%s\n", pstate.N ? "N" : "-", pstate.Z ? "Z" : "-", pstate.C ? "C" : "-", pstate.V ? "V" : "-");
+    
+
+	fclose(outputFile);
 
     free(memory);
     return EXIT_SUCCESS;
