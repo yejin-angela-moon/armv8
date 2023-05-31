@@ -223,7 +223,7 @@ static void SDT(uint32_t instruction, uint64_t *memory) {
 		addr = readRegister(xn, sf) + readRegister(xm, sf);
 	}
 	
-	if (extractBits(instruction, 30, 30) == 1){
+	if (sf == 0){
 		if (extractBits(instruction, 22, 22) == 1){
 			//load operation
 			uint32_t wt;
@@ -350,7 +350,7 @@ static void initialise() {
 
 #define MEMORY_SIZE (2 * 1024 * 1024)  // 2 MiB
 
-int main(char* argv[]) {
+int main(int argc, char* argv[]) {
     initialise();
     uint64_t* memory = (uint64_t*)malloc(MEMORY_SIZE * sizeof(uint64_t));
     // each element represents 1 byte of memory
@@ -367,14 +367,20 @@ int main(char* argv[]) {
     FILE *outputFile = fopen("emulateOutput.out", "w");
     for (int registerIndex = 0; registerIndex < NUM_REGISTERS; registerIndex++) {
         if (registerIndex < 10) {
-            fprintf(outputFile, "X0%d = %016lx\n", registerIndex, readRegister(registerIndex, 0));
+            // fprintf(outputFile, "X0%d = %016lx\n", registerIndex, readRegister(registerIndex, 0));
+			printf("X0%d = %016lx\n", registerIndex, readRegister(registerIndex, 0));
         } else {
-            fprintf(outputFile, "X%d = %016lx\n", registerIndex, readRegister(registerIndex, 0));
+            // fprintf(outputFile, "X%d = %016lx\n", registerIndex, readRegister(registerIndex, 0));
+			printf("X%d = %016lx\n", registerIndex, readRegister(registerIndex, 0));
         }
     }
-    fprintf(outputFile, "PC = %016x\n", currAddress);
-    fprintf(outputFile, "PSTATE : %s%s%s%s\n", pstate.N ? "N" : "-", pstate.Z ? "Z" : "-", pstate.C ? "C" : "-", pstate.V ? "V" : "-");
-    fclose(outputFile);
+    // fprintf(outputFile, "PC = %016x\n", currAddress);
+    // fprintf(outputFile, "PSTATE : %s%s%s%s\n", pstate.N ? "N" : "-", pstate.Z ? "Z" : "-", pstate.C ? "C" : "-", pstate.V ? "V" : "-");
+	printf("PC = %016x\n", currAddress);
+	printf("PSTATE : %s%s%s%s\n", pstate.N ? "N" : "-", pstate.Z ? "Z" : "-", pstate.C ? "C" : "-", pstate.V ? "V" : "-");
+    
+
+	fclose(outputFile);
 
     free(memory);
     return EXIT_SUCCESS;
