@@ -31,20 +31,31 @@ static void inc_PC (){
     currAddress += 4;
 }
 
-static uint64_t readRegister (uint8_t registerIndex) {
-    // registerIndex = 11111 (bin) -> reading from ZR
-    if (registerIndex == 31) {
-        return 0;
-    }
-    return generalRegisters[registerIndex];
-}
 
-static void writeRegister (uint8_t registerIndex, int64_t newValue) {
-    // registerIndex = 11111 (bin) -> writing to ZR
+static void writeRegister (int registerIndex, uint64_t newValue, uint8_t sf) {
     if (registerIndex == 31) {
         return;
     }
-    generalRegisters[registerIndex] = newValue;
+    if (sf == 0) {
+        // Write to W-register: zero out the upper 32 bits
+        generalRegisters[registerIndex] = newValue & 0xFFFFFFFF;
+    } else {
+        // Write to X-register: use the whole 64-bit value
+        generalRegisters[registerIndex] = newValue;
+    }
+}
+
+static uint64_t readRegister (int registerIndex, uint8_t sf) {
+    if (registerIndex == 31) {
+        return 0;
+    }
+    if (sf == 0) {
+        // Read from W-register: return only the lower 32 bits
+        return generalRegisters[registerIndex] & 0xFFFFFFFF;
+    } else {
+        // Read from X-register: return the whole 64-bit value
+        return generalRegisters[registerIndex];
+    }
 }
 
 static uint64_t extractBits(uint64_t n, uint8_t startIndex, uint8_t endIndex) {
