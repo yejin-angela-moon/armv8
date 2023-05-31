@@ -9,14 +9,12 @@
 
 uint32_t currAddress; // hexadecimal address to represents PC
 
-// ZR always returns 0. No fields needed. 
+// ZR always returns 0. No fields needed.
 
 // Initialise number of registers
 #define NUM_REGISTERS 31
 
 uint64_t generalRegisters[NUM_REGISTERS];
-
-//int generalRegisters[31]; // global var so initialised to 0s
 
 typedef struct {
     bool N;
@@ -66,112 +64,22 @@ static int extractBits(uint64_t n, int startIndex, int endIndex) {
     return (n >> startIndex) & mask;
 }
 
-void update_pstate(uint64_t result, uint64_t operand1, uint64_t operand2, bool is_subtraction) {
-    // Update N and Z flags
-    pstate.N = result & (1ULL << 63);  // check the most significant bit
-    pstate.Z = (result == 0);
+void update_pstate(Pstate* pstate, uint64_t result, uint64_t rd, uint8_t rn, uint32_t op2, bool is_sub) {
+	// Update N (Negative Flag): Set to the sign bit of the result
+    	pstate->N = result & (1ULL << 31);
 
-    if (is_subtraction) {
-        // For subtraction, carry is set if operand1 >= operand2
-        pstate.C = operand1 >= operand2;
+	// Update Z (Zero Flag): Set only when the result is all zero
+    	pstate->Z = (result == 0);
 
-        // Overflow for subtraction is set if operand1 and operand2 have different signs,
-        // and operand1 and the result have different signs
-        pstate.V = ((operand1 ^ operand2) & (operand1 ^ result)) >> 63;
-    } else {
-        // For addition, carry is set if result is less than either operand (meaning it wrapped around)
-        pstate.C = result < operand1 || result < operand2;
-
-        // Overflow for addition is set if operand1 and operand2 have the same sign,
-        // and operand1 and the result have different signs
-        pstate.V = (~(operand1 ^ operand2) & (operand1 ^ result)) >> 63;
-    }
-}
-
-
-void arithmetic_immediate(uint8_t sf, uint8_t opc, uint32_t operand, uint8_t Rd)  {
-	uint8_t sh = (operand >> 17) & 0x01;     // extract bit 22
-        uint16_t imm12 = (operand >> 5) & 0x0FFF; // extract bits 21-10
-        uint8_t rn = operand & 0x1F;             // extract bits 9-5 
-        uint64_t result = 0;
-  
-        // Store result in the destination register
-        if (sh) {
-                imm12 <<= 12;
-                writeRegister(Rd, result, sf);  // 64-bit
-        } else {
-                generalRegisters[Rd] = (uint32_t)result;  // 32-bit
-        }
-  
-        // Operations performed depending on opc
-        switch (opc) {
-                case 0x0:
-                    result += rn;
-					break;
-                case 0x1:
-                    result += rn;
-                    update_pstate(result, rn, imm12, 0);
-					break;
-                case 0x2:
-                	result -= rn;
-					break;
-                case 0x3:
-                	result -= rn;
-                    update_pstate(result, rn, imm12, 1);
-				default:
-					printf("Invalid opcode for arithmetic_immediate: %02X\n", opc);
-				
-        }
-}
-  
-void wide_move_immediate(uint8_t sf, uint8_t opc, uint32_t operand, uint8_t Rd) {
-	uint8_t hw = (operand >> 17) & 0x03;
-        uint16_t imm16 = operand & 0xFFFF;
-
-	uint64_t op = ((uint64_t)imm16) << (hw * 16); // calculate op
-
-	switch (opc) {
-		case 0x0: // movz
-			writeRegister(Rd, op, sf);
-			break;
-		case 0x2: // movn
-			if (sf) {
-				writeRegister(Rd, ~op, sf);
-			} else {
-				writeRegister(Rd, ~((uint32_t)op), sf);
-			}
-			break;
-		case 0x3: // movk
-			{
-			uint64_t mask = ((uint64_t)0xFFFF) << (hw * 16);
-			uint64_t value = readRegister(Rd, sf);
-			value &= ~mask;
-			value |= (op & mask);
-			writeRegister(Rd, value, sf);
-			break;
-			}
-		default:
-			printf("Invalid opcode for wide_move_immediate: %02X\n", opc);
-			exit(1);
-	}
+	if (is_sub) {
+        	// In a subtraction, C is set to zero if the subtraction produces a borrow, otherwise it is set to one
+        	pstate->C = (rn >= op2);
 		
-	
-    }
-  
-static void DPImm(uint32_t instruction) {
-          uint8_t sf  = extractBits(instruction, 31, 31);        // extract bit 31
-          uint8_t opc = extractBits(instruction, 29, 30);       // extract bits 30-29
-          uint8_t opi = extractBits(instruction, 24, 25);       // extract bits 25-24
-          uint32_t operand = extractBits(instruction, 5, 22); // extract bits 22-5
-          uint8_t rd = extractBits(instruction, 0, 4);                // extract bits 4-0
-  
-          if (opi == 0x2) {
-                  arithmetic_immediate(sf, opc, operand, rd);
-          } else if (opi == 0x5) {
-                  wide_move_immediate(sf, opc, operand, rd);
-          }
-  }
-
+    	} else {
+        	// In an addition, C is set when the addition produces a carry (unsigned overflow), or zero otherwise
+        	pstate->C = (result < rn);
+    	}
+}
 
 
 static void DPReg(uint32_t instruction) {
@@ -337,7 +245,6 @@ static void readInstruction (uint32_t instruction, uint64_t *memory) {
         B(instruction);
     }
 }
-
 
 static void initialise() {
     currAddress = 0;
