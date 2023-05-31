@@ -362,7 +362,7 @@ static void initialise() {
     pstate.C = 0;
     pstate.N = 0;
     pstate.V = 0;
-    pstate.Z = 0;
+    pstate.Z = 1;
 }
 
 #define MEMORY_SIZE (2 * 1024 * 1024)  // 2 MiB
