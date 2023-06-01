@@ -1,6 +1,6 @@
 #include "SDT.h"
 
-void SDT(uint32_t instruction, uint32_t* memory, state *state) {
+void SDT(uint32_t instruction, state *state) {
     uint32_t sf = extractBits(instruction, 30, 30);
     uint32_t offset = extractBits(instruction, 10, 21);
     uint32_t xn = extractBits(instruction, 5, 9);
@@ -9,6 +9,7 @@ void SDT(uint32_t instruction, uint32_t* memory, state *state) {
     bool indexFlag = false;
     uint64_t val;
     uint64_t *generalRegisters = state->generalRegisters;
+    uint32_t *memory = state->memory;
 
     if (extractBits(instruction, 24, 24) == 1){
         //Unsigned Immediate Offset when U = 1, addr = xn + imm12
@@ -69,10 +70,10 @@ void SDT(uint32_t instruction, uint32_t* memory, state *state) {
     }
 }
 
-void LL(uint32_t instruction, uint32_t *memory, uint32_t currAddress, state *state) {
+void LL(uint32_t instruction, state *state) {
     uint32_t sf = extractBits(instruction, 30,30);
     uint32_t simm = extractBits(instruction, 5, 23);
     uint32_t rt = extractBits(instruction, 0, 4);
     int64_t offset = simm * 4;
-    writeRegister(rt, memory[currAddress + offset], sf, state->generalRegisters);
+    writeRegister(rt, state->memory[state->currAddress + offset], sf, state->generalRegisters);
 }
