@@ -23,26 +23,22 @@ static void LL(uint32_t instruction, uint32_t *memory) {
 }
 
 /* Decode instruction */
-static void readInstruction (uint32_t instruction) {
+void readInstruction (uint32_t instruction, state *state) {
     if (instruction == 0xD503201F) {
-	//nop
-	inc_PC();
-	return;
+        //nop
+        inc_PC(state);
+        return;
     }
-    if (extractBits(instruction, 26, 28) == 0b100){
-        DPImm(instruction);
-        inc_PC();
-    }else if (extractBits(instruction, 25, 27) == 0b101)
-    {
-        DPReg(instruction);
-        inc_PC();
-    }else if(extractBits(instruction, 25, 28) == 0b1100){
-        if (extractBits(instruction, 31,31) == 1){
-            SDT(instruction);
-            inc_PC();
+    if (extractBits(instruction, 26, 28) == 0x4){
+        DPImm(instruction, state);
+    } else if (extractBits(instruction, 25, 27) == 0x5) {
+
+        DPReg(instruction, state);
+    } else if(extractBits(instruction, 25, 28) == 0xC ){
+        if (extractBits(instruction, 31,31) == 0x1){
+            SDT(instruction, state);
         } else {
-            LL(instruction);
-            inc_PC();
+            LL(instruction, state);
         }
     } else {
         B(instruction);
@@ -53,13 +49,12 @@ int main(int argc, char* argv[]) {
 
     if (argc < 2 || argc > 3){
         printf("Usage: ./emulate <bin_file> [<out_file>]\n");
-        return 1;
+        return EXIT_FAILURE;
     }
 
     state *state;
     initialise(state);
-
-    uint32_t *memory = (uint32_t*)calloc(MEMORY_SIZE, sizeof(uint32_t));
+    uint32_t *memory = state->memory;
 
     readFile(memory, argv[1]);
 
