@@ -101,16 +101,3 @@ unsigned int get_MSB(unsigned int num) {
     }
     return MSB;
 }
-
-uint64_t unsignedOffset(bool sf, int offset, int baseRegister, uint64_t *generalRegisters) {
-    if (sf == 1){
-        if (offset % 8 != 0 || offset > 32760){
-            return 0;
-        }
-    } else{
-        if (offset % 4 != 0 || offset > 16380){
-            return 0;
-        }
-    }
-    return readRegister(baseRegister, sf, generalRegisters) + ((uint64_t) offset);
-}
