@@ -11,8 +11,8 @@
 #include "definitions.h"
 #include "utilities.h"
 
-void SDT(uint32_t instruction, uint32_t* memory, state *state);
+void SDT(uint32_t instruction, state *state);
 
-void LL(uint32_t instruction, uint32_t *memory, uint32_t currAddress, state *state);
+void LL(uint32_t instruction, uint32_t currAddress, state *state);
 
 #endif
