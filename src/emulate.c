@@ -117,7 +117,7 @@ void arithmetic_immediate(uint8_t sf, uint8_t opc, uint32_t operand, uint8_t Rd)
 			
 	}
 	// Store result in the destination register
-	writeregister(Rd, result, sf);
+	writeRegister(Rd, result, sf);
 }
   
 void wide_move_immediate(uint8_t sf, uint8_t opc, uint32_t operand, uint8_t Rd) {
@@ -134,7 +134,6 @@ void wide_move_immediate(uint8_t sf, uint8_t opc, uint32_t operand, uint8_t Rd) 
 			writeRegister(Rd, op, sf);
 			break;
 		case 0x3: // movk
-			int u = (hw * 16) + 15;
 			int l = (hw * 16);
 			uint64_t mask = ~(0xFFFF << (hw * 16)) ;
 			uint64_t value = readRegister(Rd, sf);
