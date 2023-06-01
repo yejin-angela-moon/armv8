@@ -9,9 +9,9 @@
 #include <stdint.h>
 #include "definitions.h"
 
-void writeRegister (int registerIndex, uint64_t newValue, uint8_t sf, uint64_t *generalRegisters);
+void writeRegister (uint8_t registerIndex, uint64_t newValue, uint8_t sf, uint64_t *generalRegisters);
 
-uint64_t readRegister (int registerIndex, uint8_t sf, uint64_t *generalRegisters);
+uint64_t readRegister (uint8_t registerIndex, uint8_t sf, uint64_t *generalRegisters);
 
 uint32_t extractBits(uint64_t n, uint8_t startIndex, uint8_t endIndex);
 
