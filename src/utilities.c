@@ -7,6 +7,7 @@ void initialise(state *state) {
     state -> pstate.V = 0;
     state -> pstate.N = 0;
     state -> pstate.Z = 1;
+    state -> memory = (uint32_t*)calloc(MEMORY_SIZE, sizeof(uint32_t));
 }
 
 void inc_PC (state *state){
@@ -101,7 +102,7 @@ unsigned int get_MSB(unsigned int num) {
     return MSB;
 }
 
-uint64_t unsignedOffset(bool sf, int offset, int baseRegister) {
+uint64_t unsignedOffset(bool sf, int offset, int baseRegister, uint64_t *generalRegisters) {
     if (sf == 1){
         if (offset % 8 != 0 || offset > 32760){
             return 0;
@@ -111,5 +112,5 @@ uint64_t unsignedOffset(bool sf, int offset, int baseRegister) {
             return 0;
         }
     }
-    return readRegister(baseRegister, sf) + ((uint64_t) offset);
+    return readRegister(baseRegister, sf, generalRegisters) + ((uint64_t) offset);
 }
