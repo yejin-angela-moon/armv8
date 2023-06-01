@@ -4,9 +4,8 @@
 #include <assert.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "definition.h"
 #include "ioutils.h"
-#include "SDT.h"
+#include "definition.h"
 
 // ZR always returns 0. No fields needed.
 
@@ -355,9 +354,9 @@ static void readInstruction (uint32_t instruction, uint32_t *memory) {
         DPReg(instruction);
     } else if(extractBits(instruction, 25, 28) == 0xC ){
         if (extractBits(instruction, 31,31) == 0x1){
-            SDT(instruction, memory);
+            //SDT(instruction, memory);
         } else {
-            LL(instruction, memory, currAddress);
+            //LL(instruction, memory, currAddress);
         }
     } else {
         B(instruction);
@@ -374,14 +373,112 @@ static void initialise() {
     pstate.Z = 1; 
 }
 
+void readFile(uint32_t* memory, char* filename){
+    FILE *fp = fopen(filename, "rb");
+    int fileSize;
+
+    if (fp == NULL){
+        fprintf(stderr, "can't opern %s/n", filename);
+        exit(1);
+    }
+
+    fseek(fp, 0, SEEK_END);
+    fileSize = ftell(fp);
+    fseek(fp, 0, SEEK_SET);
+
+    fread(memory, sizeof (int32_t), fileSize/sizeof (int32_t), fp);
+
+/*
+    uint32_t instruction;
+    do {
+        fread(memory, fileSize, 1, fp);
+        fread(&instruction, fileSize, 1, fp);
+        readInstruction(instruction, memory);
+        inc_PC();
+    } while (instruction != HALT_INSTRUCTION);
+
+    */
+
+    fclose(fp);
+}
+
+void printStateToFile( uint32_t* memory, char* filename, Pstate pstate, uint32_t currAddress){
+    FILE *outputFile = fopen(filename, "w");
+
+    if (outputFile == NULL){
+        printf("Error opeing file\n");
+        exit(1);
+    }
+
+    //print registers
+    fprintf(outputFile, "Register:\n");
+    for(int i = 0; i < NUM_REGISTERS; i++ ){
+        if (i < 10) {
+            fprintf(outputFile, "X0%d = %016lx\n", i, readRegister(i, 0));
+        } else {
+            fprintf(outputFile, "X%d = %016lx\n", i, readRegister(i, 0));
+        }
+    }
+
+    //Print PC
+    fprintf(outputFile, "PC = %08x\n", currAddress);
+    fprintf(outputFile, "PSTATE : %s%s%s%s\n",
+            pstate.N ? "N" : "-",
+            pstate.Z ? "Z" : "-",
+            pstate.C ? "C" : "-",
+            pstate.V ? "V" : "-");
+
+    //print non-zero memory
+    fprintf(outputFile, "Non-zero memory:\n");
+    for (int i = 0; i < MEMORY_SIZE; i += 4) {
+        if (memory[i] != 0) {
+            fprintf(outputFile, "0x%08x: %08x\n", i, memory[i]);
+        }
+    }
+
+    fclose(outputFile);
+}
+
+void printToString( uint32_t* memory, Pstate pstate, uint32_t currAddress){
+
+    //print registers
+    printf("Register:\n");
+    for(int i = 0; i < NUM_REGISTERS; i++ ){
+        if (i < 10) {
+            printf("X0%d = %016lx\n", i, readRegister(i, 0));
+        } else {
+            printf("X%d = %016lx\n", i, readRegister(i, 0));
+        }
+    }
+
+    //Print PC
+    printf("PC = %08x\n", currAddress);
+    printf("PSTATE : %s%s%s%s\n",
+           pstate.N ? "N" : "-",
+           pstate.Z ? "Z" : "-",
+           pstate.C ? "C" : "-",
+           pstate.V ? "V" : "-");
+
+    //print non-zero memory
+    printf("Non-zero memory:\n");
+    for (int i = 0; i < MEMORY_SIZE; i += 4) {
+        if (memory[i] != 0) {
+            printf("0x%08x: %08x\n", i, memory[i]);
+        }
+    }
+}
+
+
 static void execute(uint32_t* memory){
 	uint32_t instruction;
-	do
-	{
-		instruction = memory[currAddress / 4];
-		readInstruction(instruction, memory);
-		currAddress += 4;
-	} while (instruction != HALT_INSTRUCTION && instruction != 0);
+    while (1){
+        if (instruction == HALT_INSTRUCTION){
+            break;
+        }
+        instruction = memory[currAddress / 4];
+        readInstruction(instruction, memory);
+        inc_PC();
+    }
 }
 
 int main(int argc, char* argv[]) {

@@ -12,6 +12,8 @@ all: assemble emulate
 assemble: assemble.o
 emulate: emulate.o
 
+
+
 clean:
 	$(RM) *.o assemble emulate
 	
