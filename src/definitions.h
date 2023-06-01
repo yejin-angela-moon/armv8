@@ -24,6 +24,7 @@ typedef struct {
     Pstate pstate;
     uint64_t generalRegisters[NUM_REGISTERS];
     uint32_t currAddress; // hexadecimal address to represents PC
+    uint32_t *memory;
 } state;
 
 #endif
