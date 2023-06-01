@@ -494,7 +494,7 @@ static void execute(uint32_t* memory){
 	} while (instruction != HALT_INSTRUCTION && instruction != 0);
 }
 
-static void printStateToFile(char* filename, uint32_t* memory){
+static void printStateToFile( uint32_t* memory, char* filename){
 	FILE *outputFile = fopen(filename, "w");
 
 	if (outputFile == NULL){
@@ -531,29 +531,55 @@ static void printStateToFile(char* filename, uint32_t* memory){
 	fclose(outputFile);
 }
 
+static void printToString( uint32_t* memory){
+
+	//print registers
+	printf("Register:\n");
+	for(int i = 0; i < NUM_REGISTERS; i++ ){
+		if (i < 10) {
+            printf("X0%d = %016lx\n", i, readRegister(i, 0));
+        } else {
+            printf("X%d = %016lx\n", i, readRegister(i, 0));
+        }
+	} 
+
+	//Print PC
+	printf("PC = %08x\n", currAddress);
+	printf("PSTATE : %s%s%s%s\n", 
+		pstate.N ? "N" : "-", 
+		pstate.Z ? "Z" : "-", 
+		pstate.C ? "C" : "-", 
+		pstate.V ? "V" : "-");
+
+	//print non-zero memory
+	printf("Non-zero memory:\n");
+	for (int i = 0; i < MEMORY_SIZE; i += 4) {
+        if (memory[i] != 0) {
+            printf("0x%08x: %08x\n", i, memory[i]);
+        }
+    }
+}
+
 int main(int argc, char* argv[]) {
 
-	assert(argc == 2);
+	if (argc < 2 || argc > 3){
+		printf("Usage: ./emulate <bin_file> [<out_file>]\n");
+        return 1;
+	}
 
     initialise();
 
     uint32_t *memory = (uint32_t*)calloc(MEMORY_SIZE, sizeof(uint32_t));
-  
-
-	//The memory stored in 32-bit words(4 bytes)
-
-	// FILE *inputFile = fopen(argv[1], "rb");
-	// FILE* inputFile = fopen("input.bin", "rb");
+	
 	readFile(memory, argv[1]);
+	
 	execute(memory);
 
-
-	//char outputFileName[100];
-    //snprintf(outputFileName, sizeof(outputFileName), "%s.out", argv[1]);
-	char* outputFileName = argv[1];
-	char* dot = strrchr(outputFileName, '.');
-	strcpy(dot, ".out");
-	printStateToFile(outputFileName, memory);
+	if (argc == 3){
+		printStateToFile(memory, argv[2][1]);
+	} else{
+		printToString(memory);
+	}
     
     free(memory);
     return EXIT_SUCCESS;
