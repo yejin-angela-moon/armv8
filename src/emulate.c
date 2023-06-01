@@ -4,6 +4,9 @@
 #include <assert.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "definition.h"
+#include "ioutils.h"
+#include "SDT.h"
 
 // ZR always returns 0. No fields needed.
 
@@ -12,18 +15,9 @@ uint32_t currAddress; // hexadecimal address to represents PC
 // ZR always returns 0. No fields needed. 
 
 // Initialise number of registers
-#define NUM_REGISTERS 31
-
 uint64_t generalRegisters[NUM_REGISTERS];
 
 //int generalRegisters[31]; // global var so initialised to 0s
-
-typedef struct {
-    bool N;
-    bool Z;
-    bool C;
-    bool V;
-} Pstate;
 
 Pstate pstate = {false, true, false, false}; // Z is initialised
 
@@ -91,37 +85,37 @@ void update_pstate(uint64_t result, uint64_t operand1, uint64_t operand2, bool i
 
 void arithmetic_immediate(uint8_t sf, uint8_t opc, uint32_t operand, uint8_t Rd)  {
 	uint8_t sh = (operand >> 17) & 0x01;     // extract bit 22
-        uint16_t imm12 = (operand >> 5) & 0x0FFF; // extract bits 21-10
-        uint8_t rn = operand & 0x1F;             // extract bits 9-5 
-        uint64_t result = 0;
-  
-        // Store result in the destination register
-        if (sh) {
-                imm12 <<= 12;
-                writeRegister(Rd, result, sf);  // 64-bit
-        } else {
-                generalRegisters[Rd] = (uint32_t)result;  // 32-bit
-        }
-  
-        // Operations performed depending on opc
-        switch (opc) {
-                case 0x0:
-                    result += rn;
-					break;
-                case 0x1:
-                    result += rn;
-                    update_pstate(result, rn, imm12, 0);
-					break;
-                case 0x2:
-                	result -= rn;
-					break;
-                case 0x3:
-                	result -= rn;
-                    update_pstate(result, rn, imm12, 1);
-				default:
-					printf("Invalid opcode for arithmetic_immediate: %02X\n", opc);
-				
-        }
+	uint16_t imm12 = (operand >> 5) & 0x0FFF; // extract bits 21-10
+	uint8_t rn = operand & 0x1F;             // extract bits 9-5 
+	uint64_t result = 0;
+
+	// Store result in the destination register
+	if (sh) {
+		imm12 <<= 12;
+		writeRegister(Rd, result, sf);  // 64-bit
+	} else {
+		generalRegisters[Rd] = (uint32_t)result;  // 32-bit
+	}
+
+	// Operations performed depending on opc
+	switch (opc) {
+		case 0x0:
+			result += rn;
+			break;
+		case 0x1:
+			result += rn;
+			update_pstate(result, rn, imm12, 0);
+			break;
+		case 0x2:
+			result -= rn;
+			break;
+		case 0x3:
+			result -= rn;
+			update_pstate(result, rn, imm12, 1);
+		default:
+			printf("Invalid opcode for arithmetic_immediate: %02X\n", opc);
+			
+	}
 }
   
 void wide_move_immediate(uint8_t sf, uint8_t opc, uint32_t operand, uint8_t Rd) {
@@ -307,89 +301,6 @@ static void DPReg(uint32_t instruction) {
         }
     }
 }
-
-
-static void SDT(uint32_t instruction, uint32_t* memory) {
-	int sf = extractBits(instruction, 30, 30);
-	int offset = extractBits(instruction, 10, 21);
-	int xn = extractBits(instruction, 5, 9);
-	int rt = extractBits(instruction, 0, 4);
-	uint32_t addr;
-	bool indexFlag = false;
-	int val;
-	
-	if (extractBits(instruction, 24, 24) == 1){
-		//Unsigned Immediate Offset when U = 1, addr = xn + imm12
-		addr = readRegister(xn, 0) + offset;
-	} else if (extractBits(instruction, 21, 21) == 0){
-		//Pre/Post-Index
-		//when i = 1 (pre indexed), addr = xn + simm9 and xn = xn + simm9
-		//when i = 0 (post indexed), addr = xn and xn = xn + simm9
-		int simm = extractBits(instruction, 12, 20);
-		int i = extractBits(instruction, 11, 11);
-		val = readRegister(xn, 0) + simm;
-		if (i == 1){
-			addr = val;
-		} else {
-			addr = readRegister(xn, 0);
-		}
-		indexFlag = true;
-	} else {
-		//Register Offset
-		//addr = xn + xm
-		int xm = extractBits(instruction, 16, 20);
-		addr = readRegister(xn, 0) + readRegister(xm, 0);
-	}
-	if (sf == 0){
-		if (extractBits(instruction, 22, 22) == 1){
-			//load operation
-			uint32_t wt = 0;
-			for (int i = 0; i < 3; i++){
-				wt |= ((uint32_t) memory[addr + i]) << (8*i);
-			}
-			writeRegister(rt, wt, sf);
-		}else{
-			//store operation
-			uint32_t wt = (uint32_t) readRegister(rt, sf);
-			for (int i = 0; i < 3; i++){
-				memory[addr + i] = extractBits(wt, 8*i + 7,8*i);
-			} 
-		}
-	} else {
-		if (extractBits(instruction, 22, 22) == 1){
-			//load operation
-			uint64_t xt;
-			for (int i = 0; i < 7; i++){
-				xt |= ((uint64_t) memory[addr + i]) << (8*i);
-			}
-			writeRegister(rt, xt, sf);
-		}else{
-			//store operation
-			uint64_t xt = (uint64_t) readRegister(rt, sf);
-			for (int i = 0; i < 7; i++) {
-				memory[addr + i] = extractBits(xt, 8*i + 7,8*i);
-			}
-		}
-	}
-
-	if (indexFlag){
-		writeRegister(xn, val, sf);
-	}
-}
-
-static void LL(uint32_t instruction, uint32_t *memory) {
-	int sf = extractBits(instruction, 30,30);
-	int simm = extractBits(instruction, 5, 23);
-	int rt = extractBits(instruction, 0, 4);
-	int64_t offset = simm * 4;
-
-//	if (offset & (1<<18)){
-//		offset = offset | 0xFFFFFFFFFFFA0000;
-//	}
-
-	writeRegister(rt, memory[currAddress + offset], sf);
-}
-
 static void B(uint32_t instruction) {
 	#define signExtension(x) ((uint64_t)((uint32_t)x))
 	uint8_t unconditional = extractBits(instruction, 26, 31);
@@ -445,7 +356,7 @@ static void readInstruction (uint32_t instruction, uint32_t *memory) {
         if (extractBits(instruction, 31,31) == 0x1){
             SDT(instruction, memory);
         } else {
-            LL(instruction, memory);
+            LL(instruction, memory, currAddress);
         }
     } else {
         B(instruction);
@@ -462,28 +373,6 @@ static void initialise() {
     pstate.Z = 1; 
 }
 
-#define HALT_INSTRUCTION 0x8a000000
-
-#define MEMORY_SIZE (2 * 1024 * 1024)  // 2 MiB
-
-static void readFile(uint32_t* memory, char* filename){
-	FILE *fp = fopen(filename, "rb");
-	int fileSize;
-	
-	if (fp == NULL){
-		fprintf(stderr, "can't opern %s/n", filename);
-		exit(1);
-	}
-
-	fseek(fp, 0, SEEK_END);
-	fileSize = ftell(fp);
-	fseek(fp, 0, SEEK_SET);
-
-	fread(memory, fileSize, 1, fp);
-
-	fclose(fp);
-}
-
 static void execute(uint32_t* memory){
 	uint32_t instruction;
 	do
@@ -492,72 +381,6 @@ static void execute(uint32_t* memory){
 		readInstruction(instruction, memory);
 		currAddress += 4;
 	} while (instruction != HALT_INSTRUCTION && instruction != 0);
-}
-
-static void printStateToFile( uint32_t* memory, char* filename){
-	FILE *outputFile = fopen(filename, "w");
-
-	if (outputFile == NULL){
-		printf("Error opeing file\n");
-		exit(1);
-	}
-
-	//print registers
-	fprintf(outputFile, "Register:\n");
-	for(int i = 0; i < NUM_REGISTERS; i++ ){
-		if (i < 10) {
-            fprintf(outputFile, "X0%d = %016lx\n", i, readRegister(i, 0));
-        } else {
-            fprintf(outputFile, "X%d = %016lx\n", i, readRegister(i, 0));
-        }
-	} 
-
-	//Print PC
-	fprintf(outputFile, "PC = %08x\n", currAddress);
-	fprintf(outputFile, "PSTATE : %s%s%s%s\n", 
-		pstate.N ? "N" : "-", 
-		pstate.Z ? "Z" : "-", 
-		pstate.C ? "C" : "-", 
-		pstate.V ? "V" : "-");
-
-	//print non-zero memory
-	fprintf(outputFile, "Non-zero memory:\n");
-	for (int i = 0; i < MEMORY_SIZE; i += 4) {
-        if (memory[i] != 0) {
-            fprintf(outputFile, "0x%08x: %08x\n", i, memory[i]);
-        }
-    }
-
-	fclose(outputFile);
-}
-
-static void printToString( uint32_t* memory){
-
-	//print registers
-	printf("Register:\n");
-	for(int i = 0; i < NUM_REGISTERS; i++ ){
-		if (i < 10) {
-            printf("X0%d = %016lx\n", i, readRegister(i, 0));
-        } else {
-            printf("X%d = %016lx\n", i, readRegister(i, 0));
-        }
-	} 
-
-	//Print PC
-	printf("PC = %08x\n", currAddress);
-	printf("PSTATE : %s%s%s%s\n", 
-		pstate.N ? "N" : "-", 
-		pstate.Z ? "Z" : "-", 
-		pstate.C ? "C" : "-", 
-		pstate.V ? "V" : "-");
-
-	//print non-zero memory
-	printf("Non-zero memory:\n");
-	for (int i = 0; i < MEMORY_SIZE; i += 4) {
-        if (memory[i] != 0) {
-            printf("0x%08x: %08x\n", i, memory[i]);
-        }
-    }
 }
 
 int main(int argc, char* argv[]) {
@@ -576,9 +399,9 @@ int main(int argc, char* argv[]) {
 	execute(memory);
 
 	if (argc == 3){
-		printStateToFile(memory, argv[2]);
+		printStateToFile(memory, argv[2], pstate, currAddress);
 	} else{
-		printToString(memory);
+		printToString(memory, pstate, currAddress);
 	}
     
     free(memory);
