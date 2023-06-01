@@ -576,7 +576,7 @@ int main(int argc, char* argv[]) {
 	execute(memory);
 
 	if (argc == 3){
-		printStateToFile(memory, argv[2][1]);
+		printStateToFile(memory, argv[2]);
 	} else{
 		printToString(memory);
 	}
