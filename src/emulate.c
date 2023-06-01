@@ -383,9 +383,9 @@ static void LL(uint32_t instruction, uint32_t *memory) {
 	int rt = extractBits(instruction, 0, 4);
 	int64_t offset = simm * 4;
 
-	if (offset & (1<<18)){
-		offset = offset | 0xFFFFFFFFFFFA0000;
-	}
+//	if (offset & (1<<18)){
+//		offset = offset | 0xFFFFFFFFFFFA0000;
+//	}
 
 	writeRegister(rt, memory[currAddress + offset], sf);
 }
@@ -468,6 +468,7 @@ static void initialise() {
 
 static void readFile(uint32_t* memory, char* filename){
 	FILE *fp = fopen(filename, "rb");
+	int fileSize;
 	
 	if (fp == NULL){
 		fprintf(stderr, "can't opern %s/n", filename);
@@ -475,10 +476,10 @@ static void readFile(uint32_t* memory, char* filename){
 	}
 
 	fseek(fp, 0, SEEK_END);
-	long fileSize = ftell(fp);
+	fileSize = ftell(fp);
 	fseek(fp, 0, SEEK_SET);
 
-	fread(memory, sizeof(uint32_t), fileSize/sizeof(uint32_t), fp);
+	fread(memory, fileSize, 1, fp);
 
 	fclose(fp);
 }
@@ -490,7 +491,7 @@ static void execute(uint32_t* memory){
 		instruction = memory[currAddress / 4];
 		readInstruction(instruction, memory);
 		currAddress += 4;
-	} while (currAddress != HALT_INSTRUCTION);
+	} while (instruction != HALT_INSTRUCTION && instruction != 0);
 }
 
 static void printStateToFile(char* filename, uint32_t* memory){
@@ -506,10 +507,8 @@ static void printStateToFile(char* filename, uint32_t* memory){
 	for(int i = 0; i < NUM_REGISTERS; i++ ){
 		if (i < 10) {
             fprintf(outputFile, "X0%d = %016lx\n", i, readRegister(i, 0));
-			printf( "X0%d = %016lx\n", i, readRegister(i, 0));
         } else {
             fprintf(outputFile, "X%d = %016lx\n", i, readRegister(i, 0));
-			printf("X%d = %016lx\n", i, readRegister(i, 0));
         }
 	} 
 
@@ -532,19 +531,14 @@ static void printStateToFile(char* filename, uint32_t* memory){
 	fclose(outputFile);
 }
 
-
-
 int main(int argc, char* argv[]) {
-	printf("oh hey");
 
 	assert(argc == 2);
 
     initialise();
 
-	printf("hi");
-
     uint32_t *memory = (uint32_t*)calloc(MEMORY_SIZE, sizeof(uint32_t));
-    printf("yo");
+  
 
 	//The memory stored in 32-bit words(4 bytes)
 
@@ -554,9 +548,11 @@ int main(int argc, char* argv[]) {
 	execute(memory);
 
 
-	char outputFileName[100];
-    snprintf(outputFileName, sizeof(outputFileName), "%s.out", argv[1]);
-	
+	//char outputFileName[100];
+    //snprintf(outputFileName, sizeof(outputFileName), "%s.out", argv[1]);
+	char* outputFileName = argv[1];
+	char* dot = strrchr(outputFileName, '.');
+	strcpy(dot, ".out");
 	printStateToFile(outputFileName, memory);
     
     free(memory);
