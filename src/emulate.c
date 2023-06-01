@@ -134,16 +134,17 @@ void wide_move_immediate(uint8_t sf, uint8_t opc, uint32_t operand, uint8_t Rd) 
 			writeRegister(Rd, op, sf);
 			break;
 		case 0x3: // movk
-			int l = (hw * 16);
-			uint64_t mask = ~(0xFFFF << (hw * 16)) ;
-			uint64_t value = readRegister(Rd, sf);
-			value &= mask;
-			if (sf == 1){
-				uint64_t shiftedImm = imm16 << (hw * 16);
-				value |= shiftedImm;
+			{
+				uint64_t mask = ~(0xFFFF << (hw * 16)) ;
+				uint64_t value = readRegister(Rd, sf);
+				value &= mask;
+				if (sf == 1){
+					uint64_t shiftedImm = imm16 << (hw * 16);
+					value |= shiftedImm;
+				}
+				writeRegister(Rd, value, sf);
+				break;
 			}
-			writeRegister(Rd, value, sf);
-			break;
 		default:
 			printf("Invalid opcode for wide_move_immediate: %02X\n", opc);
 			exit(1);
