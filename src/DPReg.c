@@ -1,6 +1,6 @@
 #include "DPReg.h"
 
-void arithmeticDPReg(uint8_t opc, uint8_t opr, uint8_t rd, uint8_t rn, uint8_t rm, uint8_t operand, bool sf, state *state) {
+static void arithmeticDPReg(uint8_t opc, uint8_t opr, uint8_t rd, uint8_t rn, uint8_t rm, uint8_t operand, bool sf, state *state) {
     uint8_t shift = extractBits(opr, 1, 2);
     uint8_t op2 = bitShift(shift, rm, operand);
     uint64_t *generalRegisters = state->generalRegisters;
@@ -32,7 +32,7 @@ void arithmeticDPReg(uint8_t opc, uint8_t opr, uint8_t rd, uint8_t rn, uint8_t r
 
 }
 
-void logicalDPReg(uint8_t opc, uint8_t opr, uint8_t rd, uint8_t rn, uint8_t rm, uint8_t operand, bool sf, state *state) {
+static void logicalDPReg(uint8_t opc, uint8_t opr, uint8_t rd, uint8_t rn, uint8_t rm, uint8_t operand, bool sf, state *state) {
     uint64_t *generalRegisters = state->generalRegisters;
     Pstate pstate = state->pstate;
     uint8_t shift = extractBits(opr, 1, 2);
@@ -73,7 +73,7 @@ void logicalDPReg(uint8_t opc, uint8_t opr, uint8_t rd, uint8_t rn, uint8_t rm, 
     writeRegister(rd, valueToWrite, sf, generalRegisters);
 }
 
-void multiplyDPReg(uint8_t rd, uint8_t rn, uint8_t rm, uint8_t operand, bool sf, state *state) {
+static void multiplyDPReg(uint8_t rd, uint8_t rn, uint8_t rm, uint8_t operand, bool sf, state *state) {
     uint64_t *generalRegisters = state->generalRegisters;
     bool x = extractBits(operand, 5, 5);
     uint8_t ra = extractBits(operand, 0, 4);
