@@ -25,6 +25,4 @@ void initialise (state *state);
 
 unsigned int get_MSB(unsigned int num);
 
-uint64_t unsignedOffset(bool sf, int offset, int baseRegister);
-
 #endif
