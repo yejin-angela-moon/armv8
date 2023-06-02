@@ -1,15 +1,9 @@
-#include <stdio.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include "definitions.h"
 #include "utilities.h"
-
-#define HALT_INSTRUCTION 0x8a000000
-#define MEMORY_SIZE (2 * 1024 * 1024)  // 2 MiB
+#include "ioutils.h"
 
 void readFile(state* state, char* filename){
 	FILE *fp = fopen(filename, "rb");
-	int fileSize;
+	long int fileSize;
 	
 	if (fp == NULL){
 		fprintf(stderr, "can't opern %s/n", filename);
