@@ -15,23 +15,26 @@
 
 /* Decode instruction */
 void readInstruction (uint32_t instruction, state *state) {
-    if (instruction == 0xD503201F) {
-        //nop
+    if (instruction == 0xD503201F) { //nop
         inc_PC(state);
         return;
     }
     if (extractBits(instruction, 26, 28) == 0x4){
+        printf("DPI\n");
         DPImm(instruction, state);
     } else if (extractBits(instruction, 25, 27) == 0x5) {
-
+        printf("DPR\n");
         DPReg(instruction, state);
     } else if(extractBits(instruction, 25, 28) == 0xC ){
         if (extractBits(instruction, 31,31) == 0x1){
+            printf("SDT\n");
             SDT(instruction, state);
         } else {
+            printf("LL\n");
             LL(instruction, state);
         }
     } else {
+        printf("B\n");
         B(instruction, state);
     }
 }
