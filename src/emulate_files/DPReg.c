@@ -104,7 +104,7 @@ void DPReg(uint32_t instruction, state *state) {
     if (m == 1) {
         multiplyDPReg(rd, rn, rm, operand, sf, state);
     } else {
-        if (extractBits(opr, 4, 4)) {
+        if (extractBits(opr, 3, 3)) {
             arithmeticDPReg(opc, opr, rd, rn, rm, operand, sf, state);
         } else {
             logicalDPReg(opc, opr, rd, rn, rm, operand, sf, state);
