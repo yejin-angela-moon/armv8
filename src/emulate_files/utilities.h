@@ -23,6 +23,4 @@ void inc_PC (state *state);
 
 state *initialise(void);
 
-unsigned int get_MSB(unsigned int num);
-
 #endif
