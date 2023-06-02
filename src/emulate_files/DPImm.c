@@ -5,7 +5,7 @@ static void arithmetic_immediate(uint8_t sf, uint8_t opc, uint32_t operand, uint
     Pstate pstate = state->pstate;
 
     bool sh = extractBits(operand, 17, 17);
-    uint16_t imm12 = extractBits(operand, 5, 16);
+    uint32_t imm12 = extractBits(operand, 5, 16);
     uint8_t rn = extractBits(operand, 0, 4);
     uint64_t result = readRegister(rn, sf, generalRegisters);
 
@@ -60,10 +60,8 @@ static void wide_move_immediate(uint8_t sf, uint8_t opc, uint32_t operand, uint8
             uint64_t mask = ~(0xFFFF << (hw * 16)) ;
             uint64_t value = readRegister(Rd, sf, generalRegisters);
             value &= mask;
-            if (sf == 1){
-                uint64_t shiftedImm = imm16 << (hw * 16);
-                value |= shiftedImm;
-            }
+            uint64_t shiftedImm = imm16 << (hw * 16);
+            value |= shiftedImm;
             writeRegister(Rd, value, sf, generalRegisters);
             break;
         }

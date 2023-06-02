@@ -33,34 +33,47 @@ void SDT(uint32_t instruction, state *state) {
         uint32_t xm = extractBits(instruction, 16, 20);
         addr = readRegister(xn, 0, generalRegisters) + readRegister(xm, 0, generalRegisters);
     }
+
+    uint16_t *twoByteMem = (uint16_t*)(&memory[addr/4]);
+    if (addr%4 != 0){
+        twoByteMem = &twoByteMem[1];
+    }
+    for (int i = 0; i < 8; i++){
+        printf("%08x\n", twoByteMem[i]);
+    }
+
     if (sf == 0){
         if (extractBits(instruction, 22, 22) == 1){
             //load operation
+
             uint32_t wt = 0;
             for (int i = 0; i < 3; i++){
-                wt |= ((uint32_t) memory[(addr+ i) /4]) << (8*i);
+                wt |= ((uint32_t) twoByteMem[i] << (16*i));
             }
             writeRegister(rt, wt, sf, generalRegisters);
+
         }else{
             //store operation
             uint32_t wt = (uint32_t) readRegister(rt, sf, generalRegisters);
             for (int i = 0; i < 3; i++){
-                memory[(addr+ i) /4] = (wt>>(i*8)) & 0xFF;
+                twoByteMem[i] = (wt>>(i*16)) & 0xFFFF;
             }
         }
     } else {
         if (extractBits(instruction, 22, 22) == 1){
             //load operation
-            uint64_t xt;
-            for (int i = 0; i < 7; i++){
-                xt |= ((uint64_t) memory[(addr+ i) /4]) << (8*i);
+            uint64_t xt = 0;
+            for (int i = 0; i < 4; i++){
+                xt |= (((uint64_t) twoByteMem[i] )  << (16*i));
+                printf("%016lx\n", ((uint64_t) twoByteMem[i] )  << (16*i));
+                printf("%016lx\n", xt);
             }
             writeRegister(rt, xt, sf, generalRegisters);
         }else{
             //store operation
             uint64_t xt = (uint64_t) readRegister(rt, sf, generalRegisters);
-            for (int i = 0; i < 7; i++) {
-                memory[(addr+ i) /4] = (xt >> (i*8)) & 0xFF;
+            for (int i = 0; i < 2; i++) {
+                twoByteMem[i] = (xt >> (i*16)) & 0xFFFF;
             }
         }
     }
