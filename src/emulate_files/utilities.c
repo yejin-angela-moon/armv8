@@ -94,12 +94,3 @@ uint8_t bitShift(uint8_t shift, int64_t n, uint8_t operand) {
         default: return 0;
     }
 }
-
-unsigned int get_MSB(unsigned int num) {
-    unsigned int MSB = 0;
-    while (num != 0) {
-        num = num / 2;
-        MSB++;
-    }
-    return MSB;
-}
