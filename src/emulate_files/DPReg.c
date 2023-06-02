@@ -1,10 +1,11 @@
 #include "DPReg.h"
 
 static void arithmeticDPReg(uint8_t opc, uint8_t opr, uint8_t rd, uint8_t rn, uint8_t rm, uint8_t operand, bool sf, state *state) {
-    uint8_t shift = extractBits(opr, 1, 2);
-    uint8_t op2 = bitShift(shift, rm, operand);
     uint64_t *generalRegisters = state->generalRegisters;
     Pstate pstate = state->pstate;
+
+    uint8_t shift = extractBits(opr, 1, 2);
+    uint8_t op2 = bitShift(shift, readRegister(rm, 1, generalRegisters), operand);
 
     uint64_t valueToWrite;
     switch (opc) {
@@ -33,9 +34,9 @@ static void arithmeticDPReg(uint8_t opc, uint8_t opr, uint8_t rd, uint8_t rn, ui
 
 static void logicalDPReg(uint8_t opc, uint8_t opr, uint8_t rd, uint8_t rn, uint8_t rm, uint8_t operand, bool sf, state *state) {
     uint64_t *generalRegisters = state->generalRegisters;
-    // Pstate pstate = state->pstate;
+
     uint8_t shift = extractBits(opr, 1, 2);
-    uint64_t op2 = bitShift(shift, rm, operand);
+    uint8_t op2 = bitShift(shift, readRegister(rm, 1, generalRegisters), operand);
     bool n = opr % 2;
 
     uint64_t valueToWrite;
@@ -63,7 +64,7 @@ static void logicalDPReg(uint8_t opc, uint8_t opr, uint8_t rd, uint8_t rn, uint8
         } else {
             valueToWrite = readRegister(rn, sf, generalRegisters) & op2;
         }
-        state->pstate.N = get_MSB(valueToWrite);
+        state->pstate.N = extractBits(valueToWrite, 63, 63);
         state->pstate.Z = valueToWrite == 0;
         state->pstate.C = 0;
         state->pstate.V = 0;
@@ -104,7 +105,7 @@ void DPReg(uint32_t instruction, state *state) {
     if (m == 1) {
         multiplyDPReg(rd, rn, rm, operand, sf, state);
     } else {
-        if (extractBits(opr, 4, 4)) {
+        if (extractBits(opr, 3, 3)) {
             arithmeticDPReg(opc, opr, rd, rn, rm, operand, sf, state);
         } else {
             logicalDPReg(opc, opr, rd, rn, rm, operand, sf, state);
