@@ -39,10 +39,10 @@ void readInstruction (uint32_t instruction, state *state) {
 static void execute(state* state){
 	uint32_t instruction;
     while (1){
+        instruction = state->memory[state->currAddress / 4];
         if (instruction == HALT_INSTRUCTION){
             break;
         }
-        instruction = state->memory[state->currAddress / 4];
         readInstruction(instruction, state);
         inc_PC(state);
     }
