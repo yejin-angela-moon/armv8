@@ -359,12 +359,13 @@ int main(int argc, char* argv[]) {
     // each element represents 1 byte of memory and setting every element as 0
 	//using calloc
 
-	FILE *inputFile = fopen(argv[1], "rb");
+	FILE *inputFile;
+	inputFile = fopen(argv[1], "rb");
 	// FILE* inputFile = fopen("input.bin", "rb");
-	if(inputFile == NULL){                    // check if the input file is empty
-    	printf("Error opening input file\n");
-    	return EXIT_FAILURE;
-	}	
+//	if(inputFile == NULL){                    // check if the input file is empty
+   //   printf("Error opening input file\n");
+   // 	return EXIT_FAILURE;
+//	}	
 
     uint32_t instruction;
 
@@ -373,12 +374,9 @@ int main(int argc, char* argv[]) {
         readInstruction(instruction, (uint64_t*)memory);
     } while (instruction != 0x8a000000);
 
-    FILE *outputFile = fopen(argv[1], "w");
-	if(outputFile == NULL){                    //check if the output file is empty - needed?
-    	printf("Error opening output file\n");
-    	return EXIT_FAILURE;
-	}
+    FILE *outputFile = fopen("emulate.out", "w");
 
+	fprintf(outputFile, "Registers:\n");
     for (int registerIndex = 0; registerIndex < NUM_REGISTERS; registerIndex++) {
         if (registerIndex < 10) {
             fprintf(outputFile, "X0%d = %016lx\n", registerIndex, readRegister(registerIndex, 0));
@@ -393,7 +391,6 @@ int main(int argc, char* argv[]) {
 	//printf("PC = %016x\n", currAddress);
 	//printf("PSTATE : %s%s%s%s\n", pstate.N ? "N" : "-", pstate.Z ? "Z" : "-", pstate.C ? "C" : "-", pstate.V ? "V" : "-");
     
-
 	fclose(outputFile);
 
     free(memory);
