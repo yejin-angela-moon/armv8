@@ -91,7 +91,8 @@
     "cf.first.check.clang-format": "false",
     "cidr.known.project.marker": "true",
     "last_opened_file_path": "/homes/ym1721/armv8_48/src",
-    "nodejs_package_manager_path": "npm"
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "preferences.sourceCode.C/C++"
   }
 }]]></component>
   <component name="RunManager" selected="Makefile Application.all">
@@ -129,7 +130,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1685721232276</updated>
-      <workItem from="1685721233659" duration="1992000" />
+      <workItem from="1685721233659" duration="4351000" />
     </task>
     <servers />
   </component>
@@ -149,5 +150,9 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
   </component>
 </project>

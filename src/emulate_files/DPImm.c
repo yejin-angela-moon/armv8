@@ -28,11 +28,11 @@ static void arithmetic_immediate(uint8_t sf, uint8_t opc, uint32_t operand, uint
             //sub
             result -= imm12;
             break;
-        case 0x3:
-            //subs
-            result -= imm12;
-            update_pstate(result, rn, imm12, 1, &pstate);
-            break;
+            case 0x3:
+              //subs
+              result -= imm12;
+              update_pstate(result, rn, imm12, 1, &pstate);
+              break;
             default:
                 printf("Invalid opcode for arithmetic_immediate: %02X\n", opc);
 
@@ -61,10 +61,8 @@ static void wide_move_immediate(uint8_t sf, uint8_t opc, uint32_t operand, uint8
             uint64_t mask = ~(0xFFFF << (hw * 16)) ;
             uint64_t value = readRegister(Rd, sf, generalRegisters);
             value &= mask;
-            if (sf == 1){
-                uint64_t shiftedImm = imm16 << (hw * 16);
-                value |= shiftedImm;
-            }
+            uint64_t shiftedImm = imm16 << (hw * 16);
+            value |= shiftedImm;
             writeRegister(Rd, value, sf, generalRegisters);
             break;
         }
