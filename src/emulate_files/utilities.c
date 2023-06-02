@@ -70,7 +70,7 @@ void update_pstate(uint64_t result, uint64_t operand1, uint64_t operand2, bool i
     }
 }
 
-uint8_t bitShift(uint8_t shift, int64_t n, uint8_t operand) {
+uint8_t bitShift(uint8_t shift, uint64_t n, uint8_t operand) {
     switch (shift) {
         case 0:
             //lsl
@@ -80,7 +80,7 @@ uint8_t bitShift(uint8_t shift, int64_t n, uint8_t operand) {
             return n >> operand;
         case 2:
             //asr
-            if (n < 0 && shift > 0) {
+            if (extractBits(n, 63, 63) == 1 && shift > 0) {
                 return (n >> shift) | ~(~0U >> shift);
             } else {
                 return n >> shift;
