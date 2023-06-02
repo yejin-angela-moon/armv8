@@ -13,7 +13,7 @@ state *initialise(void) {
 }
 
 void inc_PC (state *state){
-    state -> currAddress += 0x4;
+    state -> currAddress += 4;
 }
 
 void writeRegister (uint8_t registerIndex, uint64_t newValue, uint8_t sf, uint64_t *generalRegisters) {
@@ -72,19 +72,12 @@ void update_pstate(uint64_t result, uint64_t operand1, uint64_t operand2, bool i
 
 uint8_t bitShift(uint8_t shift, uint64_t n, uint8_t operand) {
     switch (shift) {
-        case 0:
-            //lsl
+        case 0: //lsl
             return n << operand;
-        case 1:
-            //lsr
+        case 1: //lsr
             return n >> operand;
-        case 2:
-            //asr
-            if (extractBits(n, 63, 63) == 1 && shift > 0) {
-                return (n >> shift) | ~(~0U >> shift);
-            } else {
-                return n >> shift;
-            }
+        case 2: //asr
+            return ((int64_t) n) >> operand;
         case 3: {
             //ror
             int bitCount = sizeof(n) * 8; // Calculates the total number of bits for the data type
