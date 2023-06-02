@@ -92,7 +92,7 @@
     "cidr.known.project.marker": "true",
     "last_opened_file_path": "/homes/ym1721/armv8_48/src",
     "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "preferences.sourceCode.C/C++"
+    "settings.editor.selected.configurable": "preferences.fileTypes"
   }
 }]]></component>
   <component name="RunManager" selected="Makefile Application.all">
@@ -130,7 +130,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1685721232276</updated>
-      <workItem from="1685721233659" duration="4351000" />
+      <workItem from="1685721233659" duration="17163000" />
     </task>
     <servers />
   </component>

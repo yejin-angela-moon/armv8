@@ -40,6 +40,7 @@ static void logicalDPReg(uint8_t opc, uint8_t opr, uint8_t rd, uint8_t rn, uint8
     bool n = opr % 2;
 
     uint64_t valueToWrite;
+
     if (opc == 0) {
         if (n) {
             valueToWrite = readRegister(rn, sf, generalRegisters) & ~op2;
