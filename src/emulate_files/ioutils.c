@@ -31,9 +31,9 @@ void printStateToFile(state* state, char* filename){
 	fprintf(outputFile, "Register:\n");
 	for(int i = 0; i < NUM_REGISTERS; i++ ){
 		if (i < 10) {
-            fprintf(outputFile, "X0%d = %016lx\n", i, readRegister(i, 0, state->generalRegisters));
+            fprintf(outputFile, "X0%d = %016lx\n", i, readRegister(i, 1, state->generalRegisters));
         } else {
-            fprintf(outputFile, "X%d = %016lx\n", i, readRegister(i, 0, state->generalRegisters));
+            fprintf(outputFile, "X%d = %016lx\n", i, readRegister(i, 1, state->generalRegisters));
         }
 	} 
 
@@ -62,9 +62,9 @@ void printToString(state* state){
 	printf("Register:\n");
 	for(int i = 0; i < NUM_REGISTERS; i++){
 		if (i < 10) {
-            printf("X0%d = %016lx\n", i, readRegister(i, 0, state->generalRegisters));
+            printf("X0%d = %016lx\n", i, readRegister(i, 1, state->generalRegisters));
         } else {
-            printf("X%d = %016lx\n", i, readRegister(i, 0, state->generalRegisters));
+            printf("X%d = %016lx\n", i, readRegister(i, 1, state->generalRegisters));
         }
 	} 
 
