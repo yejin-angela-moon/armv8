@@ -20,7 +20,7 @@ void readFile(state* state, char* filename){
 	fileSize = ftell(fp);
 	fseek(fp, 0, SEEK_SET);
 
-	int numInstruction = fileSize/sizeof(uint32_t);
+	int numInstruction = fileSize/4;
 	
 	for (int i=0 ; i < numInstruction; i++){
 		fread(&state->memory[i], sizeof(uint32_t), 1, fp);
