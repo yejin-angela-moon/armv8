@@ -45,7 +45,7 @@ void SDT(uint32_t instruction, state *state) {
             //store operation
             uint32_t wt = (uint32_t) readRegister(rt, sf, generalRegisters);
             for (int i = 0; i < 3; i++){
-                memory[(addr/4) + i] = extractBits(wt, 8*i + 7,8*i);
+                memory[(addr/4) + i] = (wt>>(i*8)) & 0xFF;
             }
         }
     } else {
@@ -60,7 +60,7 @@ void SDT(uint32_t instruction, state *state) {
             //store operation
             uint64_t xt = (uint64_t) readRegister(rt, sf, generalRegisters);
             for (int i = 0; i < 7; i++) {
-                memory[(addr/4) + i] = extractBits(xt, 8*i + 7,8*i);
+                memory[(addr/4) + i] = (xt >> (i*8)) & 0xFF;
             }
         }
     }
