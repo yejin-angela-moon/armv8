@@ -63,7 +63,7 @@ static void logicalDPReg(uint8_t opc, uint8_t opr, uint8_t rd, uint8_t rn, uint8
         } else {
             valueToWrite = readRegister(rn, sf, generalRegisters) & op2;
         }
-        state->pstate.N = get_MSB(valueToWrite);
+        state->pstate.N = extractBits(valueToWrite, 63, 63);
         state->pstate.Z = valueToWrite == 0;
         state->pstate.C = 0;
         state->pstate.V = 0;
