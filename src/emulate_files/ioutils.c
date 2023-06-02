@@ -14,9 +14,6 @@ void readFile(state* state, char* filename){
 	fileSize = ftell(fp);
 	fseek(fp, 0, SEEK_SET);
 
-    /*for (int i = 0; i < fileSize/sizeof(uint32_t); i++) {
-        fread(state->memory + i, sizeof(uint32_t), 1, fp);
-    }*/
 	fread(state->memory, fileSize, 1, fp);
 
 	fclose(fp);
@@ -41,7 +38,7 @@ void printStateToFile(state* state, char* filename){
 	} 
 
 	//Print PC
-	fprintf(outputFile, "PC = %08x\n", state->currAddress);
+	fprintf(outputFile, "PC = %016x\n", state->currAddress);
 	fprintf(outputFile, "PSTATE : %s%s%s%s\n", 
 		state->pstate.N ? "N" : "-", 
 		state->pstate.Z ? "Z" : "-", 
@@ -72,7 +69,7 @@ void printToString(state* state){
 	} 
 
 	//Print PC
-	printf("PC = %08x\n", state->currAddress);
+	printf("PC = %016x\n", state->currAddress);
 	printf("PSTATE : %s%s%s%s\n", 
 		state->pstate.N ? "N" : "-", 
 		state->pstate.Z ? "Z" : "-", 
