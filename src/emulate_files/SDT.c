@@ -71,9 +71,20 @@ void SDT(uint32_t instruction, state *state) {
 }
 
 void LL(uint32_t instruction, state *state) {
-    uint32_t sf = extractBits(instruction, 30,30);
+    bool sf = extractBits(instruction, 30, 30);
     uint32_t simm = extractBits(instruction, 5, 23);
     uint32_t rt = extractBits(instruction, 0, 4);
     int64_t offset = simm * 4;
-    writeRegister(rt, state->memory[state->currAddress + offset], sf, state->generalRegisters);
+    uint32_t *memory = state->memory;
+    uint32_t currAddress = state->currAddress;
+    if (sf) {
+        uint64_t xt = 0;
+        for (int i =0; i < 2; i++){
+            xt |= (((uint64_t) memory[(currAddress + offset)/4 + i]) << (32 * i));
+        }
+        writeRegister(rt, xt, sf, state->generalRegisters);
+    } else {
+        writeRegister(rt, memory[state->currAddress + offset], sf, state->generalRegisters);
+    }
 }
+
