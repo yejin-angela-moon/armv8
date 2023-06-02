@@ -26,7 +26,7 @@ void readFile(state* state, char* filename){
 		fread(&state->memory[i], sizeof(uint32_t), 1, fp);
 	}
 	
-	fread(state->memory, fileSize, 1, fp);
+	// fread(state->memory, fileSize, 1, fp);
 
 	fclose(fp);
 }
@@ -61,7 +61,7 @@ void printStateToFile(state* state, char* filename){
 	fprintf(outputFile, "Non-zero memory:\n");
 	for (int i = 0; i < MEMORY_SIZE; i += 4) {
         if (state->memory[i] != 0) {
-            fprintf(outputFile, "0x%08x: %08x\n", i, state->memory[i]);
+            fprintf(outputFile, "0x%08x: %08x\n", i * 4, state->memory[i]);
         }
     }
 
