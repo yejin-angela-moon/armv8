@@ -5,22 +5,13 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "utilities.h"
-#include "definitions.h"
-#include "DPReg.h"
-
-static void DPImm(uint32_t instruction) {
-
-}
-
-static void SDT(uint32_t instruction, uint32_t *memory) {
-}
-
-static void B(uint32_t instruction) {
-}
-
-static void LL(uint32_t instruction, uint32_t *memory) {
-}
+#include "emulate_files/utilities.h"
+#include "emulate_files/DPImm.h"
+#include "emulate_files/DPReg.h"
+#include "emulate_files/SDT.h"
+#include "emulate_files/B.h"
+#include "emulate_files/ioutils.h"
+#include "emulate_files/definitions.h"
 
 /* Decode instruction */
 void readInstruction (uint32_t instruction, state *state) {
@@ -41,9 +32,22 @@ void readInstruction (uint32_t instruction, state *state) {
             LL(instruction, state);
         }
     } else {
-        B(instruction);
+        B(instruction, state);
     }
 }
+
+static void execute(state* state){
+	uint32_t instruction;
+    while (1){
+        if (instruction == HALT_INSTRUCTION){
+            break;
+        }
+        instruction = state->memory[state->currAddress / 4];
+        readInstruction(instruction, state);
+        inc_PC(state);
+    }
+}
+
 
 int main(int argc, char* argv[]) {
 
@@ -52,20 +56,20 @@ int main(int argc, char* argv[]) {
         return EXIT_FAILURE;
     }
 
-    state *state;
-    initialise(state);
+    state *state = initialise();
     uint32_t *memory = state->memory;
 
-    readFile(memory, argv[1]);
+    readFile(state, argv[1]);
 
-    execute(memory, state);
+    execute(state);
 
     if (argc == 3){
-        printStateToFile(memory, argv[2]);
+        printStateToFile(state, argv[2]);
     } else{
-        printToString(memory);
+        printToString(state);
     }
 
+    free(state);
     free(memory);
     return EXIT_SUCCESS;
 }
