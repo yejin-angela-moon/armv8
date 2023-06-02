@@ -9,7 +9,7 @@
 #include <stdint.h>
 #include "definitions.h"
 
-void writeRegister (uint8_t registerIndex, uint64_t newValue, uint8_t sf, uint64_t *generalRegisters);
+void writeRegister (uint8_t registerIndex, int64_t newValue, uint8_t sf, uint64_t *generalRegisters);
 
 uint64_t readRegister (uint8_t registerIndex, uint8_t sf, uint64_t *generalRegisters);
 

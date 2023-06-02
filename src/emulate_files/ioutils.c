@@ -43,9 +43,9 @@ void printStateToFile(state* state, char* filename){
 	fprintf(outputFile, "Register:\n");
 	for(int i = 0; i < NUM_REGISTERS; i++ ){
 		if (i < 10) {
-            fprintf(outputFile, "X0%d = %016lx\n", i, readRegister(i, 0, state->generalRegisters));
+            fprintf(outputFile, "X0%d = %016lx\n", i, readRegister(i, 1, state->generalRegisters));
         } else {
-            fprintf(outputFile, "X%d = %016lx\n", i, readRegister(i, 0, state->generalRegisters));
+            fprintf(outputFile, "X%d = %016lx\n", i, readRegister(i, 1, state->generalRegisters));
         }
 	} 
 
@@ -59,7 +59,7 @@ void printStateToFile(state* state, char* filename){
 
 	//print non-zero memory
 	fprintf(outputFile, "Non-zero memory:\n");
-	for (int i = 0; i < MEMORY_SIZE; i += 4) {
+	for (int i = 0; i < MEMORY_SIZE; i ++) {
         if (state->memory[i] != 0) {
             fprintf(outputFile, "0x%08x: %08x\n", i * 4, state->memory[i]);
         }
@@ -74,9 +74,9 @@ void printToString(state* state){
 	printf("Register:\n");
 	for(int i = 0; i < NUM_REGISTERS; i++ ){
 		if (i < 10) {
-            printf("X0%d = %016lx\n", i, readRegister(i, 0, state->generalRegisters));
+            printf("X0%d = %016lx\n", i, readRegister(i, 1, state->generalRegisters));
         } else {
-            printf("X%d = %016lx\n", i, readRegister(i, 0, state->generalRegisters));
+            printf("X%d = %016lx\n", i, readRegister(i, 1, state->generalRegisters));
         }
 	} 
 
@@ -90,9 +90,9 @@ void printToString(state* state){
 
 	//print non-zero memory
 	printf("Non-zero memory:\n");
-	for (int i = 0; i < MEMORY_SIZE; i += 4) {
+	for (int i = 0; i < MEMORY_SIZE; i ++) {
         if (state->memory[i] != 0) {
-            printf("0x%08x: %08x\n", i, state->memory[i]);
+            printf("0x%08x: %08x\n", i * 4, state->memory[i]);
         }
     }
 }
