@@ -38,14 +38,14 @@ void SDT(uint32_t instruction, state *state) {
             //load operation
             uint32_t wt = 0;
             for (int i = 0; i < 3; i++){
-                wt |= ((uint32_t) memory[(addr/4) + i]) << (8*i);
+                wt |= ((uint32_t) memory[(addr+ i) /4]) << (8*i);
             }
             writeRegister(rt, wt, sf, generalRegisters);
         }else{
             //store operation
             uint32_t wt = (uint32_t) readRegister(rt, sf, generalRegisters);
             for (int i = 0; i < 3; i++){
-                memory[(addr/4) + i] = (wt>>(i*8)) & 0xFF;
+                memory[(addr+ i) /4] = (wt>>(i*8)) & 0xFF;
             }
         }
     } else {
@@ -53,14 +53,14 @@ void SDT(uint32_t instruction, state *state) {
             //load operation
             uint64_t xt;
             for (int i = 0; i < 7; i++){
-                xt |= ((uint64_t) memory[(addr/4) + i]) << (8*i);
+                xt |= ((uint64_t) memory[(addr+ i) /4]) << (8*i);
             }
             writeRegister(rt, xt, sf, generalRegisters);
         }else{
             //store operation
             uint64_t xt = (uint64_t) readRegister(rt, sf, generalRegisters);
             for (int i = 0; i < 7; i++) {
-                memory[(addr/4) + i] = (xt >> (i*8)) & 0xFF;
+                memory[(addr+ i) /4] = (xt >> (i*8)) & 0xFF;
             }
         }
     }
