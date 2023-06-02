@@ -16,7 +16,7 @@ void inc_PC (state *state){
     state -> currAddress += 4;
 }
 
-void writeRegister (uint8_t registerIndex, int64_t newValue, uint8_t sf, uint64_t *generalRegisters) {
+void writeRegister (uint8_t registerIndex, uint64_t newValue, uint8_t sf, uint64_t *generalRegisters) {
     if (registerIndex == 31) {
         return;
     }
@@ -44,7 +44,7 @@ uint64_t readRegister (uint8_t registerIndex, uint8_t sf, uint64_t *generalRegis
 
 uint32_t extractBits(uint64_t n, uint8_t startIndex, uint8_t endIndex) {
     // start/endIndex is inclusive, right-to-left starting from 0
-    int mask = (1 << (endIndex - startIndex + 1)) - 1;
+    uint32_t mask = (1ULL << (endIndex - startIndex + 1)) - 1;
     return (n >> startIndex) & mask;
 }
 
@@ -70,7 +70,7 @@ void update_pstate(uint64_t result, uint64_t operand1, uint64_t operand2, bool i
     }
 }
 
-uint8_t bitShift(uint8_t shift, uint64_t n, uint8_t operand) {
+uint64_t bitShift(uint8_t shift, uint64_t n, uint8_t operand) {
     switch (shift) {
         case 0: //lsl
             return n << operand;

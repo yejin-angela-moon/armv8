@@ -11,7 +11,7 @@ void B(uint32_t instruction, state *state) {
     if (unconditional == 0x5) {
         //Unconditional
         uint32_t simm26 = extractBits(instruction, 0, 25);
-        uint64_t offset = (int64_t) (simm26 - 1) * 4;
+        uint64_t offset = (uint64_t) (simm26 - 1) * 4;
         state->currAddress += offset;
     } else if (reg2 == 0x0 && reg1 == 0x3587c0) {
         //Register

@@ -2,7 +2,6 @@
 
 static void arithmeticDPReg(uint8_t opc, uint8_t opr, uint8_t rd, uint8_t rn, uint8_t rm, uint8_t operand, bool sf, state *state) {
     uint64_t *generalRegisters = state->generalRegisters;
-    Pstate pstate = state->pstate;
 
     uint8_t shift = extractBits(opr, 1, 2);
     uint8_t op2 = bitShift(shift, readRegister(rm, 1, generalRegisters), operand);
@@ -15,7 +14,7 @@ static void arithmeticDPReg(uint8_t opc, uint8_t opr, uint8_t rd, uint8_t rn, ui
         }
         case 1: {
             valueToWrite = readRegister(rn, sf, generalRegisters) + op2;
-            update_pstate(valueToWrite,  rn, op2, 0, &pstate);
+            update_pstate(valueToWrite,  rn, op2, 0, &state->pstate);
             break;
         }
         case 2: {
@@ -24,7 +23,7 @@ static void arithmeticDPReg(uint8_t opc, uint8_t opr, uint8_t rd, uint8_t rn, ui
         }
         case 3: {
             valueToWrite = readRegister(rn, sf, generalRegisters) - op2;
-            update_pstate(valueToWrite, rn, op2, 1, &pstate);
+            update_pstate(valueToWrite, rn, op2, 1, &state->pstate);
             break;
         }
         default: ;
@@ -40,6 +39,7 @@ static void logicalDPReg(uint8_t opc, uint8_t opr, uint8_t rd, uint8_t rn, uint8
     bool n = opr % 2;
 
     uint64_t valueToWrite;
+
     if (opc == 0) {
         if (n) {
             valueToWrite = readRegister(rn, sf, generalRegisters) & ~op2;

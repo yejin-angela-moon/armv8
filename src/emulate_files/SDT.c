@@ -38,9 +38,6 @@ void SDT(uint32_t instruction, state *state) {
     if (addr%4 != 0){
         twoByteMem = &twoByteMem[1];
     }
-    for (int i = 0; i < 8; i++){
-        printf("%08x\n", twoByteMem[i]);
-    }
 
     if (sf == 0){
         if (extractBits(instruction, 22, 22) == 1){
@@ -65,8 +62,6 @@ void SDT(uint32_t instruction, state *state) {
             uint64_t xt = 0;
             for (int i = 0; i < 4; i++){
                 xt |= (((uint64_t) twoByteMem[i] )  << (16*i));
-                printf("%016lx\n", ((uint64_t) twoByteMem[i] )  << (16*i));
-                printf("%016lx\n", xt);
             }
             writeRegister(rt, xt, sf, generalRegisters);
         }else{
