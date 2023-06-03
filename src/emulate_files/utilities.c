@@ -16,7 +16,7 @@ void inc_PC (state *state){
     state -> currAddress += 4;
 }
 
-void writeRegister (uint8_t registerIndex, uint64_t newValue, uint8_t sf, uint64_t *generalRegisters) {
+void writeRegister (uint8_t registerIndex, int64_t newValue, uint8_t sf, uint64_t *generalRegisters) {
     if (registerIndex == 31) {
         return;
     }

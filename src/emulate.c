@@ -60,7 +60,7 @@ int main(int argc, char* argv[]) {
     }
 
     state *state = initialise();
-    uint32_t *memory = state->memory;
+    uint64_t *memory = state->memory;
 
     readFile(state, argv[1]);
 

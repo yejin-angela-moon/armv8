@@ -59,10 +59,10 @@ static void wide_move_immediate(uint8_t sf, uint8_t opc, uint32_t operand, uint8
         case 0x3: // movk
         {
             uint64_t mask = ~(0xFFFF << (hw * 16)) ;
-            uint64_t value = readRegister(Rd, sf, generalRegisters);
+            uint64_t value = readRegister(Rd, 1, generalRegisters);
             value &= mask;
-            value |= op;
-            writeRegister(Rd, value, sf, generalRegisters);
+            op |= value;
+            writeRegister(Rd, op, sf, generalRegisters);
             break;
         }
         default:
