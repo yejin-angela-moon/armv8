@@ -34,42 +34,47 @@ void SDT(uint32_t instruction, state *state) {
         addr = readRegister(xn, 0, generalRegisters) + readRegister(xm, 0, generalRegisters);
     }
 
-    uint16_t *twoByteMem = (uint16_t*)(&memory[addr/4]);
-    if (addr%4 != 0){
-        twoByteMem = &twoByteMem[1];
-    }
+    // uint16_t *twoByteMem = (uint16_t*)(&memory[addr/4]);
+    // if (addr%4 != 0){
+    //     twoByteMem = &twoByteMem[1];
+    // }
 
-    if (sf == 0){
-        if (extractBits(instruction, 22, 22) == 1){
-            //load operation
+    // uint8_t byteMem;
 
-            uint32_t wt = 0;
-            for (int i = 0; i < 3; i++){
-                wt |= ((uint32_t) twoByteMem[i] << (16*i));
-            }
-            writeRegister(rt, wt, sf, generalRegisters);
 
-        }else{
-            //store operation
-            uint32_t wt = (uint32_t) readRegister(rt, sf, generalRegisters);
-            for (int i = 0; i < 3; i++){
-                twoByteMem[i] = (wt>>(i*16)) & 0xFFFF;
-            }
-        }
-    } else {
-        if (extractBits(instruction, 22, 22) == 1){
-            //load operation
+    if (extractBits(instruction, 22, 22) == 1){
+        //load operation
+        uint8_t *twoByteMem = (uint8_t*)(memory + addr/4) ;
+        twoByteMem = &twoByteMem[addr%4];
+
+        if (sf){
             uint64_t xt = 0;
-            for (int i = 0; i < 4; i++){
-                xt |= (((uint64_t) twoByteMem[i] )  << (16*i));
+            for (int i = 0; i < 8; i++){
+                xt |= (((uint64_t) twoByteMem[i] )  << (8*i));
             }
             writeRegister(rt, xt, sf, generalRegisters);
-        }else{
-            //store operation
+        } else{
+            uint32_t wt = 0;
+            for (int i = 0; i < 4; i++){
+                wt |= (((uint32_t) twoByteMem[i] )  << (8*i));
+            }
+        }
+
+    } else {
+        //store operation
+
+        if(sf){
+            uint32_t wt = (uint32_t) readRegister(rt, sf, generalRegisters);
+            for (int i = 0; i < 3; i++){
+                memory[addr/4] = (wt>>(i*16)) & 0xFFFF;
+            }
+        } else {
             uint64_t xt = (uint64_t) readRegister(rt, sf, generalRegisters);
             memory[addr/4] = xt;
         }
+
     }
+
 
     if (indexFlag){
         writeRegister(xn, val, sf, generalRegisters);
