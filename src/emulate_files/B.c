@@ -1,9 +1,5 @@
 #include "B.h"
 
-static uint64_t signExtension(unsigned int x) {
-    return (uint64_t)((uint32_t)x);
-}
-
 void B(uint32_t instruction, state *state) {
     Pstate pstate = state->pstate;
 
@@ -15,7 +11,7 @@ void B(uint32_t instruction, state *state) {
     if (unconditional == 0x5) {
         //Unconditional
         uint32_t simm26 = extractBits(instruction, 0, 25);
-        uint64_t offset = signExtension(simm26) * 4;
+        uint64_t offset = (uint64_t) (simm26 - 1) * 4;
         state->currAddress += offset;
     } else if (reg2 == 0x0 && reg1 == 0x3587c0) {
         //Register
@@ -24,7 +20,7 @@ void B(uint32_t instruction, state *state) {
     } else if (condition2 == 0x0 && condition1 == 0x54) {
         //Conditional
         uint32_t simm19 = extractBits(instruction, 5, 23);
-        uint64_t offset = signExtension(simm19) * 4;
+        uint64_t offset = (int64_t )simm19 * 4;
         uint8_t cond = extractBits(instruction, 0, 3);
         if (cond == 0x0 && pstate.Z == 1) {
             state->currAddress += offset;
