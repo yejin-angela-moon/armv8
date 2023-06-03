@@ -13,7 +13,7 @@ void SDT(uint32_t instruction, state *state) {
  
     if (extractBits(instruction, 24, 24) == 1){
         //Unsigned Immediate Offset when U = 1, addr = xn + imm12
-        addr = readRegister(xn, 0, generalRegisters) + offset;
+        addr = readRegister(xn, 0, generalRegisters) + (sf? offset << 3: offset << 2);
     } else if (extractBits(instruction, 21, 21) == 0){
         //Pre/Post-Index
         //when i = 1 (pre indexed), addr = xn + simm9 and xn = xn + simm9
@@ -67,9 +67,7 @@ void SDT(uint32_t instruction, state *state) {
         }else{
             //store operation
             uint64_t xt = (uint64_t) readRegister(rt, sf, generalRegisters);
-            for (int i = 0; i < 2; i++) {
-                twoByteMem[i] = (xt >> (i*16)) & 0xFFFF;
-            }
+            memory[addr/4] = xt;
         }
     }
 
