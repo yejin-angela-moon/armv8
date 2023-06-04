@@ -1,96 +1,96 @@
 #include "utilities.h"
 
 state *initialise(void) {
-    state *newState = malloc(sizeof(state));
-    newState -> currAddress = 0;
-    memset((*newState).generalRegisters, 0, sizeof((*newState).generalRegisters));
-    newState -> pstate.C = 0;
-    newState -> pstate.V = 0;
-    newState -> pstate.N = 0;
-    newState -> pstate.Z = 1;
-    newState -> memory = (uint32_t*)calloc(MEMORY_SIZE, sizeof(uint32_t));
-    return newState;
+  state *newState = malloc(sizeof(state));
+  newState -> currAddress = 0;
+  memset((*newState).generalRegisters, 0, sizeof((*newState).generalRegisters));
+  newState -> pstate.C = 0;
+  newState -> pstate.V = 0;
+  newState -> pstate.N = 0;
+  newState -> pstate.Z = 1;
+  newState -> memory = (uint32_t*)calloc(MEMORY_SIZE, sizeof(uint32_t));
+  return newState;
 }
 
 void inc_PC (state *state){
-    state -> currAddress += 4;
+  state -> currAddress += 4;
 }
 
 void writeRegister (uint8_t registerIndex, uint64_t newValue, bool sf, uint64_t *generalRegisters) {
-    if (registerIndex == 31) {
-        return;
-    }
-    if (sf) {
-        // Write to W-register: zero out the upper 32 bits
-        generalRegisters[registerIndex] = newValue;
-    } else {
-        // Write to X-register: use the whole 64-bit value
-        generalRegisters[registerIndex] = newValue & 0xFFFFFFFF;
-    }
+  if (registerIndex == 31) {
+    return;
+  }
+  if (sf) {
+    // Write to W-register: zero out the upper 32 bits
+    generalRegisters[registerIndex] = newValue;
+  } else {
+    // Write to X-register: use the whole 64-bit value
+    generalRegisters[registerIndex] = newValue & 0xFFFFFFFF;
+  }
 }
 
 uint64_t readRegister (uint8_t registerIndex, bool sf, uint64_t *generalRegisters) {
-    if (registerIndex == 31) {
-        return 0;
-    }
-    if (sf) {
-        // Read from W-register: return only the lower 32 bits
-        return generalRegisters[registerIndex];
-    } else {
-        // Read from X-register: return the whole 64-bit value
-        return generalRegisters[registerIndex] & 0xFFFFFFFF;
-    }
+  if (registerIndex == 31) {
+    return 0;
+  }
+  if (sf) {
+    // Read from W-register: return only the lower 32 bits
+    return generalRegisters[registerIndex];
+  } else {
+    // Read from X-register: return the whole 64-bit value
+    return generalRegisters[registerIndex] & 0xFFFFFFFF;
+  }
 }
 
 uint32_t extractBits(uint64_t n, uint8_t startIndex, uint8_t endIndex) {
-    // start/endIndex is inclusive, right-to-left starting from 0
-    uint32_t mask = (1ULL << (endIndex - startIndex + 1)) - 1;
-    return (n >> startIndex) & mask;
+  // start/endIndex is inclusive, right-to-left starting from 0
+  uint32_t mask = (1ULL << (endIndex - startIndex + 1)) - 1;
+  return (n >> startIndex) & mask;
 }
 
-void update_pstate(uint64_t result, uint64_t operand1, uint64_t operand2, bool is_subtraction, Pstate *pstate) {
-    // Update N and Z flags
-    pstate->N = result & (1ULL << 63);  // check the most significant bit
-    pstate->Z = (result == 0);
+void update_pstate(uint64_t result, uint64_t operand1, uint64_t operand2, bool sf, bool is_subtraction, state *state) {
+  // Update N and Z flags
+  state->pstate.N = result & (sf ? 1ULL << 63 : 1ULL << 31);  // check the most significant bit
+  state->pstate.Z = (result == 0);
 
-    if (is_subtraction) {
-        // For subtraction, carry is set if operand1 >= operand2
-        pstate->C = operand1 >= operand2;
+  if (is_subtraction) {
+    // For subtraction, carry is set if operand1 >= operand2
+    state->pstate.C = operand1 >= operand2;
 
-        // Overflow for subtraction is set if operand1 and operand2 have different signs,
-        // and operand1 and the result have different signs
-        pstate->V = ((operand1 ^ operand2) & (operand1 ^ result)) >> 63;
-    } else {
-        // For addition, carry is set if result is less than either operand (meaning it wrapped around)
-        pstate->C = result < operand1 || result < operand2;
+    // Overflow for subtraction is set if operand1 and operand2 have different signs,
+    // and operand1 and the result have different signs
+    state->pstate.V = ((operand1 ^ operand2) & (operand1 ^ result)) >> 63;
+  } else {
+    // For addition, carry is set if result is less than either operand (meaning it wrapped around)
+    state->pstate.C = result < operand1 || result < operand2;
 
-        // Overflow for addition is set if operand1 and operand2 have the same sign,
-        // and operand1 and the result have different signs
-        pstate->V = (~(operand1 ^ operand2) & (operand1 ^ result)) >> 63;
-    }
+    // Overflow for addition is set if operand1 and operand2 have the same sign,
+    // and operand1 and the result have different signs
+    state->pstate.V = (~(operand1 ^ operand2) & (operand1 ^ result)) >> 63;
+  }
 }
 
 uint64_t bitShift(uint8_t shift, uint64_t n, uint8_t operand, bool sf) {
-    switch (shift) {
-        case 0: //lsl
-            return n << operand;
-        case 1: //lsr
-            return n >> operand;
-        case 2: //asr
-            return sf ? ((int64_t) n) >> operand : ((int32_t) n) >> operand;
-        case 3: {
-            //ror
-            int bitCount = sizeof(n) * 8; // Calculates the total number of bits for the data type
-            operand %= bitCount; // Just in case, reduce the number of rotations to a number less than bitCount
-            if (sf) {
-              return (n >> operand) | (n << (bitCount - operand));
-            } else {
-              uint32_t smaller_n = (uint32_t) n;
-              return (smaller_n >> operand) | (smaller_n << (bitCount - operand));
-            }
-        }
-        default:
-          printf("invalid shift code\n");
-          return 0;
+  switch (shift) {
+    case 0: //lsl
+      return n << operand;
+    case 1: //lsr
+      return n >> operand;
+    case 2: //asr
+      return sf ? ((int64_t) n) >> operand : ((int32_t) n) >> operand;
+    case 3: {
+      //ror
+      int bitCount = sizeof(n) * 8; // Calculates the total number of bits for the data type
+      operand %= bitCount; // Just in case, reduce the number of rotations to a number less than bitCount
+      if (sf) {
+        return (n >> operand) | (n << (bitCount - operand));
+      } else {
+        uint32_t smaller_n = (uint32_t) n;
+        return (smaller_n >> operand) | (smaller_n << (bitCount - operand));
+      }
     }
+    default:
+      printf("invalid shift code\n");
+      return 0;
+  }
 }

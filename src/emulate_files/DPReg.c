@@ -15,7 +15,7 @@ static void arithmeticDPReg(uint8_t opc, uint8_t opr, uint8_t rd, uint8_t rn, ui
     }
     case 1: {
       valueToWrite = rn_val + op2;
-      update_pstate(valueToWrite,  rn_val, op2, 0, &state->pstate);
+      update_pstate(valueToWrite,  rn_val, op2, sf, 0, state);
       break;
     }
     case 2: {
@@ -24,7 +24,7 @@ static void arithmeticDPReg(uint8_t opc, uint8_t opr, uint8_t rd, uint8_t rn, ui
     }
     case 3: {
       valueToWrite = rn_val - op2;
-      update_pstate(valueToWrite, rn_val, op2, 1, &state->pstate);
+      update_pstate(valueToWrite, rn_val, op2, sf, 1, state);
       break;
     }
     default: ;
@@ -44,25 +44,21 @@ static void logicalDPReg(uint8_t opc, uint8_t opr, uint8_t rd, uint8_t rn, uint8
 
   switch (opc) {
     case 0:
-    case 3: // if opc is 0 or 3, the operations are the same
-      valueToWrite = n ? rn_val & ~op2 : rn_val & op2;
+      valueToWrite = rn_val & (n ? ~op2 : op2);
       break;
     case 1:
-      valueToWrite = n ? rn_val | ~op2 : rn_val | op2;
+      valueToWrite = rn_val | (n ? ~op2 : op2);
       break;
     case 2:
-      valueToWrite = n ? rn_val ^ ~op2 : rn_val ^ op2;
+      valueToWrite = rn_val ^ (n ? ~op2 : op2);
       break;
-    default:
-      // You may want to include some default behavior for when opc doesn't match any case.
-      // Otherwise, you can just omit this section.
+    case 3:
+      valueToWrite = rn_val & (n ? ~op2 : op2);
+      state->pstate.N = extractBits(valueToWrite, 63, 63);
+      state->pstate.Z = valueToWrite == 0;
+      state->pstate.C = 0;
+      state->pstate.V = 0;
       break;
-  }
-
-  state->pstate.N = extractBits(valueToWrite, 63, 63);
-    state->pstate.Z = valueToWrite == 0;
-    state->pstate.C = 0;
-    state->pstate.V = 0;
   }
 
   writeRegister(rd, valueToWrite, sf, generalRegisters);

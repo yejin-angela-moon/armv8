@@ -2,7 +2,6 @@
 
 static void arithmetic_immediate(bool sf, uint8_t opc, uint32_t operand, uint8_t Rd, state *state)  {
   uint64_t *generalRegisters = state->generalRegisters;
-  Pstate pstate = state->pstate;
 
   bool sh = extractBits(operand, 17, 17);
   uint64_t imm12 = extractBits(operand, 5, 16);
@@ -10,7 +9,7 @@ static void arithmetic_immediate(bool sf, uint8_t opc, uint32_t operand, uint8_t
   uint64_t result = readRegister(rn, sf, generalRegisters);
 
   if (sh) {
-    imm12 <<= 0xC;
+    imm12 <<= 12;
   }
 
   switch (opc) {
@@ -20,14 +19,14 @@ static void arithmetic_immediate(bool sf, uint8_t opc, uint32_t operand, uint8_t
     case 1:
       //adds
       result += imm12;
-      update_pstate(result, rn, imm12, 0, &pstate);
+      update_pstate(result, rn, imm12, sf, 0, state);
       break;
     case 2: //sub
       result -= imm12;
       break;
     case 3: //subs
       result -= imm12;
-      update_pstate(result, rn, imm12, 1, &pstate);
+      update_pstate(result, rn, imm12, sf, 1, state);
       break;
     default: printf("invalid opc\n");;
   }
