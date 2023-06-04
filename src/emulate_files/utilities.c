@@ -2,43 +2,45 @@
 
 state *initialise(void) {
     state *newState = malloc(sizeof(state));
-    newState -> currAddress = 0;
+    newState->currAddress = 0;
     memset((*newState).generalRegisters, 0, sizeof((*newState).generalRegisters));
-    newState -> pstate.C = 0;
-    newState -> pstate.V = 0;
-    newState -> pstate.N = 0;
-    newState -> pstate.Z = 1;
-    newState -> memory = (uint32_t*)calloc(MEMORY_SIZE, sizeof(uint32_t));
+    newState->pstate.C = 0;
+    newState->pstate.V = 0;
+    newState->pstate.N = 0;
+    newState->pstate.Z = 1;
+    newState->memory = (uint32_t*)calloc(MEMORY_SIZE, sizeof(uint32_t));
     return newState;
 }
 
-void inc_PC (state *state){
-    state -> currAddress += 4;
+void inc_PC(state *state) {
+    state->currAddress += 4;
 }
 
-void writeRegister (uint8_t registerIndex, uint64_t newValue, uint8_t sf, uint64_t *generalRegisters) {
+void writeRegister(uint8_t registerIndex, uint64_t newValue, bool sf, uint64_t *generalRegisters) {
     if (registerIndex == 31) {
         return;
     }
-    if (sf == 0) {
-        // Write to W-register: zero out the upper 32 bits
-        generalRegisters[registerIndex] = newValue & 0xFFFFFFFF;
-    } else {
+
+    if (sf) {
         // Write to X-register: use the whole 64-bit value
         generalRegisters[registerIndex] = newValue;
+    } else {
+        // Write to W-register: zero out the upper 32 bits
+        generalRegisters[registerIndex] = newValue & 0xFFFFFFFF;
     }
 }
 
-uint64_t readRegister (uint8_t registerIndex, uint8_t sf, uint64_t *generalRegisters) {
+uint64_t readRegister(uint8_t registerIndex, bool sf, uint64_t *generalRegisters) {
     if (registerIndex == 31) {
         return 0;
     }
-    if (sf == 0) {
-        // Read from W-register: return only the lower 32 bits
-        return generalRegisters[registerIndex] & 0xFFFFFFFF;
-    } else {
+
+    if (sf) {
         // Read from X-register: return the whole 64-bit value
         return generalRegisters[registerIndex];
+    } else {
+        // Read from W-register: return only the lower 32 bits
+        return generalRegisters[registerIndex] & 0xFFFFFFFF;
     }
 }
 
@@ -70,21 +72,27 @@ void update_pstate(uint64_t result, uint64_t operand1, uint64_t operand2, bool i
     }
 }
 
-uint64_t bitShift(uint8_t shift, uint64_t n, uint8_t operand) {
+uint64_t bitShift(uint8_t shift, uint64_t n, uint8_t operand, bool sf) {
     switch (shift) {
         case 0: //lsl
             return n << operand;
         case 1: //lsr
             return n >> operand;
         case 2: //asr
-            return ((int64_t) n) >> operand;
-        case 3: {
-            //ror
+            return sf ? ((int64_t) n) >> operand : ((int32_t) n) >> operand;
+        case 3: { //ror
             int bitCount = sizeof(n) * 8; // Calculates the total number of bits for the data type
             operand %= bitCount; // Just in case, reduce the number of rotations to a number less than bitCount
-            return (n >> operand) | (n << (bitCount - operand));
+            if (sf) {
+                return (n >> operand) | (n << (bitCount - operand));
+            } else {
+                uint32_t smaller_n = (uint32_t) n;
+                return (smaller_n >> operand) | (smaller_n << (bitCount - operand));
+            }
         }
-        default: return 0;
+        default:
+            printf("invalid shift code\n");
+            return 0;
     }
 }
 

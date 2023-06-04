@@ -1,5 +1,5 @@
-CC      ?= gcc
-CFLAGS  ?= -std=c17 -g\
+CC      = gcc
+CFLAGS  ?= -std=c11 -g\
 	-D_POSIX_SOURCE -D_DEFAULT_SOURCE\
 	-Wall -Werror -pedantic
 
@@ -15,3 +15,4 @@ emulate: emulate.o emulate_files/B.o emulate_files/DPImm.o emulate_files/DPReg.o
 clean:
 	$(RM) *.o assemble emulate
 	
+
