@@ -25,12 +25,11 @@ static void arithmetic_immediate(bool sf, uint8_t opc, uint32_t operand, uint8_t
         case 2: //sub
             result -= imm12;
             break;
-            case 3:
-              //subs
-              result -= imm12;
-              update_pstate(result, rn, imm12, 1, &pstate);
-              break;
-              default: printf("invalid opc\n");;
+        case 3: //subs
+            result -= imm12;
+            update_pstate(result, rn, imm12, 1, &pstate);
+            break;
+        default: printf("invalid opc\n");;
     }
     // Store result in the destination register
     writeRegister(Rd, result, sf, generalRegisters);
