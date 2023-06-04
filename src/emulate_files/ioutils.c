@@ -4,23 +4,30 @@
 #include "definitions.h"
 #include "utilities.h"
 
-#define HALT_INSTRUCTION 0x8a000000
-#define MEMORY_SIZE (2 * 1024 * 1024)  // 2 MiB
+//#define HALT_INSTRUCTION 0x8a000000
+//#define MEMORY_SIZE (2 * 1024 * 1024)  // 2 MiB
+
 
 void readFile(state* state, char* filename){
 	FILE *fp = fopen(filename, "rb");
+	int fileSize;
 
 	if (fp == NULL){
 		fprintf(stderr, "can't opern %s/n", filename);
 		exit(1);
 	}
 
-	int i =0;
-	while (!feof(fp))
-	{
+	fseek(fp, 0, SEEK_END);
+	fileSize = ftell(fp);
+	fseek(fp, 0, SEEK_SET);
+
+	int numInstruction = fileSize/4;
+
+	for (int i=0 ; i < numInstruction; i++){
 		fread(&state->memory[i], sizeof(uint32_t), 1, fp);
-		i++;
 	}
+
+	// fread(state->memory, fileSize, 1, fp);
 
 	fclose(fp);
 }
@@ -90,3 +97,4 @@ void printToString(state* state){
         }
     }
 }
+
