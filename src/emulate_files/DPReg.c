@@ -4,30 +4,30 @@ static void arithmeticDPReg(uint8_t opc, uint8_t opr, uint8_t rd, uint8_t rn, ui
   uint64_t *generalRegisters = state->generalRegisters;
 
   uint8_t shift = extractBits(opr, 1, 2);
-  uint64_t op2 = bitShift(shift, readRegister(rm, sf, generalRegisters), operand, sf);
-  uint64_t rn_val = readRegister(rn, sf, generalRegisters);
+  uint64_t op2 = bitShift(shift, readRegister(rm, sf, generalRegisters), sf? operand: operand & 0xFFFF, sf);
+  uint64_t registerN = readRegister(rn, sf, generalRegisters);
 
   uint64_t valueToWrite;
   switch (opc) {
     case 0: {
-      valueToWrite = rn_val + op2;
+      valueToWrite = registerN + op2;
       break;
     }
     case 1: {
-      valueToWrite = rn_val + op2;
-      update_pstate(valueToWrite,  rn_val, op2, sf, 0, state);
+      valueToWrite = registerN + op2;
+      update_pstate(valueToWrite,  registerN, op2, 0, sf, state);
       break;
     }
     case 2: {
-      valueToWrite = rn_val - op2;
+      valueToWrite = registerN - op2;
       break;
     }
     case 3: {
-      valueToWrite = rn_val - op2;
-      update_pstate(valueToWrite, rn_val, op2, sf, 1, state);
+      valueToWrite = registerN - op2;
+      update_pstate(valueToWrite, registerN, op2, 1, sf, state);
       break;
     }
-    default: ;
+    default: printf("invalid opc\n");
   }
   writeRegister(rd, valueToWrite, sf, generalRegisters);
 }
@@ -62,6 +62,7 @@ static void logicalDPReg(uint8_t opc, uint8_t opr, uint8_t rd, uint8_t rn, uint8
   }
 
   writeRegister(rd, valueToWrite, sf, generalRegisters);
+
 }
 
 static void multiplyDPReg(uint8_t rd, uint8_t rn, uint8_t rm, uint8_t operand, bool sf, state *state) {
@@ -70,14 +71,14 @@ static void multiplyDPReg(uint8_t rd, uint8_t rn, uint8_t rm, uint8_t operand, b
   uint8_t ra = extractBits(operand, 0, 4);
   uint64_t valueToWrite;
 
-  uint64_t ra_val = readRegister(ra, sf, generalRegisters);
-  uint64_t rn_val = readRegister(rn, sf, generalRegisters);
-  uint64_t rm_val = readRegister(rm, sf, generalRegisters);
-
   if (x) {
-    valueToWrite = ra_val + rn_val * rm_val;
+    valueToWrite = readRegister(ra, sf, generalRegisters)
+                   + readRegister(rn, sf, generalRegisters)
+                     * readRegister(rm, sf, generalRegisters);
   } else {
-    valueToWrite = ra_val - rn_val * rm_val;
+    valueToWrite = readRegister(ra, sf, generalRegisters)
+                   - readRegister(rn, sf, generalRegisters)
+                     * readRegister(rm, sf, generalRegisters);
   }
 
   writeRegister(rd,valueToWrite, sf, generalRegisters);
@@ -93,7 +94,7 @@ void DPReg(uint32_t instruction, state *state) {
   bool m = extractBits(instruction, 28, 28);
   uint8_t opr = extractBits(instruction, 21, 24);
 
-  if (m) {
+  if (m == 1) {
     multiplyDPReg(rd, rn, rm, operand, sf, state);
   } else {
     if (extractBits(opr, 3, 3)) {

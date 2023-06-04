@@ -37,17 +37,13 @@ void printStateToFile(state* state, char* filename){
   }
 
   //print registers
-  fprintf(outputFile, "Register:\n");
+  fprintf(outputFile, "Registers:\n");
   for(int i = 0; i < NUM_REGISTERS; i++ ){
-    if (i < 10) {
-      fprintf(outputFile, "X0%d = %016lx\n", i, readRegister(i, 1, state->generalRegisters));
-    } else {
-      fprintf(outputFile, "X%d = %016lx\n", i, readRegister(i, 1, state->generalRegisters));
-    }
+    fprintf(outputFile, "X%02d%*s = %016lx\n", i, 2, "", readRegister(i, 1, state->generalRegisters));
   }
 
   //Print PC
-  fprintf(outputFile, "PC = %016x\n", state->currAddress);
+  fprintf(outputFile, "PC%*s = %016x\n", 4, "", state->currAddress);
   fprintf(outputFile, "PSTATE : %s%s%s%s\n",
           state->pstate.N ? "N" : "-",
           state->pstate.Z ? "Z" : "-",
@@ -55,10 +51,10 @@ void printStateToFile(state* state, char* filename){
           state->pstate.V ? "V" : "-");
 
   //print non-zero memory
-  fprintf(outputFile, "Non-zero memory:\n");
+  fprintf(outputFile, "Non-Zero Memory:\n");
   for (int i = 0; i < MEMORY_SIZE; i ++) {
     if (state->memory[i] != 0) {
-      fprintf(outputFile, "0x%08x: %08x\n", i * 4, state->memory[i]);
+      fprintf(outputFile, "0x%08x : %08x\n", i * 4, state->memory[i]);
     }
   }
 
@@ -68,17 +64,13 @@ void printStateToFile(state* state, char* filename){
 void printToString(state* state){
 
   //print registers
-  printf("Register:\n");
+  printf("Registers:\n");
   for(int i = 0; i < NUM_REGISTERS; i++ ){
-    if (i < 10) {
-      printf("X0%d = %016lx\n", i, readRegister(i, 1, state->generalRegisters));
-    } else {
-      printf("X%d = %016lx\n", i, readRegister(i, 1, state->generalRegisters));
-    }
+    printf("X%02d%*s = %016lx\n", i, 2, "", readRegister(i, 1, state->generalRegisters));
   }
 
   //Print PC
-  printf("PC  = %016x\n", state->currAddress);
+  printf("PC%*s = %016x\n", 4, "", state->currAddress);
   printf("PSTATE : %s%s%s%s\n",
          state->pstate.N ? "N" : "-",
          state->pstate.Z ? "Z" : "-",
@@ -86,10 +78,12 @@ void printToString(state* state){
          state->pstate.V ? "V" : "-");
 
   //print non-zero memory
-  printf("Non-zero memory:\n");
+  printf("Non-Zero Memory:\n");
   for (int i = 0; i < MEMORY_SIZE; i ++) {
     if (state->memory[i] != 0) {
       printf("0x%08x : %08x\n", i * 4, state->memory[i]);
     }
   }
 }
+
+
