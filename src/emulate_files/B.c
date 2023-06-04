@@ -2,17 +2,18 @@
 #include "B.h"
 
 static void unconditional(uint32_t simm26, state *state) {
-    uint64_t offset = (uint64_t) (simm26 - 1) * 4;
+    int64_t offset = (uint64_t) (simm26 - 1) * 4;
     state->currAddress += offset;
 }
 
 static void reg(uint8_t xn, state *state) {
-    state->currAddress = readRegister(xn, 1, state->generalRegisters);
+    uint64_t value = readRegister(xn, 1, state->generalRegisters);
+    state->currAddress = value;
 }
 
 static void conditional(uint32_t simm19, uint8_t cond, state *state) {
     //Pstate pstate = state->pstate;
-    uint64_t offset = 40; //(int64_t) (simm19 + 1) * 4;
+    int64_t offset = (int64_t) (simm19 + 1) * 4;
     if (cond == 0x0 && state->pstate.Z == 1) {
         state->currAddress += offset;
     } else if (cond == 0x1 && state->pstate.Z == 0) {
