@@ -11,19 +11,19 @@ static void reg(uint8_t xn, state *state) {
 }
 
 static void conditional(uint32_t simm19, uint8_t cond, state *state) {
-    Pstate pstate = state->pstate;
-    uint64_t offset = (int64_t) (simm19 - 1) * 4;
-    if (cond == 0x0 && pstate.Z == 1) {
+    //Pstate pstate = state->pstate;
+    uint64_t offset = 40; //(int64_t) (simm19 + 1) * 4;
+    if (cond == 0x0 && state->pstate.Z == 1) {
         state->currAddress += offset;
-    } else if (cond == 0x1 && pstate.Z == 0) {
+    } else if (cond == 0x1 && state->pstate.Z == 0) {
         state->currAddress += offset;
-    } else if (cond == 0x6 && pstate.N == pstate.V) {
+    } else if (cond == 0x6 && state->pstate.N == state->pstate.V) {
         state->currAddress += offset;
-    } else if (cond == 0x7 && pstate.N != pstate.V) {
+    } else if (cond == 0x7 && state->pstate.N != state->pstate.V) {
         state->currAddress += offset;
-    } else if (cond == 0xC && pstate.Z == 0 && pstate.N == pstate.V) {
+    } else if (cond == 0xC && state->pstate.Z == 0 && state->pstate.N == state->pstate.V) {
         state->currAddress += offset;
-    } else if (cond == 0xD && (pstate.Z == 0 || pstate.N == pstate.V)) {
+    } else if (cond == 0xD && (state->pstate.Z == 0 || state->pstate.N == state->pstate.V)) {
         state->currAddress += offset;
     } else if (cond == 0xE) {
         state->currAddress += offset;
@@ -51,6 +51,9 @@ void B(uint32_t instruction, state *state) {
         reg(xn, state);
     } else if (extractBits(instruction, 4, 4) == 0x0 && extractBits(instruction, 24, 31) == 0x54) {
         //Conditional
+        unconditional(simm19, state);
+        //conditional(simm19, cond, state);
+    } else {
         conditional(simm19, cond, state);
     }
 }

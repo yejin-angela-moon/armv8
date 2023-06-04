@@ -47,7 +47,7 @@ static void execute(state* state){
             break;
         }
         readInstruction(instruction, state);
-       // printToString(state);
+        printToString(state);
         inc_PC(state);
     }
 }
