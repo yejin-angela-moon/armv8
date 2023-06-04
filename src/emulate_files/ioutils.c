@@ -4,9 +4,6 @@
 #include "definitions.h"
 #include "utilities.h"
 
-#define HALT_INSTRUCTION 0x8a000000
-#define MEMORY_SIZE (2 * 1024 * 1024)  // 2 MiB
-
 void readFile(state* state, char* filename){
 	FILE *fp = fopen(filename, "rb");
 	int fileSize;

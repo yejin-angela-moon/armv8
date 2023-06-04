@@ -3,9 +3,9 @@
   <component name="AutoImportSettings">
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
-  <component name="CMakePresetLoader"><![CDATA[{
-  "useNewFormat": true
-}]]></component>
+  <component name="CMakePresetLoader">{
+  &quot;useNewFormat&quot;: true
+}</component>
   <component name="CMakeRunConfigurationManager">
     <generated>
       <config projectName="src" targetName="emulate" />
@@ -19,7 +19,26 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="9cfd7dfd-b035-4826-b693-fa455742bc8e" name="Changes" comment="" />
+    <list default="true" id="9cfd7dfd-b035-4826-b693-fa455742bc8e" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/emulate_files/.idea/emulate_files.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/emulate_files/.idea/modules.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/emulate_files/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/emulate_files/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.nfs00000001a09330340000042e" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.nfs00000001a426ac3d0000042f" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/emulate.c" beforeDir="false" afterPath="$PROJECT_DIR$/emulate.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/emulate_files/B.c" beforeDir="false" afterPath="$PROJECT_DIR$/emulate_files/B.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/emulate_files/DPImm.c" beforeDir="false" afterPath="$PROJECT_DIR$/emulate_files/DPImm.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/emulate_files/DPReg.c" beforeDir="false" afterPath="$PROJECT_DIR$/emulate_files/DPReg.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/emulate_files/SDT.c" beforeDir="false" afterPath="$PROJECT_DIR$/emulate_files/SDT.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/emulate_files/definitions.h" beforeDir="false" afterPath="$PROJECT_DIR$/emulate_files/definitions.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/emulate_files/ioutils.c" beforeDir="false" afterPath="$PROJECT_DIR$/emulate_files/ioutils.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/emulate_files/utilities.c" beforeDir="false" afterPath="$PROJECT_DIR$/emulate_files/utilities.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/emulate_files/utilities.h" beforeDir="false" afterPath="$PROJECT_DIR$/emulate_files/utilities.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/register.txt" beforeDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -96,11 +115,6 @@
   }
 }]]></component>
   <component name="RunManager" selected="Makefile Application.all">
-    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
-      <method v="2">
-        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="all" type="CLionNativeAppRunConfigurationType" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="src" TARGET_NAME="all" CONFIG_NAME="all" version="1">
       <method v="2">
         <option name="CLION.COMPOUND.BUILD" enabled="true" />
@@ -131,6 +145,8 @@
       <option name="presentableId" value="Default" />
       <updated>1685721232276</updated>
       <workItem from="1685721233659" duration="17232000" />
+      <workItem from="1685889965576" duration="2975000" />
+      <workItem from="1685895101710" duration="1061000" />
     </task>
     <servers />
   </component>

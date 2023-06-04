@@ -15,7 +15,7 @@
 
 /* Decode instruction */
 void readInstruction (uint32_t instruction, state *state) {
-    if (instruction == 0xD503201F) { //nop
+    if (instruction == NOP_INSTRUCTION) { //nop
         inc_PC(state);
         return;
     }
@@ -60,7 +60,7 @@ int main(int argc, char* argv[]) {
     }
 
     state *state = initialise();
-    uint64_t *memory = state->memory;
+    uint32_t *memory = state->memory;
 
     readFile(state, argv[1]);
 
