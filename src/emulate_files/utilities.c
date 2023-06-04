@@ -56,7 +56,7 @@ void update_pstate(uint64_t result, uint64_t operand1, uint64_t operand2, bool i
     // Update N and Z flags
 
     state->pstate.N = result & (1ULL << 63);  // check the most significant bit
-    state->pstate.Z = false;
+    state->pstate.Z = (result == 0);
 
     if (is_subtraction) {
         // For subtraction, carry is set if operand1 >= operand2
