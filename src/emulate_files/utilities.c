@@ -64,7 +64,7 @@ void update_pstate(uint64_t result, uint64_t operand1, uint64_t operand2, bool i
 
     if (is_subtraction) {
         // For subtraction, carry is set if operand1 >= operand2
-        state->pstate.C = operand1 >= operand2;
+        state->pstate.C = operand1 < operand2;
 
         // Overflow for subtraction is set if operand1 and operand2 have different signs,
         // and operand1 and the result have different signs
