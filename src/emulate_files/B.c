@@ -1,5 +1,4 @@
 #include "B.h"
-#include "B.h"
 
 static void unconditional(uint32_t simm26, state *state) {
   uint64_t offset = (uint64_t) (simm26 - 1) * 4;
