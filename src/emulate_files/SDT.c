@@ -6,7 +6,7 @@ void SDT(uint32_t instruction, state *state) {
     uint32_t xn = extractBits(instruction, 5, 9);
     uint32_t rt = extractBits(instruction, 0, 4);
     uint32_t addr;
-    bool indexFlag = false;
+    // bool indexFlag = false;
     uint64_t val;
     uint64_t *generalRegisters = state->generalRegisters;
     uint32_t *memory = state->memory;
@@ -26,7 +26,7 @@ void SDT(uint32_t instruction, state *state) {
         } else {
             addr = readRegister(xn, 0, generalRegisters);
         }
-        indexFlag = true;
+        writeRegister(xn, val, sf, generalRegisters);
     } else {
         //Register Offset
         //addr = xn + xm
@@ -64,21 +64,25 @@ void SDT(uint32_t instruction, state *state) {
         //store operation
 
         if(sf){
-            uint32_t wt = (uint32_t) readRegister(rt, sf, generalRegisters);
-            for (int i = 0; i < 3; i++){
-                memory[addr/4] = (wt>>(i*16)) & 0xFFFF;
+            uint64_t xt = (uint64_t) readRegister(rt, sf, generalRegisters);
+            for (int i = 0; i < 8; i++){
+                memory[(addr + i)/4] &= ~ (uint32_t)( 0xFF << (((addr + i) % 4) * 8)); 
+                memory[(addr + i)/4] |= ((xt >> 8*i) & 0xFF) << (((addr + i) % 4) * 8);
             }
         } else {
-            uint64_t xt = (uint64_t) readRegister(rt, sf, generalRegisters);
-            memory[addr/4] = xt;
+            uint32_t wt = (uint32_t) readRegister(rt, sf, generalRegisters);
+            for (int i = 0; i < 4; i++){
+                memory[(addr + i)/4] &= ~ (uint32_t)( 0xFF << (((addr + i) % 4) * 8)); 
+                memory[(addr + i)/4] |= ((wt >> 8*i) & 0xFF) << (((addr + i) % 4) * 8);
+            }
         }
 
     }
 
 
-    if (indexFlag){
-        writeRegister(xn, val, sf, generalRegisters);
-    }
+    // if (indexFlag){
+    //     writeRegister(xn, val, sf, generalRegisters);
+    // }
 }
 
 void LL(uint32_t instruction, state *state) {
