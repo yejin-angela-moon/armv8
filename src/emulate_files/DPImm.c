@@ -43,7 +43,6 @@ static void wide_move_immediate(bool sf, uint8_t opc, uint32_t operand, uint8_t 
     uint64_t imm16 = extractBits(operand, 0, 15);
     uint64_t shift = hw * 16;
     uint64_t op = imm16 << shift;
-    printf("op %lx\n", op);
 
     switch (opc) {
         case 0: // movn
