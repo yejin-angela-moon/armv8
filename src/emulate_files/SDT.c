@@ -34,30 +34,23 @@ void SDT(uint32_t instruction, state *state) {
         addr = readRegister(xn, 0, generalRegisters) + readRegister(xm, 0, generalRegisters);
     }
 
-    // uint16_t *twoByteMem = (uint16_t*)(&memory[addr/4]);
-    // if (addr%4 != 0){
-    //     twoByteMem = &twoByteMem[1];
-    // }
-
-    // uint8_t byteMem;
-
-
     if (extractBits(instruction, 22, 22) == 1){
         //load operation
-        uint8_t *twoByteMem = (uint8_t*)(memory + addr/4) ;
-        twoByteMem = &twoByteMem[addr%4];
-
+        uint64_t value = 0;
         if (sf){
             uint64_t xt = 0;
-            for (int i = 0; i < 8; i++){
-                xt |= (((uint64_t) twoByteMem[i] )  << (8*i));
+            for (int i =0; i < 8; i++){
+                value = memory[(addr + i)/4] >> ((addr + i) % 4) * 8;
+                xt |=  (value & 0xFF) << 8*i;
             }
             writeRegister(rt, xt, sf, generalRegisters);
         } else{
             uint32_t wt = 0;
-            for (int i = 0; i < 4; i++){
-                wt |= (((uint32_t) twoByteMem[i] )  << (8*i));
+            for (int i =0; i < 8; i++){
+                value = memory[(addr + i)/4] >> ((addr + i) % 4) * 8;
+                wt |=  (value & 0xFF) << 8*i;
             }
+            writeRegister(rt, wt, sf, generalRegisters);
         }
 
     } else {
@@ -92,14 +85,24 @@ void LL(uint32_t instruction, state *state) {
     int64_t offset = simm * 4;
     uint32_t *memory = state->memory;
     uint32_t currAddress = state->currAddress;
-    if (sf) {
-        int64_t xt = 0;
-        for (int i =0; i < 2; i++){
-            xt |= (((uint64_t) memory[(currAddress + offset)/4 + i]) << (32 * i));
+    uint64_t *generalRegisters = state->generalRegisters;
+    uint64_t value;
+    if (sf){
+            uint64_t xt = 0;
+            for (int i =0; i < 8; i++){
+                value = memory[(currAddress + offset + i)/4] >> 
+                ((currAddress + offset + i) % 4) * 8;
+                xt |=  (value & 0xFF) << 8*i;
+            }
+            writeRegister(rt, xt, sf, generalRegisters);
+        } else{
+            uint32_t wt = 0;
+            for (int i =0; i < 8; i++){
+                value = memory[(currAddress + offset + i)/4] >> 
+                ((currAddress + offset + i) % 4) * 8;
+                wt |=  (value & 0xFF) << 8*i;
+            }
+            writeRegister(rt, wt, sf, generalRegisters);
         }
-        writeRegister(rt, xt, sf, state->generalRegisters);
-    } else {
-        writeRegister(rt, memory[state->currAddress + offset], sf, state->generalRegisters);
-    }
 
 }
