@@ -47,6 +47,7 @@ static void execute(state* state){
             break;
         }
         readInstruction(instruction, state);
+       // printToString(state);
         inc_PC(state);
     }
 }
@@ -68,7 +69,7 @@ int main(int argc, char* argv[]) {
 
     if (argc == 3){
         printStateToFile(state, argv[2]);
-    } else{
+    } else {
         printToString(state);
     }
 

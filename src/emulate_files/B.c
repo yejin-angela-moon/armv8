@@ -17,9 +17,9 @@ static void conditional(uint32_t simm19, uint8_t cond, state *state) {
         state->currAddress += offset;
     } else if (cond == 0x1 && pstate.Z == 0) {
         state->currAddress += offset;
-    } else if (cond == 0x6 && pstate.N == 1) {
+    } else if (cond == 0x6 && pstate.N == pstate.V) {
         state->currAddress += offset;
-    } else if (cond == 0x7 && pstate.N != 1) {
+    } else if (cond == 0x7 && pstate.N != pstate.V) {
         state->currAddress += offset;
     } else if (cond == 0xC && pstate.Z == 0 && pstate.N == pstate.V) {
         state->currAddress += offset;

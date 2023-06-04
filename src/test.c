@@ -2,7 +2,7 @@
 #include <stdint.h>
 
 int main() {
-    uint32_t data[] = {0x715f6a5f, 0x8a000000};
+    uint32_t data[] = {0x717ca875, 0x8a000000};
     FILE* fp = fopen("test.bin", "wb");
     if (fp == NULL) {
         printf("Failed to create the file. \n");
@@ -12,6 +12,7 @@ int main() {
         fwrite(&data[i], sizeof(uint32_t), 1, fp);
        // print(&data[i]);
     }
+    //fwrite(state, sizeof(uint32_t), 1, fp);
     fclose(fp);
     return 0;
 }

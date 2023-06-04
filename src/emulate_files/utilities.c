@@ -50,25 +50,28 @@ uint32_t extractBits(uint64_t n, uint8_t startIndex, uint8_t endIndex) {
     return (n >> startIndex) & mask;
 }
 
-void update_pstate(uint64_t result, uint64_t operand1, uint64_t operand2, bool is_subtraction, Pstate *pstate) {
+void update_pstate(uint64_t result, uint64_t operand1, uint64_t operand2, bool is_subtraction, state *state) {
+
+    //state->pstate.N = 0;
     // Update N and Z flags
-    pstate->N = result & (1ULL << 63);  // check the most significant bit
-    pstate->Z = (result == 0);
+
+    state->pstate.N = result & (1ULL << 63);  // check the most significant bit
+    state->pstate.Z = false;
 
     if (is_subtraction) {
         // For subtraction, carry is set if operand1 >= operand2
-        pstate->C = operand1 >= operand2;
+        state->pstate.C = operand1 >= operand2;
 
         // Overflow for subtraction is set if operand1 and operand2 have different signs,
         // and operand1 and the result have different signs
-        pstate->V = ((operand1 ^ operand2) & (operand1 ^ result)) >> 63;
+        state->pstate.V = ((operand1 ^ operand2) & (operand1 ^ result)) >> 63;
     } else {
         // For addition, carry is set if result is less than either operand (meaning it wrapped around)
-        pstate->C = result < operand1 || result < operand2;
+       state->pstate.C = result < operand1 || result < operand2;
 
         // Overflow for addition is set if operand1 and operand2 have the same sign,
         // and operand1 and the result have different signs
-        pstate->V = (~(operand1 ^ operand2) & (operand1 ^ result)) >> 63;
+        state->pstate.V = (~(operand1 ^ operand2) & (operand1 ^ result)) >> 63;
     }
 }
 
