@@ -4,7 +4,7 @@ static void arithmeticDPReg(uint8_t opc, uint8_t opr, uint8_t rd, uint8_t rn, ui
     uint64_t *generalRegisters = state->generalRegisters;
 
     uint8_t shift = extractBits(opr, 1, 2);
-    uint64_t op2 = bitShift(shift, readRegister(rm, 1, generalRegisters), sf? operand: operand & 0xFFFF);
+    uint64_t op2 = bitShift(shift, readRegister(rm, 1, generalRegisters), sf? operand: operand & 0xFFFF, sf);
     uint64_t registerN = readRegister(rn, sf, generalRegisters);
 
     uint64_t valueToWrite;
@@ -36,7 +36,7 @@ static void logicalDPReg(uint8_t opc, uint8_t opr, uint8_t rd, uint8_t rn, uint8
     uint64_t *generalRegisters = state->generalRegisters;
 
     uint8_t shift = extractBits(opr, 1, 2);
-    uint64_t op2 = bitShift(shift, readRegister(rm, 1, generalRegisters), operand);
+    uint64_t op2 = bitShift(shift, readRegister(rm, 1, generalRegisters), operand, sf);
     bool n = opr % 2;
 
     uint64_t valueToWrite;
