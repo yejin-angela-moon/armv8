@@ -21,7 +21,7 @@ static void arithmetic_immediate(bool sf, uint8_t opc, uint32_t operand, uint8_t
         case 1:
             //adds
             result += imm12;
-            update_pstate(result, rn, imm12, 0, state);
+            update_pstate(result, rn, imm12, 0, sf, state);
             break;
         case 2: //sub
             result -= imm12;
@@ -30,7 +30,7 @@ static void arithmetic_immediate(bool sf, uint8_t opc, uint32_t operand, uint8_t
             result -= imm12;
             resultCopy = result;
             //if ()
-            update_pstate(resultCopy, rn, imm12, 1, state);
+            update_pstate(resultCopy, rn, imm12, 1, sf, state);
             break;
         default: printf("invalid opc\n");;
     }

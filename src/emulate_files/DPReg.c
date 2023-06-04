@@ -15,7 +15,7 @@ static void arithmeticDPReg(uint8_t opc, uint8_t opr, uint8_t rd, uint8_t rn, ui
         }
         case 1: {
             valueToWrite = registerN + op2;
-            update_pstate(valueToWrite,  registerN, op2, 0, &state->pstate);
+            update_pstate(valueToWrite,  registerN, op2, 0, sf, state);
             break;
         }
         case 2: {
@@ -24,7 +24,7 @@ static void arithmeticDPReg(uint8_t opc, uint8_t opr, uint8_t rd, uint8_t rn, ui
         }
         case 3: {
             valueToWrite = registerN - op2;
-            update_pstate(valueToWrite, registerN, op2, 1, &state->pstate);
+            update_pstate(valueToWrite, registerN, op2, 1, sf, state);
             break;
         }
         default: ;

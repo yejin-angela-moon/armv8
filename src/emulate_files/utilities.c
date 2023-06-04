@@ -50,12 +50,16 @@ uint32_t extractBits(uint64_t n, uint8_t startIndex, uint8_t endIndex) {
     return (n >> startIndex) & mask;
 }
 
-void update_pstate(uint64_t result, uint64_t operand1, uint64_t operand2, bool is_subtraction, state *state) {
+void update_pstate(uint64_t result, uint64_t operand1, uint64_t operand2, bool is_subtraction, bool sf, state *state) {
 
     //state->pstate.N = 0;
     // Update N and Z flags
+    if (sf) {
+        state->pstate.N = result & (1ULL << 63);  // check the most significant bit
+    } else {
+        state->pstate.N = result & (1ULL << 31);  // check the most significant bit
+    }
 
-    state->pstate.N = result & (1ULL << 63);  // check the most significant bit
     state->pstate.Z = (result == 0);
 
     if (is_subtraction) {
