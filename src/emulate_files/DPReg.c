@@ -27,7 +27,7 @@ static void arithmeticDPReg(uint8_t opc, uint8_t opr, uint8_t rd, uint8_t rn, ui
             update_pstate(valueToWrite, registerN, op2, 1, sf, state);
             break;
         }
-        default: ;
+        default: printf("invalid opc\n");
     }
     writeRegister(rd, valueToWrite, sf, generalRegisters);
 }
