@@ -41,14 +41,36 @@ void readInstruction (uint32_t instruction, state *state) {
 }
 
 static void execute(state* state){
-    uint32_t instruction;
+    uint32_t instruction = state->memory[0];
+    int i = 0;
     while (1){
-        instruction = state->memory[state->currAddress / 4];
-        if (instruction == HALT_INSTRUCTION){
-            break;
-        }
-        readInstruction(instruction, state);
-        inc_PC(state);
+           // instruction = state->memory[0];
+         i++;
+         if (instruction == HALT_INSTRUCTION || instruction == 0) {
+             break;
+         }
+
+         if (extractBits(instruction, 0, 4) == 0x0 && extractBits(instruction, 10, 31) == 0x3587c0) {
+                 B(instruction, state);
+                 inc_PC(state);
+                 instruction = state->memory[i];
+         } else {
+             readInstruction(instruction, state);
+             inc_PC(state);
+             instruction = state->memory[state->currAddress / 4];
+         }
+
+   //     i++;
+   //     if (extractBits(instruction, 0, 4) == 0x0 && extractBits(instruction, 10, 31) == 0x3587c0) {
+   //         instruction = state->memory[i];
+   //     } else {
+   //         instruction = state->memory[state->currAddress / 4];
+   //     }
+   //     if (instruction == HALT_INSTRUCTION){
+   //         break;
+   //     }
+   //     readInstruction(instruction, state);
+   //     inc_PC(state);
     }
 }
 
