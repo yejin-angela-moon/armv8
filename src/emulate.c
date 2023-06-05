@@ -77,30 +77,3 @@ int main(int argc, char* argv[]) {
     free(memory);
     return EXIT_SUCCESS;
 }
-
-
-int main(int argc, char* argv[]) {
-
-  if (argc < 2 || argc > 3){
-    printf("Usage: ./emulate <bin_file> [<out_file>]\n");
-    return EXIT_FAILURE;
-  }
-
-  state *state = initialise();
-  uint32_t *memory = state->memory;
-
-  readFile(state, argv[1]);
-
-  execute(state);
-
-  if (argc == 3){
-    printStateToFile(state, argv[2]);
-  } else{
-    printToString(state);
-  }
-
-  free(state);
-  free(memory);
-  return EXIT_SUCCESS;
-}
-
