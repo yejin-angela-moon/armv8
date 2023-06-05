@@ -42,9 +42,15 @@ static void execute(state* state){
   int i = 0;
   while (1) {
     i++;
-    if (extractBits(instruction, 26, 28) == 5) { //if instruction is
-      if (B(instruction, state)) {
-        i = state->currAddress / 4;
+    if (extractBits(instruction, 26, 28) == 5) { //if instruction is branch
+      int B_result = B(instruction, state);
+      // 0 -> conditional where condition doesn't match
+      // 1 -> conditional/unconditional branch to label
+      // 2 -> branch to register address
+      if (B_result == 1) {
+          i = state->currAddress / 4;
+      } else if (B_result == 0) {
+        inc_PC(state);
       }
     } else {
       readInstruction(instruction, state);
