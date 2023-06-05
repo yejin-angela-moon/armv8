@@ -14,6 +14,9 @@
 #define NOP_INSTRUCTION 0xD503201F
 #define MEMORY_SIZE (2 * 1024 * 1024)  // 2 MiB
 
+#define SIGN_EXTEND_19BITS 0xFFFFFFFFFFF80000
+#define SIGN_EXTEND_9BITS 0xFFFFFE00
+
 typedef struct {
     bool N;
     bool Z;
@@ -29,3 +32,4 @@ typedef struct {
 } state;
 
 #endif
+

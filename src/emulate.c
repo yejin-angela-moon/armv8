@@ -40,14 +40,18 @@ void readInstruction (uint32_t instruction, state *state) {
 }
 
 static void execute(state* state){
-  uint32_t instruction;
+  uint32_t normalInstruction = state->memory[state->currAddress / 4];
+  uint32_t branchInstruction = state->memory[0];
   while (1){
-    instruction = state->memory[state->currAddress / 4];
-    if (instruction == HALT_INSTRUCTION){
+    if (normalInstruction == HALT_INSTRUCTION || branchInstruction == HALT_INSTRUCTION) {
       break;
     }
-    readInstruction(instruction, state);
-    inc_PC(state);
+    if (extractBits(normalInstruction, 26, 29) != 5) {
+      readInstruction(normalInstruction, state);
+      inc_PC(state);
+    } else {
+      readInstruction(branchInstruction, state);
+    }
   }
 }
 
