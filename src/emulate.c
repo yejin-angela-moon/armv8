@@ -1,8 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <assert.h>
-#include <stdbool.h>
 #include <stdint.h>
 
 #include "emulate_files/utilities.h"
@@ -15,42 +12,46 @@
 
 /* Decode instruction */
 void readInstruction (uint32_t instruction, state *state) {
-  if (instruction == NOP_INSTRUCTION) { //nop
+  if (instruction == NOP_INSTRUCTION) {
     inc_PC(state);
     return;
   }
-  if (extractBits(instruction, 26, 28) == 0x4){
+  if (extractBits(instruction, 26, 28) == 0x4) {
     printf("DPI\n");
     DPImm(instruction, state);
+    inc_PC(state);
   } else if (extractBits(instruction, 25, 27) == 0x5) {
     printf("DPR\n");
     DPReg(instruction, state);
-  } else if(extractBits(instruction, 25, 28) == 0xC ){
+    inc_PC(state);
+  } else if (extractBits(instruction, 25, 28) == 0xC ){
     if (extractBits(instruction, 31,31) == 0x1){
       printf("SDT\n");
       SDT(instruction, state);
+      inc_PC(state);
     } else {
       printf("LL\n");
       LL(instruction, state);
+      inc_PC(state);
     }
-  } else {
-    printf("B\n");
-    B(instruction, state);
   }
 }
 
 static void execute(state* state){
-  uint32_t normalInstruction = state->memory[state->currAddress / 4];
-  uint32_t branchInstruction = state->memory[0];
-  while (1){
-    if (normalInstruction == HALT_INSTRUCTION || branchInstruction == HALT_INSTRUCTION) {
-      break;
-    }
-    if (extractBits(normalInstruction, 26, 29) != 5) {
-      readInstruction(normalInstruction, state);
-      inc_PC(state);
+  uint32_t instruction = state->memory[0];
+  int i = 0;
+  while (1) {
+    i++;
+    if (extractBits(instruction, 26, 28) == 5) { //if instruction is
+      if (B(instruction, state)) {
+        i = state->currAddress / 4;
+      }
     } else {
-      readInstruction(branchInstruction, state);
+      readInstruction(instruction, state);
+    }
+    instruction = state->memory[i];
+    if (instruction == HALT_INSTRUCTION || instruction == 0) {
+      break;
     }
   }
 }
