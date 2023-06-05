@@ -16,7 +16,6 @@
 /* Decode instruction */
 void readInstruction (uint32_t instruction, state *state) {
     if (instruction == 0xD503201F) { //nop
-        inc_PC(state);
         return;
     }
     if (extractBits(instruction, 26, 28) == 0x4){
@@ -33,9 +32,11 @@ void readInstruction (uint32_t instruction, state *state) {
             printf("LL\n");
             LL(instruction, state);
         }
-    } else {
+    } else if(extractBits(instruction,26,28)== 0x5){
         printf("B\n");
         B(instruction, state);
+    } else{
+    	fprintf(stderr,"Invalid Instruction");
     }
 }
 
