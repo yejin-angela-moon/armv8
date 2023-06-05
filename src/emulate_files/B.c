@@ -16,9 +16,9 @@ static void conditional(uint32_t simm19, uint8_t cond, state *state) {
     state->currAddress += offset;
   } else if (cond == 0x1 && state->pstate.Z == 0) {
     state->currAddress += offset;
-  } else if (cond == 0x6 && state->pstate.N == state->pstate.V) {
+  } else if (cond == 0xA && state->pstate.N == state->pstate.V) {
     state->currAddress += offset;
-  } else if (cond == 0x7 && state->pstate.N != state->pstate.V) {
+  } else if (cond == 0xB && state->pstate.N != state->pstate.V) {
     state->currAddress += offset;
   } else if (cond == 0xC && state->pstate.Z == 0 && state->pstate.N == state->pstate.V) {
     state->currAddress += offset;
@@ -31,14 +31,19 @@ static void conditional(uint32_t simm19, uint8_t cond, state *state) {
 
 
 bool B(uint32_t instruction, state *state) {
+  uint32_t simm19;
+  uint8_t cond;
   if (extractBits(instruction, 31, 31)) {
     reg(extractBits(instruction, 5, 9), state);
     return 0;
   } else if (extractBits(instruction, 30, 30)) {
-    conditional(extractBits(instruction, 5, 23), extractBits(instruction, 0, 3), state);
+    simm19 = extractBits(instruction, 5, 23);
+    cond = extractBits(instruction, 0, 3);
+    conditional(simm19, cond, state);
     return 1;
   } else {
-    unconditional(extractBits(instruction, 0, 25), state);
+    uint32_t simm26 = extractBits(instruction, 0, 25);
+    unconditional(simm26, state);
     return 1;
   }
 }

@@ -61,6 +61,7 @@ static void logicalDPReg(uint8_t opc, uint8_t opr, uint8_t rd, uint8_t rn, uint8
           state->pstate.C = 0;
           state->pstate.V = 0;
           break;
+        default: printf("invalid opc\n");
       }
 
       writeRegister(rd, valueToWrite, sf, generalRegisters);
