@@ -12,10 +12,6 @@
 
 /* Decode instruction */
 void readInstruction (uint32_t instruction, state *state) {
-  if (instruction == NOP_INSTRUCTION) {
-    inc_PC(state);
-    return;
-  }
   if (extractBits(instruction, 26, 28) == 0x4) {
     printf("DPI\n");
     DPImm(instruction, state);
@@ -42,6 +38,14 @@ static void execute(state* state){
   int i = 0;
   while (1) {
     i++;
+    if (instruction == HALT_INSTRUCTION) {
+      return;
+    }
+    if (instruction == NOP_INSTRUCTION) {
+      inc_PC(state);
+      instruction = state->memory[i];
+      continue;
+    }
     if (extractBits(instruction, 26, 28) == 5) { //if instruction is branch
       int B_result = B(instruction, state);
       // 0 -> conditional where condition doesn't match
@@ -56,9 +60,6 @@ static void execute(state* state){
       readInstruction(instruction, state);
     }
     instruction = state->memory[i];
-    if (instruction == HALT_INSTRUCTION || instruction == 0) {
-      break;
-    }
   }
 }
 
