@@ -2,7 +2,7 @@
 #include <stdint.h>
 
 int main() {
-    uint32_t data[] = {0xd294d03c, 0xf2a0017c, 0x52800000, 0x72b14000, 0xb8000780, 0xd61f0380, 0x8a000000, 0x0000008a};
+    uint32_t data[] = {0x6b00001f, 0x114e3409, 0x6b00013f, 0x5400004a, 0x1154279c, 0x11749b9c, 0x8a000000};
     FILE* fp = fopen("test.bin", "wb");
     if (fp == NULL) {
         printf("Failed to create the file. \n");
