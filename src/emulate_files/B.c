@@ -11,7 +11,7 @@ static void reg(uint8_t xn, state *state) {
 
 static void conditional(uint32_t simm19, uint8_t cond, state *state) {
     //Pstate pstate = state->pstate;
-    int64_t offset = (int64_t) (simm19 + 1) * 4;
+    int64_t offset = (int64_t) (simm19 - 1) * 4;
     if (cond == 0x0 && state->pstate.Z == 1) {
         state->currAddress += offset;
     } else if (cond == 0x1 && state->pstate.Z == 0) {
@@ -41,18 +41,16 @@ void B(uint32_t instruction, state *state) {
     uint8_t xn = extractBits(instruction, 5, 9);
     uint32_t simm19 = extractBits(instruction, 5, 23);
     uint8_t cond = extractBits(instruction, 0, 3);
-    if (extractBits(instruction, 26, 31) == 0x5) {
-        //Unconditional
-        unconditional(simm26, state);
-
-    } else if (extractBits(instruction, 0, 4) == 0x0 && extractBits(instruction, 10, 31) == 0x3587c0) {
+   if (extractBits(instruction, 0, 4) == 0x0 && extractBits(instruction, 10, 31) == 0x3587c0) {
         //Register
         reg(xn, state);
     } else if (extractBits(instruction, 4, 4) == 0x0 && extractBits(instruction, 24, 31) == 0x54) {
-        //Conditional
-        unconditional(simm19, state);
+        //unconditional
+
+        conditional(simm19, cond, state);
         //conditional(simm19, cond, state);
     } else {
-        conditional(simm19, cond, state);
+       unconditional(simm26, state);
+
     }
 }

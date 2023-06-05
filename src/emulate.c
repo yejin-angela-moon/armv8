@@ -32,7 +32,7 @@ void readInstruction (uint32_t instruction, state *state) {
             printf("LL\n");
             LL(instruction, state);
         }
-    } else if(extractBits(instruction,26,28)== 0x5){
+    } else if(extractBits(instruction,26,28) == 0x5){
         printf("B\n");
         B(instruction, state);
     } else{
@@ -56,6 +56,7 @@ static void execute(state* state){
                  instruction = state->memory[i];
          } else {
              readInstruction(instruction, state);
+             printToString(state);
              inc_PC(state);
              instruction = state->memory[state->currAddress / 4];
          }
