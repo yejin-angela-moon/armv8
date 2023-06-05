@@ -1,5 +1,7 @@
 #include "DPReg.h"
 
+#include "DPReg.h"
+
 static void arithmeticDPReg(uint8_t opc, uint8_t opr, uint8_t rd, uint8_t rn, uint8_t rm, uint8_t operand, bool sf, state *state) {
     uint64_t *generalRegisters = state->generalRegisters;
 
@@ -54,7 +56,7 @@ static void logicalDPReg(uint8_t opc, uint8_t opr, uint8_t rd, uint8_t rn, uint8
           break;
         case 3:
           valueToWrite = rn_val & (n ? ~op2 : op2);
-          state->pstate.N = extractBits(valueToWrite, 63, 63);
+          state->pstate.N = sf? extractBits(valueToWrite, 63, 63): extractBits(valueToWrite, 31,31);
           state->pstate.Z = valueToWrite == 0;
           state->pstate.C = 0;
           state->pstate.V = 0;
@@ -73,11 +75,11 @@ static void multiplyDPReg(uint8_t rd, uint8_t rn, uint8_t rm, uint8_t operand, b
 
     if (x) {
         valueToWrite = readRegister(ra, sf, generalRegisters)
-                       + readRegister(rn, sf, generalRegisters)
+                       - readRegister(rn, sf, generalRegisters)
                          * readRegister(rm, sf, generalRegisters);
     } else {
         valueToWrite = readRegister(ra, sf, generalRegisters)
-                       - readRegister(rn, sf, generalRegisters)
+                       + readRegister(rn, sf, generalRegisters)
                          * readRegister(rm, sf, generalRegisters);
     }
 
