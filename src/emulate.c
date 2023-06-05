@@ -52,7 +52,7 @@ static void execute(state* state){
 
          if (extractBits(instruction, 0, 4) == 0x0 && extractBits(instruction, 10, 31) == 0x3587c0) {
                  B(instruction, state);
-                 inc_PC(state);
+                 //inc_PC(state);
                  instruction = state->memory[i];
          } else {
              readInstruction(instruction, state);
