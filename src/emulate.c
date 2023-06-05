@@ -56,7 +56,7 @@ static void execute(state* state){
                  instruction = state->memory[i];
          } else {
              readInstruction(instruction, state);
-            // printToString(state);
+             //printToString(state);
              inc_PC(state);
              instruction = state->memory[state->currAddress / 4];
          }
