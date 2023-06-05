@@ -2,9 +2,9 @@
 #include <math.h>
 
 int64_t signExtension(uint32_t instr) {
-    int64_t value = (0x00000000FFFFFFFF & instr);
+    int64_t value = (int64_t) instr;
     if (instr >> 31) {
-        return -8;
+        //return -8;
         value += 0xFFFFFFFF00000000;
     }
     return value;
@@ -12,11 +12,13 @@ int64_t signExtension(uint32_t instr) {
 
 void modify(int64_t offset, state *state) {
    if (offset < 0) {
-        state->currAddress -= abs(offset);
+        state->currAddress -= abs(offset) * 4;
+        state->currAddress -= 4;
    } else {
-        state->currAddress += offset;
+        state->currAddress += offset * 4;
+        state->currAddress -= 4;
    }
-   state->currAddress -= 4;
+
 }
 
 static void unconditional(uint32_t simm26, state *state) {
