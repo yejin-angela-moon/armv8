@@ -11,6 +11,9 @@
 #include "definitions.h"
 #include "utilities.h"
 
-int B(uint32_t instruction, state *state);
+//void Br(uint32_t instruction, state *state);
+
+void B(uint32_t instruction, state *state);
 
 #endif
+
