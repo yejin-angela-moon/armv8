@@ -1,8 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <assert.h>
-#include <stdbool.h>
 #include <stdint.h>
 
 #include "emulate_files/utilities.h"
@@ -15,39 +12,53 @@
 
 /* Decode instruction */
 void readInstruction (uint32_t instruction, state *state) {
-    if (instruction == 0xD503201F) { //nop
+    if (instruction == NOP_INSTRUCTION) {
         inc_PC(state);
         return;
     }
-    if (extractBits(instruction, 26, 28) == 0x4){
+    if (extractBits(instruction, 26, 28) == 0x4) {
         printf("DPI\n");
         DPImm(instruction, state);
+        inc_PC(state);
     } else if (extractBits(instruction, 25, 27) == 0x5) {
         printf("DPR\n");
         DPReg(instruction, state);
-    } else if(extractBits(instruction, 25, 28) == 0xC ){
+        inc_PC(state);
+    } else if (extractBits(instruction, 25, 28) == 0xC ){
         if (extractBits(instruction, 31,31) == 0x1){
             printf("SDT\n");
             SDT(instruction, state);
+            inc_PC(state);
         } else {
             printf("LL\n");
             LL(instruction, state);
+            inc_PC(state);
         }
-    } else {
-        printf("B\n");
-        B(instruction, state);
     }
 }
 
 static void execute(state* state){
-	uint32_t instruction;
-    while (1){
-        instruction = state->memory[state->currAddress / 4];
-        if (instruction == HALT_INSTRUCTION){
+    uint32_t instruction;
+    int i = 0;
+    while (1) {
+        instruction = state->memory[0];
+
+        if (extractBits(instruction, 26, 28) == 5) {
+            if (B(instruction, state)) {
+                instruction = state->memory[state->currAddress / 4];
+            } else {
+                i++;
+                instruction = state->memory[i];
+            }
+        } else {
+            i++;
+            readInstruction(instruction, state);
+            instruction = state->memory[i];
+        }
+
+        if (instruction == HALT_INSTRUCTION || instruction == 0) {
             break;
         }
-        readInstruction(instruction, state);
-        inc_PC(state);
     }
 }
 
