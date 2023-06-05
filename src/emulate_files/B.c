@@ -10,7 +10,7 @@ int64_t signExtension(uint32_t instr) {
     return value;
 }
 
-void modify(uint64_t offset, state *state) {
+void modify(int64_t offset, state *state) {
    if (offset < 0) {
         state->currAddress -= abs(offset);
    } else {
