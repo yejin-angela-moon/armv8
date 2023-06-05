@@ -11,6 +11,6 @@
 #include "definitions.h"
 #include "utilities.h"
 
-void B(uint32_t instruction, state *state);
+bool B(uint32_t instruction, state *state);
 
 #endif
