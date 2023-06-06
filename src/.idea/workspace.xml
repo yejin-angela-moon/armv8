@@ -19,7 +19,18 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
+<<<<<<< HEAD
     <list default="true" id="9cfd7dfd-b035-4826-b693-fa455742bc8e" name="Changes" comment="" />
+=======
+    <list default="true" id="9cfd7dfd-b035-4826-b693-fa455742bc8e" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/emulate.c" beforeDir="false" afterPath="$PROJECT_DIR$/emulate.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/emulate_files/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/emulate_files/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/emulate_files/definitions.h" beforeDir="false" afterPath="$PROJECT_DIR$/emulate_files/definitions.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/emulate_files/ioutils.c" beforeDir="false" afterPath="$PROJECT_DIR$/emulate_files/ioutils.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/emulate_files/utilities.c" beforeDir="false" afterPath="$PROJECT_DIR$/emulate_files/utilities.c" afterDir="false" />
+    </list>
+>>>>>>> ada5667947699776887388a107265e4e75c4e282
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -130,7 +141,11 @@
       <workItem from="1685895101710" duration="6536000" />
       <workItem from="1685976582997" duration="7980000" />
       <workItem from="1686060003414" duration="715000" />
+<<<<<<< HEAD
       <workItem from="1686060726948" duration="614000" />
+=======
+      <workItem from="1686060726948" duration="272000" />
+>>>>>>> ada5667947699776887388a107265e4e75c4e282
     </task>
     <servers />
   </component>
