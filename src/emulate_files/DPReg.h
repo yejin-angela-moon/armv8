@@ -1,5 +1,5 @@
-#ifndef UNTITLED_DPREG_H
-#define UNTITLED_DPREG_H
+#ifndef DPREG_H
+#define DPREG_H
 
 #include <stddef.h>
 #include <stdio.h>
