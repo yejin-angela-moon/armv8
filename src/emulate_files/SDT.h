@@ -1,4 +1,4 @@
-#ifndef  SDT_H
+#ifndef SDT_H
 #define SDT_H
 
 #include <stddef.h>
