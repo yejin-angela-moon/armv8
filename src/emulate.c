@@ -13,7 +13,6 @@
 /* Decode instruction */
 void readInstruction(uint32_t instruction, state *state) {
   if (instruction == NOP_INSTRUCTION) {
-    inc_PC(state);
     return;
   }
 
