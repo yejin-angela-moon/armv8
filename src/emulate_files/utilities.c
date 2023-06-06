@@ -59,24 +59,24 @@ void update_pstate(uint64_t result, uint64_t operand1, uint64_t operand2, bool i
   //state->pstate.N = 0;
   // Update N and Z flags
   if (sf) {
-    state->pstate.N = result & (1ULL << MSB_64);  // check the most significant bit
+    state->pstate.N = result & (1ULL << (X_REGISTER_SIZE - 1));  // check the most significant bit
     if (is_subtraction) {
       // For subtraction, carry is set if operand1 >= operand2
       state->pstate.C = operand1 >= operand2;
 
       // Overflow for subtraction is set if operand1 and operand2 have different signs,
       // and operand1 and the result have different signs
-      state->pstate.V = ((operand1 ^ operand2) & (operand1 ^ result)) >> MSB_64;
+      state->pstate.V = ((operand1 ^ operand2) & (operand1 ^ result)) >> (X_REGISTER_SIZE - 1);
     } else {
       // For addition, carry is set if result is less than either operand (meaning it wrapped around)
       state->pstate.C = result < operand1 || result < operand2;
 
       // Overflow for addition is set if operand1 and operand2 have the same sign,
       // and operand1 and the result have different signs
-      state->pstate.V = (~(operand1 ^ operand2) & (operand1 ^ result)) >> MSB_64;
+      state->pstate.V = (~(operand1 ^ operand2) & (operand1 ^ result)) >> (X_REGISTER_SIZE - 1);
     }
   } else {
-    state->pstate.N = result & (1ULL << MSB_32);  // check the most significant bit
+    state->pstate.N = result & (1ULL << (W_REGISTER_SIZE - 1));  // check the most significant bit
     uint32_t op1 = (uint32_t) operand1;
     uint32_t op2 = (uint32_t) operand2;
     if (is_subtraction) {
@@ -85,14 +85,14 @@ void update_pstate(uint64_t result, uint64_t operand1, uint64_t operand2, bool i
 
       // Overflow for subtraction is set if operand1 and operand2 have different signs,
       // and operand1 and the result have different signs
-      state->pstate.V = ((op1 ^ op2) & (op1 ^ result)) >> MSB_64;
+      state->pstate.V = ((op1 ^ op2) & (op1 ^ result)) >> (X_REGISTER_SIZE - 1);
     } else {
       // For addition, carry is set if result is less than either operand (meaning it wrapped around)
       state->pstate.C = result < op1 || result < op2;
 
       // Overflow for addition is set if operand1 and operand2 have the same sign,
       // and operand1 and the result have different signs
-      state->pstate.V = (~(op1 ^ operand2) & (op1 ^ result)) >> MSB_64;
+      state->pstate.V = (~(op1 ^ operand2) & (op1 ^ result)) >> (X_REGISTER_SIZE - 1);
     }
   }
 
