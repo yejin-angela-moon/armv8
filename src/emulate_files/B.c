@@ -1,7 +1,25 @@
 #include "B.h"
 
+static int64_t signExtension(uint32_t instr) {
+    int64_t value = instr;
+    if (instr >> 31) {
+        value += (int64_t) SIGN_EXTEND_32BITS;
+    }
+    return value;
+}
+
+static void modify(int64_t offset, state *state) {
+    if (offset < 0) {
+        state->currAddress -= labs(offset) * 4;
+        state->currAddress -= 4;
+    } else {
+        state->currAddress += offset * 4;
+        state->currAddress -= 4;
+    }
+}
+
 static void unconditional(uint32_t simm26, state *state) {
-    int64_t offset = simm26 * 4;
+    int64_t offset = (int64_t) (simm26 - 1) * 4;
     state->currAddress += offset;
 }
 
@@ -10,35 +28,37 @@ static void reg(uint8_t xn, state *state) {
 }
 
 static void conditional(uint32_t simm19, uint8_t cond, state *state) {
-    //Pstate pstate = state->pstate;
-    int64_t offset = simm19 * 4;
-    if (cond == 0x0 && state->pstate.Z == 1) {
-        state->currAddress += offset;
-    } else if (cond == 0x1 && state->pstate.Z == 0) {
-        state->currAddress += offset;
-    } else if (cond == 0x6 && state->pstate.N == state->pstate.V) {
-        state->currAddress += offset;
-    } else if (cond == 0x7 && state->pstate.N != state->pstate.V) {
-        state->currAddress += offset;
-    } else if (cond == 0xC && state->pstate.Z == 0 && state->pstate.N == state->pstate.V) {
-        state->currAddress += offset;
-    } else if (cond == 0xD && (state->pstate.Z != 0 || state->pstate.N != state->pstate.V)) {
-        state->currAddress += offset;
-    } else if (cond == 0xE) {
-        state->currAddress += offset;
+    Pstate pstate = state->pstate;
+
+    bool shouldModify =
+            (cond == 0 && pstate.Z) ||
+            (cond == 1 && pstate.Z == 0) ||
+            (cond == 0xA && pstate.N == pstate.V) ||
+            (cond == 0xB && pstate.N != pstate.V) ||
+            (cond == 0xC && pstate.Z == 0 && pstate.N == pstate.V) ||
+            (cond == 0xD && (pstate.Z == 0 || pstate.N == pstate.V)) ||
+            cond == 0xE;
+
+    if (shouldModify) {
+        modify(signExtension(simm19), state);
     }
 }
 
+void B(uint32_t instruction, state *state) {
+    uint32_t simm26 = extractBits(instruction, 0, 25);
+    uint8_t xn = extractBits(instruction, 5, 9);
+    uint32_t simm19 = extractBits(instruction, 5, 23);
+    uint8_t cond = extractBits(instruction, 0, 3);
 
-bool B(uint32_t instruction, state *state) {
-    if (extractBits(instruction, 31, 31)) {
-        reg(extractBits(instruction, 5, 9), state);
-        return 0;
-    } else if (extractBits(instruction, 30, 30)) {
-        conditional(extractBits(instruction, 5, 23), extractBits(instruction, 0, 3), state);
-        return 1;
+    if (simm19 >> 18) {
+        simm19 += SIGN_EXTEND_19BITS;
+    }
+
+    if (extractBits(instruction, 0, 4) == 0 && extractBits(instruction, 10, 31) == 0x3587c0) {
+        reg(xn, state);
+    } else if (extractBits(instruction, 4, 4) == 0 && extractBits(instruction, 24, 31) == 0x54) {
+        conditional(simm19, cond, state);
     } else {
-        unconditional(extractBits(instruction, 0, 25), state);
-        return 1;
+        unconditional(simm26, state);
     }
 }
