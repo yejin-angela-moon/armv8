@@ -8,7 +8,7 @@ state *initialise(void) {
     newState->pstate.V = 0;
     newState->pstate.N = 0;
     newState->pstate.Z = 1;
-    newState->memory = (uint32_t*)calloc(MEMORY_SIZE, sizeof(uint32_t));
+    newState->memory = (uint32_t *) calloc(MEMORY_SIZE, sizeof(uint32_t));
     return newState;
 }
 
@@ -17,7 +17,9 @@ void inc_PC(state *state) {
 }
 
 void writeRegister(uint8_t registerIndex, uint64_t newValue, bool sf, uint64_t *generalRegisters) {
-    if (registerIndex == 31) {
+    assert(registerIndex >= 0 && registerIndex <= 31);
+
+    if (registerIndex == 31) { // ZR
         return;
     }
 
@@ -26,12 +28,14 @@ void writeRegister(uint8_t registerIndex, uint64_t newValue, bool sf, uint64_t *
         generalRegisters[registerIndex] = newValue;
     } else {
         // Write to W-register: zero out the upper 32 bits
-        generalRegisters[registerIndex] = newValue & 0xFFFFFFFF;
+        generalRegisters[registerIndex] = newValue & LOWER_32_BITS;
     }
 }
 
 uint64_t readRegister(uint8_t registerIndex, bool sf, uint64_t *generalRegisters) {
-    if (registerIndex == 31) {
+    assert(registerIndex >= 0 && registerIndex <= 31);
+
+    if (registerIndex == 31) { // ZR
         return 0;
     }
 
@@ -40,7 +44,7 @@ uint64_t readRegister(uint8_t registerIndex, bool sf, uint64_t *generalRegisters
         return generalRegisters[registerIndex];
     } else {
         // Read from W-register: return only the lower 32 bits
-        return generalRegisters[registerIndex] & 0xFFFFFFFF;
+        return generalRegisters[registerIndex] & LOWER_32_BITS;
     }
 }
 
@@ -50,26 +54,48 @@ uint32_t extractBits(uint64_t n, uint8_t startIndex, uint8_t endIndex) {
     return (n >> startIndex) & mask;
 }
 
-void update_pstate(uint64_t result, uint64_t operand1, uint64_t operand2, bool is_subtraction, Pstate *pstate) {
+void update_pstate(uint64_t result, uint64_t operand1, uint64_t operand2, bool is_subtraction, bool sf, state *state) {
+
     // Update N and Z flags
-    pstate->N = result & (1ULL << 63);  // check the most significant bit
-    pstate->Z = (result == 0);
+    if (sf) {
+        state->pstate.N = result & (1ULL << 63);  // check the most significant bit
+        if (is_subtraction) {
+            // For subtraction, carry is set if operand1 >= operand2
+            state->pstate.C = operand1 >= operand2;
 
-    if (is_subtraction) {
-        // For subtraction, carry is set if operand1 >= operand2
-        pstate->C = operand1 >= operand2;
+            // Overflow for subtraction is set if operand1 and operand2 have different signs,
+            // and operand1 and the result have different signs
+            state->pstate.V = ((operand1 ^ operand2) & (operand1 ^ result)) >> 63;
+        } else {
+            // For addition, carry is set if result is less than either operand (meaning it wrapped around)
+            state->pstate.C = result < operand1 || result < operand2;
 
-        // Overflow for subtraction is set if operand1 and operand2 have different signs,
-        // and operand1 and the result have different signs
-        pstate->V = ((operand1 ^ operand2) & (operand1 ^ result)) >> 63;
+            // Overflow for addition is set if operand1 and operand2 have the same sign,
+            // and operand1 and the result have different signs
+            state->pstate.V = (~(operand1 ^ operand2) & (operand1 ^ result)) >> 63;
+        }
     } else {
-        // For addition, carry is set if result is less than either operand (meaning it wrapped around)
-        pstate->C = result < operand1 || result < operand2;
+        state->pstate.N = result & (1ULL << 31);  // check the most significant bit
+        uint32_t op1 = (uint32_t) operand1;
+        uint32_t op2 = (uint32_t) operand2;
+        if (is_subtraction) {
+            // For subtraction, carry is set if operand1 >= operand2
+            state->pstate.C = op1 >= op2;
 
-        // Overflow for addition is set if operand1 and operand2 have the same sign,
-        // and operand1 and the result have different signs
-        pstate->V = (~(operand1 ^ operand2) & (operand1 ^ result)) >> 63;
+            // Overflow for subtraction is set if operand1 and operand2 have different signs,
+            // and operand1 and the result have different signs
+            state->pstate.V = ((op1 ^ op2) & (op1 ^ result)) >> 63;
+        } else {
+            // For addition, carry is set if result is less than either operand (meaning it wrapped around)
+            state->pstate.C = result < op1 || result < op2;
+
+            // Overflow for addition is set if operand1 and operand2 have the same sign,
+            // and operand1 and the result have different signs
+            state->pstate.V = (~(op1 ^ operand2) & (op1 ^ result)) >> 63;
+        }
     }
+
+    state->pstate.Z = (result == 0);
 }
 
 uint64_t bitShift(uint8_t shift, uint64_t n, uint8_t operand, bool sf) {
@@ -91,7 +117,7 @@ uint64_t bitShift(uint8_t shift, uint64_t n, uint8_t operand, bool sf) {
             }
         }
         default:
-            printf("invalid shift code\n");
-            return 0;
+            fprintf(stderr, "invalid shift code\n");
+            exit(1);
     }
 }
