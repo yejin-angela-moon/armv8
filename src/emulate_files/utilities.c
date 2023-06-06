@@ -7,8 +7,8 @@ state *initialise(void) {
   newState->pstate.C = 0;
   newState->pstate.V = 0;
   newState->pstate.N = 0;
-  newState->pstate.Z = 1; // pstate Z flag is initialised to TRUE
-  newState->memory = (uint32_t*)calloc(MEMORY_SIZE, sizeof(uint32_t));
+  newState->pstate.Z = 1;
+  newState->memory = (uint32_t *) calloc(MEMORY_SIZE, sizeof(uint32_t));
   return newState;
 }
 
@@ -17,30 +17,34 @@ void inc_PC(state *state) {
 }
 
 void writeRegister(uint8_t registerIndex, uint64_t newValue, bool sf, uint64_t *generalRegisters) {
-  assert (registerIndex >= 0 && registerIndex <= NUM_REGISTERS);
-  if (registerIndex == NUM_REGISTERS) { // for the ZERO register
+  assert(registerIndex >= 0 && registerIndex <= NUM_REGISTERS);
+
+  if (registerIndex == NUM_REGISTERS) { // ZR
     return;
   }
+
   if (sf) {
     // Write to X-register: use the whole 64-bit value
     generalRegisters[registerIndex] = newValue;
   } else {
     // Write to W-register: zero out the upper 32 bits
-    generalRegisters[registerIndex] = newValue & W_REGISTER_MASK;
+    generalRegisters[registerIndex] = newValue & LOWER_32_BITS;
   }
 }
 
 uint64_t readRegister(uint8_t registerIndex, bool sf, uint64_t *generalRegisters) {
-  assert (registerIndex >= 0 && registerIndex <= NUM_REGISTERS);
-  if (registerIndex == NUM_REGISTERS) { // for the ZERO register
+  assert(registerIndex >= 0 && registerIndex <= NUM_REGISTERS);
+
+  if (registerIndex == NUM_REGISTERS) { // ZR
     return 0;
   }
+
   if (sf) {
     // Read from X-register: return the whole 64-bit value
     return generalRegisters[registerIndex];
   } else {
     // Read from W-register: return only the lower 32 bits
-    return generalRegisters[registerIndex] & W_REGISTER_MASK;
+    return generalRegisters[registerIndex] & LOWER_32_BITS;
   }
 }
 
@@ -93,12 +97,10 @@ void update_pstate(uint64_t result, uint64_t operand1, uint64_t operand2, bool i
   }
 
   state->pstate.Z = (result == 0);
-
-
 }
 
 uint64_t bitShift(uint8_t shift, uint64_t n, uint8_t operand, bool sf) {
- 
+
   switch (shift) {
     case 0: //lsl
       return n << operand;
@@ -117,7 +119,8 @@ uint64_t bitShift(uint8_t shift, uint64_t n, uint8_t operand, bool sf) {
       }
     }
     default:
-      return 0;
+      fprintf(stderr, "invalid shift code\n");
+      exit(1);
   }
 }
 

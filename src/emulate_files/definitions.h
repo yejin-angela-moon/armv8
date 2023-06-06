@@ -14,12 +14,10 @@
 
 #define HALT_INSTRUCTION 0x8a000000
 #define NOP_INSTRUCTION 0xD503201F
+#define BRANCH_IDENTIFIER 0x3587c0
 
-#define X_REGISTER_BITS 64
-#define W_REGISTER_BITS 32
 #define MSB_32 31
 #define MSB_64 63
-#define W_REGISTER_MASK ((1ULL << W_REGISTER_BITS) - 1)
 
 #define SIGN_EXTEND_32BITS 0xFFFFFFFF00000000
 #define SIGN_EXTEND_19BITS 0xFFFFFFFFFFF80000
@@ -37,7 +35,7 @@ typedef struct {
 typedef struct {
     Pstate pstate;
     uint64_t generalRegisters[NUM_REGISTERS];
-    uint32_t currAddress; // hexadecimal address to represents PC
+    uint32_t currAddress; // address to represent PC
     uint32_t *memory;
 } state;
 
