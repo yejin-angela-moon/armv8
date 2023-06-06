@@ -9,15 +9,15 @@
 #include <stdint.h>
 #include "definitions.h"
 
-void writeRegister (uint8_t registerIndex, uint64_t newValue, uint8_t sf, uint64_t *generalRegisters);
+void writeRegister (uint8_t registerIndex, uint64_t newValue, bool sf, uint64_t *generalRegisters);
 
-uint64_t readRegister (uint8_t registerIndex, uint8_t sf, uint64_t *generalRegisters);
+uint64_t readRegister (uint8_t registerIndex, bool sf, uint64_t *generalRegisters);
 
 uint32_t extractBits(uint64_t n, uint8_t startIndex, uint8_t endIndex);
 
-uint8_t bitShift(uint8_t shift, uint64_t n, uint8_t operand);
+uint64_t bitShift(uint8_t shift, uint64_t n, uint8_t operand, bool sf);
 
-void update_pstate(uint64_t result, uint64_t operand1, uint64_t operand2, bool is_subtraction, Pstate *pstate);
+void update_pstate(uint64_t result, uint64_t operand1, uint64_t operand2, bool is_subtraction, bool sf, state *state);
 
 void inc_PC (state *state);
 

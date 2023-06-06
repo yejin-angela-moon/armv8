@@ -10,8 +10,20 @@
 #include <stdint.h>
 
 #define NUM_REGISTERS 31
+#define MEMORY_SIZE (2 * 1024 * 1024) // 2 MiB
+
 #define HALT_INSTRUCTION 0x8a000000
-#define MEMORY_SIZE (2 * 1024 * 1024)  // 2 MiB
+#define NOP_INSTRUCTION 0xD503201F
+#define BRANCH_IDENTIFIER 0x3587c0
+
+#define MSB_32 31
+#define MSB_64 63
+
+#define SIGN_EXTEND_32BITS 0xFFFFFFFF00000000
+#define SIGN_EXTEND_19BITS 0xFFFFFFFFFFF80000
+#define SIGN_EXTEND_9BITS 0xFFFFFE00
+#define MASK_1_BYTE 0xFF
+#define LOWER_32_BITS 0xFFFFFFFF
 
 typedef struct {
     bool N;
@@ -23,8 +35,10 @@ typedef struct {
 typedef struct {
     Pstate pstate;
     uint64_t generalRegisters[NUM_REGISTERS];
-    uint32_t currAddress; // hexadecimal address to represents PC
+    uint32_t currAddress; // address to represent PC
     uint32_t *memory;
 } state;
 
 #endif
+
+
