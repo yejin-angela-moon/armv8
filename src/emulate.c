@@ -1,8 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <assert.h>
-#include <stdbool.h>
 #include <stdint.h>
 
 #include "emulate_files/utilities.h"
@@ -13,47 +10,43 @@
 #include "emulate_files/ioutils.h"
 #include "emulate_files/definitions.h"
 
-#define BRANCH_IDENTIFIER 0x3587c0
-
 /* Decode instruction */
-void readInstruction (uint32_t instruction, state *state) {
-  if (instruction == NOP_INSTRUCTION) { //nop
+void readInstruction(uint32_t instruction, state *state) {
+  if (instruction == NOP_INSTRUCTION) {
     inc_PC(state);
     return;
   }
+
   // IF statement to identify the type of instruction
-  if (extractBits(instruction, 26, 28) == 0x4){
-    printf("DPI\n");
+  if (extractBits(instruction, 26, 28) == 4) {
     DPImm(instruction, state);
-  } else if (extractBits(instruction, 25, 27) == 0x5) {
-    printf("DPR\n");
+  } else if (extractBits(instruction, 25, 27) == 5) {
     DPReg(instruction, state);
-  } else if(extractBits(instruction, 25, 28) == 0xC){
-    if (extractBits(instruction, 31, 31) == 0x1){
-      printf("SDT\n");
+  } else if (extractBits(instruction, 25, 28) == 12) {
+    if (extractBits(instruction, 31, 31) == 1) {
       SDT(instruction, state);
     } else {
-      printf("LL\n");
       LL(instruction, state);
     }
-  } else if(extractBits(instruction, 26, 28) == 0x5){
-    printf("B\n");
+  } else if (extractBits(instruction, 26, 28) == 5) {
     B(instruction, state);
-  } else{
-    assert(false && "Invalid instruction");
+  } else {
+    fprintf(stderr, "invalid instruction\n");
+    exit(1);
   }
 }
 
-static void execute(state* state){
+static void execute(state *state) {
   uint32_t instruction = state->memory[0];
   int i = 0;
-  while (1){
+  while (1) {
     i++;
+
     if (instruction == HALT_INSTRUCTION) {
       break;
     }
 
-    if (extractBits(instruction, 0, 4) == 0x0
+    if (extractBits(instruction, 0, 4) == 0
         && extractBits(instruction, 10, 31) == BRANCH_IDENTIFIER) {
       B(instruction, state);
       instruction = state->memory[i];
@@ -62,15 +55,12 @@ static void execute(state* state){
       inc_PC(state);
       instruction = state->memory[state->currAddress / 4];
     }
-
-
   }
 }
 
+int main(int argc, char *argv[]) {
 
-int main(int argc, char* argv[]) {
-
-  if (argc < 2 || argc > 3){
+  if (argc < 2 || argc > 3) {
     printf("Usage: ./emulate <bin_file> [<out_file>]\n");
     return EXIT_FAILURE;
   }
@@ -82,9 +72,9 @@ int main(int argc, char* argv[]) {
 
   execute(state);
 
-  if (argc == 3){
+  if (argc == 3) {
     printStateToFile(state, argv[2]);
-  } else{
+  } else {
     printToString(state);
   }
 
