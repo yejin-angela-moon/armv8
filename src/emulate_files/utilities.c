@@ -17,10 +17,10 @@ void inc_PC(state *state) {
 }
 
 void writeRegister(uint8_t registerIndex, uint64_t newValue, bool sf, uint64_t *generalRegisters) {
-  if (registerIndex == NUM_REGISTERS) {
+  assert (registerIndex >= 0 && registerIndex <= NUM_REGISTERS);
+  if (registerIndex == NUM_REGISTERS) { // for the ZERO register
     return;
   }
-
   if (sf) {
     // Write to X-register: use the whole 64-bit value
     generalRegisters[registerIndex] = newValue;
@@ -31,10 +31,10 @@ void writeRegister(uint8_t registerIndex, uint64_t newValue, bool sf, uint64_t *
 }
 
 uint64_t readRegister(uint8_t registerIndex, bool sf, uint64_t *generalRegisters) {
-  if (registerIndex == NUM_REGISTERS) {
+  assert (registerIndex >= 0 && registerIndex <= NUM_REGISTERS);
+  if (registerIndex == NUM_REGISTERS) { // for the ZERO register
     return 0;
   }
-
   if (sf) {
     // Read from X-register: return the whole 64-bit value
     return generalRegisters[registerIndex];
@@ -117,7 +117,6 @@ uint64_t bitShift(uint8_t shift, uint64_t n, uint8_t operand, bool sf) {
       }
     }
     default:
-	  assert(false && "invalide shift code");
       return 0;
   }
 }
