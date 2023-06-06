@@ -54,7 +54,7 @@ static void wide_move_immediate(bool sf, uint8_t opc, uint32_t operand, uint8_t 
       break;
     case 3: { // movk
       uint64_t movk_val = readRegister(Rd, sf, generalRegisters);
-      movk_val &= ~(0xFFFFULL << shift);
+      movk_val &= ~(LOWER_16_BITS << shift);
       movk_val |= op;
       writeRegister(Rd, movk_val, sf, generalRegisters);
       break;
