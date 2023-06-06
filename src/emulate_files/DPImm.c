@@ -2,8 +2,6 @@
 
 static void arithmetic_immediate(bool sf, uint8_t opc, uint32_t operand, uint8_t Rd, state *state)  {
   uint64_t *generalRegisters = state->generalRegisters;
-  //Pstate pstate = state->pstate;
-
   bool sh = extractBits(operand, 17, 17);
   uint64_t imm12 = extractBits(operand, 5, 16);
   uint8_t rn = extractBits(operand, 0, 4);
@@ -28,8 +26,7 @@ static void arithmetic_immediate(bool sf, uint8_t opc, uint32_t operand, uint8_t
       break;
     case 3: //subs
       result -= imm12;
-      //resultCopy = result;
-      //if ()
+
       update_pstate(result, resultCopy, imm12, 1, sf, state);
       break;
     default: printf("invalid opc\n");;
@@ -77,3 +74,4 @@ void DPImm(uint32_t instruction, state *state) {
     wide_move_immediate(sf, opc, operand, Rd, state);
   }
 }
+

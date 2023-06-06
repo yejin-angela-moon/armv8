@@ -13,30 +13,34 @@
 #include "emulate_files/ioutils.h"
 #include "emulate_files/definitions.h"
 
+#define BRANCH_IDENTIFIER 0x3587c0
+
 /* Decode instruction */
 void readInstruction (uint32_t instruction, state *state) {
-    if (instruction == 0xD503201F) { //nop
-        return;
-    }
+	if (instruction == NOP_INSTRUCTION) { //nop
+    	inc_PC(state);
+    	return;
+  	}
+	// IF statement to identify the type of instruction
     if (extractBits(instruction, 26, 28) == 0x4){
         printf("DPI\n");
         DPImm(instruction, state);
     } else if (extractBits(instruction, 25, 27) == 0x5) {
         printf("DPR\n");
         DPReg(instruction, state);
-    } else if(extractBits(instruction, 25, 28) == 0xC ){
-        if (extractBits(instruction, 31,31) == 0x1){
+    } else if(extractBits(instruction, 25, 28) == 0xC){
+        if (extractBits(instruction, 31, 31) == 0x1){
             printf("SDT\n");
             SDT(instruction, state);
         } else {
             printf("LL\n");
             LL(instruction, state);
         }
-    } else if(extractBits(instruction,26,28) == 0x5){
+    } else if(extractBits(instruction, 26, 28) == 0x5){
         printf("B\n");
         B(instruction, state);
     } else{
-    	fprintf(stderr,"Invalid Instruction");
+		assert(false && "Invalid instruction");
     }
 }
 
@@ -44,34 +48,22 @@ static void execute(state* state){
     uint32_t instruction = state->memory[0];
     int i = 0;
     while (1){
-           // instruction = state->memory[0];
          i++;
-         if (instruction == HALT_INSTRUCTION || instruction == 0) {
+         if (instruction == HALT_INSTRUCTION) {
              break;
          }
 
-         if (extractBits(instruction, 0, 4) == 0x0 && extractBits(instruction, 10, 31) == 0x3587c0) {
+         if (extractBits(instruction, 0, 4) == 0x0 
+				&& extractBits(instruction, 10, 31) == BRANCH_IDENTIFIER) {
                  B(instruction, state);
-                 //inc_PC(state);
                  instruction = state->memory[i];
          } else {
              readInstruction(instruction, state);
-             //printToString(state);
              inc_PC(state);
              instruction = state->memory[state->currAddress / 4];
          }
 
-   //     i++;
-   //     if (extractBits(instruction, 0, 4) == 0x0 && extractBits(instruction, 10, 31) == 0x3587c0) {
-   //         instruction = state->memory[i];
-   //     } else {
-   //         instruction = state->memory[state->currAddress / 4];
-   //     }
-   //     if (instruction == HALT_INSTRUCTION){
-   //         break;
-   //     }
-   //     readInstruction(instruction, state);
-   //     inc_PC(state);
+
     }
 }
 
@@ -100,4 +92,5 @@ int main(int argc, char* argv[]) {
     free(memory);
     return EXIT_SUCCESS;
 }
+
 

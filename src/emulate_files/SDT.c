@@ -6,7 +6,6 @@ void SDT(uint32_t instruction, state *state) {
     uint32_t xn = extractBits(instruction, 5, 9);
     uint32_t rt = extractBits(instruction, 0, 4);
     uint32_t addr;
-    // bool indexFlag = false;
     uint64_t val;
     uint64_t *generalRegisters = state->generalRegisters;
     uint32_t *memory = state->memory;
@@ -19,12 +18,12 @@ void SDT(uint32_t instruction, state *state) {
         //when i = 1 (pre indexed), addr = xn + simm9 and xn = xn + simm9
         //when i = 0 (post indexed), addr = xn and xn = xn + simm9
         int32_t simm = extractBits(instruction, 12, 20);
-	if(extractBits(simm,8,8)){
-		simm |= SIGN_EXTEND_9BITS;
-	}
+		if(extractBits(simm,8,8)){
+			simm |= SIGN_EXTEND_9BITS;
+		}
         uint32_t i = extractBits(instruction, 11, 11);
         val = readRegister(xn, 0, generalRegisters) + simm;
-        if (i == 1){
+        if (i == 1)	{
             addr = val;
         } else {
             addr = readRegister(xn, 0, generalRegisters);
@@ -72,19 +71,13 @@ void SDT(uint32_t instruction, state *state) {
                 memory[(addr + i)/4] |= ((wt >> 8*i) & 0xFF) << (((addr + i) % 4) * 8);
             }
         }
-
     }
-
-
-    // if (indexFlag){
-    //     writeRegister(xn, val, sf, generalRegisters);
-    // }
 }
 
 void LL(uint32_t instruction, state *state) {
-    bool sf = extractBits(instruction, 30,30);
+    bool sf = extractBits(instruction, 30, 30);
     int32_t simm = extractBits(instruction, 5, 23);
-    if(extractBits(simm, 18,18)){
+    if (extractBits(simm, 18, 18)){
 	simm |= SIGN_EXTEND_19BITS;
     }
     uint32_t rt = extractBits(instruction, 0, 4);
@@ -106,10 +99,11 @@ void LL(uint32_t instruction, state *state) {
             for (int i =0; i < 8; i++){
                 value = memory[(currAddress + offset + i)/4] >>
                 ((currAddress + offset + i) % 4) * 8;
-                wt |=  (value & 0xFF) << 8*i;
+                wt |=  (value & 0xFF) << 8 * i;
             }
             writeRegister(rt, wt, sf, generalRegisters);
         }
 
 }
+
 
