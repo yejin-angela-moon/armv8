@@ -21,8 +21,11 @@
 #define MSB_64 63
 #define W_REGISTER_MASK ((1ULL << W_REGISTER_BITS) - 1)
 
+#define SIGN_EXTEND_32BITS 0xFFFFFFFF00000000
 #define SIGN_EXTEND_19BITS 0xFFFFFFFFFFF80000
 #define SIGN_EXTEND_9BITS 0xFFFFFE00
+#define MASK_1_BYTE 0xFF
+#define LOWER_32_BITS 0xFFFFFFFF
 
 typedef struct {
     bool N;
@@ -39,6 +42,5 @@ typedef struct {
 } state;
 
 #endif
-
 
 

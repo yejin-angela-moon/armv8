@@ -1,7 +1,8 @@
 #include "DPImm.h"
 
-static void arithmetic_immediate(bool sf, uint8_t opc, uint32_t operand, uint8_t Rd, state *state)  {
+static void arithmetic_immediate(bool sf, uint8_t opc, uint32_t operand, uint8_t Rd, state *state) {
   uint64_t *generalRegisters = state->generalRegisters;
+
   bool sh = extractBits(operand, 17, 17);
   uint64_t imm12 = extractBits(operand, 5, 16);
   uint8_t rn = extractBits(operand, 0, 4);
@@ -16,8 +17,7 @@ static void arithmetic_immediate(bool sf, uint8_t opc, uint32_t operand, uint8_t
     case 0: //add
       result += imm12;
       break;
-    case 1:
-      //adds
+    case 1: //adds
       result += imm12;
       update_pstate(result, resultCopy, imm12, 0, sf, state);
       break;
@@ -26,11 +26,13 @@ static void arithmetic_immediate(bool sf, uint8_t opc, uint32_t operand, uint8_t
       break;
     case 3: //subs
       result -= imm12;
-
       update_pstate(result, resultCopy, imm12, 1, sf, state);
       break;
-    default: printf("invalid opc\n");;
+    default:
+      fprintf(stderr, "invalid opc\n");
+      exit(1);
   }
+
   // Store result in the destination register
   writeRegister(Rd, result, sf, generalRegisters);
 }
@@ -57,12 +59,14 @@ static void wide_move_immediate(bool sf, uint8_t opc, uint32_t operand, uint8_t 
       writeRegister(Rd, movk_val, sf, generalRegisters);
       break;
     }
-    default: printf("invalid opc\n");
+    default:
+      fprintf(stderr, "invalid opc\n");
+      exit(1);
   }
 }
 
 void DPImm(uint32_t instruction, state *state) {
-  uint8_t sf  = extractBits(instruction, 31, 31);
+  uint8_t sf = extractBits(instruction, 31, 31);
   uint8_t opc = extractBits(instruction, 29, 30);
   uint8_t opi = extractBits(instruction, 23, 25);
   uint32_t operand = extractBits(instruction, 5, 22);
@@ -72,6 +76,8 @@ void DPImm(uint32_t instruction, state *state) {
     arithmetic_immediate(sf, opc, operand, Rd, state);
   } else if (opi == 5) {
     wide_move_immediate(sf, opc, operand, Rd, state);
+  } else {
+    fprintf(stderr, "invalid opi\n");
+    exit(1);
   }
 }
-

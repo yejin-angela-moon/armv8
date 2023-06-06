@@ -88,4 +88,3 @@ void printToString(state* state){
     }
 }
 
-
