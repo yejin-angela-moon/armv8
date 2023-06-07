@@ -2,6 +2,7 @@
 
 state *initialise(void) {
   state *newState = malloc(sizeof(state)); // allocate memory for state
+  assert(newState != NULL);
   newState->currAddress = 0;
   memset((*newState).generalRegisters, 0, sizeof((*newState).generalRegisters));
   newState->pstate.C = 0;
@@ -9,6 +10,7 @@ state *initialise(void) {
   newState->pstate.N = 0;
   newState->pstate.Z = 1;
   newState->memory = (uint32_t *) calloc(MEMORY_SIZE, sizeof(uint32_t));
+  assert(newState->memory != NULL);
   return newState;
 }
 
