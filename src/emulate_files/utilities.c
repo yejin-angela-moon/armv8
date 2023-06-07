@@ -50,6 +50,8 @@ uint64_t readRegister(uint8_t registerIndex, bool sf, uint64_t *generalRegisters
 
 uint32_t extractBits(uint64_t n, uint8_t startIndex, uint8_t endIndex) {
   // start/endIndex is inclusive, right-to-left starting from 0
+  assert(startIndex >= 0 && endIndex >= startIndex && endIndex <= 63);
+
   uint32_t mask = (1ULL << (endIndex - startIndex + 1)) - 1;
   return (n >> startIndex) & mask;
 }
@@ -123,5 +125,3 @@ uint64_t bitShift(uint8_t shift, uint64_t n, uint8_t operand, bool sf) {
       exit(1);
   }
 }
-
-
