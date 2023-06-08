@@ -73,3 +73,7 @@ uint8_t registerToNumber(char reg[]) {
   assert(reg[0] == 'w' || reg[0] == 'x');
   return atoi(reg + 1);
 }
+
+bool isRegister(char reg[]) {
+  return (reg[0] = 'w' || reg[0] = 'x');
+}
