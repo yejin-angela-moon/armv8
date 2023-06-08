@@ -59,19 +59,7 @@ void call_function(char* name, func_map* function_table, int numOfFuncs, char* t
     fprintf(stderr, "Function not found\n");
 }
 
-char* substring(char* string, int position, int length) {
-    char* pointer;
-    int c;
-
-    pointer = malloc(length+1);
-    assert(pointer != NULL);
-
-    for (c = 0 ; c < length ; c++) {
-        *(pointer+c) = *(string+position-1);
-        string++;
-    }
-
-    *(pointer+c) = '\0';
-
-    return pointer;
+uint8_t regToBin(char reg[]) {
+    // ex: "x6" -> 6
+    return atoi(reg + 1);
 }
