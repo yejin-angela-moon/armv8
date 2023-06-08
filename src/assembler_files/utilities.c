@@ -49,3 +49,13 @@ void freeLines(char **lines, int numLines){
     }
     free(lines);
 }
+
+void call_function(char* name, func_map* function_table, int numOfFuncs, char* tokens[], int numOfTokens) {
+    for (int i = 0; i < numOfFuncs/sizeof(function_table[0]); i++) {
+        if (strcmp(function_table[i].name, name) == 0) {
+            function_table[i].func(tokens, numOfTokens);
+            return;
+        }
+    }
+    fprintf(stderr, "Function not found\n");
+}
