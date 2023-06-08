@@ -16,6 +16,6 @@ typedef
 
 #define MAX_LINE_LENGTH 256
 #define MAX_TOKEN 6
-#define delimiter ", #[]"
+#define delimiter ", #"
 
 #endif
