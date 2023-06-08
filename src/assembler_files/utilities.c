@@ -16,7 +16,7 @@ int count_lines(char *inputFile){
     int character;
 
     while((character = fgetc(fp)) != EOF){
-        if(character == "\n"){
+        if(character == "\n"){ 
           lineCount++;  
         }
     }
@@ -42,10 +42,26 @@ char **tokenizer(char *line, int *numToken){
     return token;
 }
 
-
 void freeLines(char **lines, int numLines){
     for (int i = 0; i < numLines; i++){
         free(lines[i]);
     }
     free(lines);
 }
+
+void call_function(char* name, func_map* function_table, int numOfFuncs, char* tokens[], int numOfTokens) {
+    for (int i = 0; i < numOfFuncs/sizeof(function_table[0]); i++) {
+        if (strcmp(function_table[i].name, name) == 0) {
+            function_table[i].func(tokens, numOfTokens);
+            return;
+        }
+    }
+    fprintf(stderr, "Function not found\n");
+}
+
+uint8_t registerToNumber(char reg[]) {
+    // ex: "x12" -> 12
+    assert(reg[0] == 'w' || reg[0] == 'x');
+    return atoi(reg + 1);
+}
+
