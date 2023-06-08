@@ -1,33 +1,26 @@
 #include "B.h"
 
-static int64_t signExtension(uint32_t instr) {
-  int64_t value = instr;
-  if (instr >> 31) {
-    value += (int64_t) SIGN_EXTEND_32BITS;
-  }
-  return value;
-}
-
 static void modify(int64_t offset, state *state) {
   if (offset < 0) {
     state->currAddress -= labs(offset) * 4;
-    state->currAddress -= 4;
   } else {
     state->currAddress += offset * 4;
-    state->currAddress -= 4;
   }
+  state->currAddress -= 4;
 }
 
-static void unconditional(uint32_t simm26, state *state) {
-  int64_t offset = (int64_t) (simm26 - 1) * 4;
-  state->currAddress += offset;
+static void unconditional(int64_t simm26, state *state) {
+  // b
+  modify(simm26, state);
 }
 
 static void reg(uint8_t xn, state *state) {
+  // br
   state->currAddress = readRegister(xn, 1, state->generalRegisters);
 }
 
-static void conditional(uint32_t simm19, uint8_t cond, state *state) {
+static void conditional(int32_t simm19, uint8_t cond, state *state) {
+  // b.cond
   Pstate pstate = state->pstate;
 
   bool shouldModify =
@@ -40,15 +33,19 @@ static void conditional(uint32_t simm19, uint8_t cond, state *state) {
           cond == 0xE;
 
   if (shouldModify) {
-    modify(signExtension(simm19), state);
+    modify(simm19, state);
   }
 }
 
 void B(uint32_t instruction, state *state) {
-  uint32_t simm26 = extractBits(instruction, 0, 25);
+  int64_t simm26 = extractBits(instruction, 0, 25);
   uint8_t xn = extractBits(instruction, 5, 9);
-  uint32_t simm19 = extractBits(instruction, 5, 23);
+  int32_t simm19 = extractBits(instruction, 5, 23);
   uint8_t cond = extractBits(instruction, 0, 3);
+
+  if (simm26 >> 25) {
+    simm26 += SIGN_EXTEND_26BITS;
+  }
 
   if (simm19 >> 18) {
     simm19 += SIGN_EXTEND_19BITS;
@@ -62,3 +59,4 @@ void B(uint32_t instruction, state *state) {
     unconditional(simm26, state);
   }
 }
+
