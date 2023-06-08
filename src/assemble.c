@@ -9,13 +9,11 @@ void parse(row *table, int numLine, char **lines, char *outputFile) {
 
     File *outFile = fopen(outputFile, "w");
 
-
     for (int i = 0; i < numLine; i++) {
 
         int numToken = 0;
-        char **token = malloc(MAX_TOKEN * sizeof(char*));
 
-        token = tokenizer(lines[i], &numToken);
+        char **token = tokenizer(lines[i], &numToken);
 
         if (1) {
             //DPI
@@ -30,6 +28,7 @@ void parse(row *table, int numLine, char **lines, char *outputFile) {
         }
 
         fprintf(outFile, _, _);
+
         free(token);
     }
     //Either print as soon as it gets to the instruction

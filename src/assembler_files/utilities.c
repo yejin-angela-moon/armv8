@@ -31,7 +31,7 @@ bool containColon(char* line){
 char **tokenizer(char *line, int *numToken){
     int i = 0;
     char *string;
-    char **token;
+    char **token = malloc(MAX_TOKEN * sizeof(char*));
 
     while (string != NULL){
         token[i] = string;
