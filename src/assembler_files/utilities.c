@@ -59,7 +59,8 @@ void call_function(char* name, func_map* function_table, int numOfFuncs, char* t
     fprintf(stderr, "Function not found\n");
 }
 
-uint8_t regToBin(char reg[]) {
-    // ex: "x6" -> 6
+uint8_t registerToNumber(char reg[]) {
+    // ex: "x12" -> 12
+    assert(reg[0] == 'w' || reg[0] == 'x');
     return atoi(reg + 1);
 }
