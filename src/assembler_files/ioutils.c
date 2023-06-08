@@ -21,8 +21,8 @@ char** readFile(int lineNum, int *countLabel ,char *filename) {
             if(isspace(buffer[0])){
                 continue;
             }
-            if (containColon(buffer[0])){
-                countLabel++;
+            if (containColon(buffer)){
+                *countLabel++;
             }
 
             buffer[strcspn(buffer, "\n")] ='\0';
@@ -35,7 +35,7 @@ char** readFile(int lineNum, int *countLabel ,char *filename) {
     fclose(fp);
 }
 
-void makeSymbolArray(row *table, int lineNum, char **lines){
+void makeSymbolTable(row *table, int lineNum, char **lines){
     for (int i = 0; i < lineNum; i++){
         if (containColon(lines[i])){
             table[i].address = i * 4;
@@ -44,36 +44,3 @@ void makeSymbolArray(row *table, int lineNum, char **lines){
         }
     }
 }
-
-
-// void printStateToFile(state *state, char *filename) {
-
-// }
-
-// void printToString(state *state) {
-
-//   //print registers
-//   printf("Register:\n");
-//   for (int i = 0; i < NUM_REGISTERS; i++) {
-//     if (i < 10) {
-//       printf("X0%d = %016lx\n", i, readRegister(i, 1, state->generalRegisters));
-//     } else {
-//       printf("X%d = %016lx\n", i, readRegister(i, 1, state->generalRegisters));
-//     }
-//   }
-
-//   printf("PC = %08x\n", state->currAddress);
-//   printf("PSTATE : %s%s%s%s\n",
-//          state->pstate.N ? "N" : "-",
-//          state->pstate.Z ? "Z" : "-",
-//          state->pstate.C ? "C" : "-",
-//          state->pstate.V ? "V" : "-");
-
-//   //print non-zero memory
-//   printf("Non-zero memory:\n");
-//   for (int i = 0; i < MEMORY_SIZE; i++) {
-//     if (state->memory[i] != 0) {
-//       printf("0x%08x: %08x\n", i * 4, state->memory[i]);
-//     }
-//   }
-// }

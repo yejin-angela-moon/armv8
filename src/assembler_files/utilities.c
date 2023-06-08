@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdbool.h>
 
 #include "definition.h"
@@ -27,9 +28,23 @@ bool containColon(char* line){
     return(strchr(line, ':') != NULL);
 }
 
+char **tokenizer(char *line, int *numToken){
+    int i = 0;
+    char *string;
+    char **token;
+
+    while (string != NULL){
+        token[i] = string;
+        i++;
+        string = strtok(NULL, delimiter);
+    }
+    *numToken = i;
+    return token;
+}
+
 
 void freeLines(char **lines, int numLines){
-    for (int i = 0; i < numLines; ){
+    for (int i = 0; i < numLines; i++){
         free(lines[i]);
     }
     free(lines);

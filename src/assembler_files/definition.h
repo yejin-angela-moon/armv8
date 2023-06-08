@@ -13,5 +13,7 @@ typedef struct {
 } row;
 
 #define MAX_LINE_LENGTH 256
+#define MAX_TOKEN 6
+#define delimiter ", #"
 
 #endif
