@@ -59,4 +59,3 @@ void B(uint32_t instruction, state *state) {
     unconditional(simm26, state);
   }
 }
-

@@ -40,5 +40,3 @@ typedef struct {
 } state;
 
 #endif
-
-
