@@ -3,10 +3,15 @@
 #include "assembler_files/definition.h"
 #include "assembler_files/ioutils.h"
 #include "assembler_files/utilities.h"
+#include "assembler_files/DP.h"
+
+static uint32_t DP(char* tokens[], int numOfTokens);
+const char *dpSet[] = {"add", "adds", "sub", "subs"};
 
 void parse(row *table, int numLine, char **lines){
+
   for (int i =0; i < numLine; i++){
-    if (1){
+    if (isStringInSet(tokens[0], dpSet*, sizeof(dpSet))){
         //DPI
       } else if(1){
         //DPR

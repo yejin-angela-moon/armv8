@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include <stdbool.h>
+#include <stdlib.h>
 
-#include "definition.h"
+#include "definitions.h"
 
 int count_lines(char *inputFile){
     FILE *fp = fopen(inputFile, "r");
@@ -25,6 +26,15 @@ int count_lines(char *inputFile){
 
 bool containColon(char* line){
     return(strchr(line, ':') != NULL);
+}
+
+bool isStringInSet(const char *target, const char *set[], size_t setSize) {
+  for (size_t i = 0; i < setSize; i++) {
+    if (strcmp(target, set[i]) == 0) {
+      return true; // found the string in the set
+    }
+  }
+  return false; // the string was not found in the set
 }
 
 

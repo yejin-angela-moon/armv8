@@ -1,5 +1,5 @@
-#ifndef DEFINITION_H
-#define DEFINITION_H
+#ifndef DEFINITIONS_H
+#define DEFINITIONS_H
 
 #include <stddef.h>
 #include <assert.h>

@@ -1,7 +1,7 @@
 #include <stdio.h>
-#include <stdint.h>
 #include <stdlib.h>
-#include "definition.h"
+#include <ctype.h>
+#include "definitions.h"
 #include "utilities.h"
 
 char** readFile(int lineNum, int *countLabel ,char *filename) {
