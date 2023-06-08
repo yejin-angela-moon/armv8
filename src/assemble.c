@@ -5,17 +5,22 @@
 #include "assembler_files/ioutils.h"
 #include "assembler_files/utilities.h"
 
+const char *dpSet[] = {"add", "adds", "sub", "subs"};
+
 void parse(row *table, int numLine, char **lines, char *outputFile) {
 
-  File *outFile = fopen(outputFile, "w");
+  FILE *outFile = fopen(outputFile, "w");
+
+  uint32_t outputLine;
 
   for (int i = 0; i < numLine; i++) {
 
     int numToken = 0;
-    char **token = tokenizer(lines[i], &numToken);
+    char **tokens = tokensizer(lines[i], &numToken);
 
-    if (1) {
+    if (isStringInSet(tokens[0], dpSet, dpSetSize)) {
       //DPI
+      outputLine = DP(tokens, numToken);
     } else if (1) {
       //DPR
     } else if (1) {
@@ -26,9 +31,9 @@ void parse(row *table, int numLine, char **lines, char *outputFile) {
       //not a instruction
     }
 
-    fprintf(outFile, _, _);
+    fprintf(outFile, "%x\n", outputLine);
 
-    free(token);
+    free(tokens);
   }
   //Either print as soon as it gets to the instruction
   //Or store in an output String array then output
