@@ -12,7 +12,6 @@ void parse(row *table, int numLine, char **lines, char *outputFile) {
     for (int i = 0; i < numLine; i++) {
 
         int numToken = 0;
-
         char **token = tokenizer(lines[i], &numToken);
 
         if (1) {

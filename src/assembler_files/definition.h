@@ -12,13 +12,10 @@ typedef struct {
     uint32_t address;
 } row;
 
-typedef struct {
-    char* name;
-    uint32_t (*func)(char* tokens[], int numOfTokens);
-} func_map;
+typedef 
 
 #define MAX_LINE_LENGTH 256
 #define MAX_TOKEN 6
-#define delimiter ", #"
+#define delimiter ", #[]"
 
 #endif
