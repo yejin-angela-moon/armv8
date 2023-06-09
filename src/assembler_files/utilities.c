@@ -24,6 +24,14 @@ int count_lines(char *inputFile){
     return lineCount;
 }
 
+int getNum(char *string, int start, int size){
+    char substring[size];
+    strncpy(substring, string + start, size);
+    substring[size - 1];
+
+    return atoi(substring);
+}
+
 bool containColon(char* line){
     return(strchr(line, ':') != NULL);
 }
@@ -40,6 +48,16 @@ char **tokenizer(char *line, int *numToken){
     }
     *numToken = i;
     return token;
+}
+
+uint32_t findAddressTable(char *lable, row *table){
+    int i = 0;
+    while(table[i].label[0] == '\0'){
+        if (strcmp(table[i].label, lable) == 0){
+            return table[i].address;
+        }
+        i++;
+    }
 }
 
 

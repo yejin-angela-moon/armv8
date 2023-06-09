@@ -7,7 +7,7 @@
 
 void parse(row *table, int numLine, char **lines, char *outputFile) {
 
-    File *outFile = fopen(outputFile, "w");
+    FILE *outFile = fopen(outputFile, "w");
 
     for (int i = 0; i < numLine; i++) {
 
@@ -27,7 +27,7 @@ void parse(row *table, int numLine, char **lines, char *outputFile) {
             //not a instruction
         }
 
-        fprintf(outFile, _, _);
+        // fprintf(outFile, _, _);
 
         free(token);
     }
@@ -50,7 +50,7 @@ int main(int argc, char **argv) {
 
     row *symbol_table = malloc(sizeof(row) * countLabel);
 
-    parse(symbol_table, numLine, lines);
+    parse(symbol_table, numLine, lines, outputFile);
 
     free(symbol_table);
     freeLines(lines, numLine);
