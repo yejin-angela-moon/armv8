@@ -54,7 +54,7 @@ int main(int argc, char **argv) {
 
   row *symbol_table = malloc(sizeof(row) * countLabel);
 
-  parse(symbol_table, numLine, lines);
+  parse(symbol_table, numLine, lines, outputFile);
 
   free(symbol_table);
   freeLines(lines, numLine);

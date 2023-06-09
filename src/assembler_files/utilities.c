@@ -24,6 +24,14 @@ int count_lines(char *inputFile){
   return lineCount;
 }
 
+int getNum(char *string, int start, int size){
+    char substring[size];
+    strncpy(substring, string + start, size);
+    substring[size - 1];
+
+    return atoi(substring);
+}
+
 bool containColon(char* line){
   return(strchr(line, ':') != NULL);
 }
@@ -49,16 +57,6 @@ void freeLines(char **lines, int numLines){
   free(lines);
 }
 
-void call_function(char* name, func_map* function_table, int numOfFuncs, char* tokens[], int numOfTokens) {
-  for (int i = 0; i < numOfFuncs/sizeof(function_table[0]); i++) {
-    if (strcmp(function_table[i].name, name) == 0) {
-      function_table[i].func(tokens, numOfTokens);
-      return;
-    }
-  }
-  fprintf(stderr, "Function not found\n");
-}
-
 bool isStringInSet(const char *target, const char *set[], size_t setSize) {
   for (size_t i = 0; i < setSize; i++) {
     if (strcmp(target, set[i]) == 0) {
@@ -67,6 +65,7 @@ bool isStringInSet(const char *target, const char *set[], size_t setSize) {
   }
   return false; // the string was not found in the set
 }
+
 
 uint8_t registerToNumber(char reg[]) {
   // ex: "x12" -> 12
