@@ -72,9 +72,8 @@ bool isRegister(const char* reg) {
     return (reg[0] == 'w' || reg[0] == 'x');
 }
 
-char* decToBinary(char* str, int nbits) {
-    char* res = "";
-    uint32_t x = atoi(str);
+char* decToBinary(uint32_t x, int nbits) {
+    char *res = (char *) malloc(100 * sizeof(char));
     uint32_t mask = 1 << (nbits - 1);
     for (int i = 0; i < nbits; i++) {
         if ((x & mask) == 0) {
