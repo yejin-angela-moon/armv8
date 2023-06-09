@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include "DP.h"
 
-char getSH(char **tokens, int numTokens) {
+static char getSH(char **tokens, int numTokens) {
   if (numTokens == 3) {
     return 0;
   } else {
@@ -20,7 +20,7 @@ char getSH(char **tokens, int numTokens) {
   }
 }
 
-uint32_t arithmetic(char* tokens[], int numTokens) {
+/*uint32_t arithmetic(char* tokens[], int numTokens) {
   char sf = getSF(tokens[1]); // bit 31
   char* opc; // bits 30 to 29
   char* rd = registerToBinary(tokens[1]); // bits 4 to 0
@@ -64,39 +64,56 @@ uint32_t arithmetic(char* tokens[], int numTokens) {
     char* rn = registerToBinary(tokens[1]);
   }
 
+}*/
+
+char* DPImm(char* tokens[], int numTokens) {
+    char* opcode = tokens[0];
+    sf = getSF(tokens[1]);
+    char* opi;
+    char* opc;
+    char *operand = (char *) malloc(16 * sizeof(char));
+    char* rd = registerToBinary(tokens[1]);
+
+    char *res = (char *) malloc(32 * sizeof(char));
+    assert(res != NULL);
+
+    if (strcmp("movk", opcode) == 0 || strcmp("movn", opcode) == 0 || strcmp("movz", opcode) == 0) {
+        opi = "101";
+        if (strcmp("movk", opcode) == 0) {
+            opc = "11";
+        } else if (strcmp("movn", opcode) == 0) {
+            opc = "00";
+        } else {
+            opc = "10";
+        }
+        char* hw = numTokens == 3 ? "00" : decToBinary(atoi(tokens[4]) / 16, 2);
+        char* imm16 = stringToBinary(tokens[2], 16); // ???
+
+        strcat(operand, hw);
+        strcat(operand, imm16);
+        if (numTokens != 3) {
+            free(hw);
+        }
+        free(imm16);
+    }
+
+    strcat(res, sf);
+    strcat(res, opc);
+    strcat(res, "100");
+    strcat(res, opi);
+    strcat(res, operand);
+    strcat(res, rd);
+    strcat(res, "\0");
+
+    free(operand);
+    free(rd);
+    return res;
 }
 
-uint32_t DP(char* tokens[], int numTokens) {
-  char* opcode = tokens[0];
-  char* rd;
-  char* sf;
-
-  uint32_t output;
-
-  //movz without shift means mov
-
-  if (strcmp("movk", opcode) == 0) {
-    char* opi = "101";
-    char* opc = "11";
-    rd = registerToBinary(tokens[1], 5);
-    sf = getSF(rd);
-  }
-
-  if (strcmp("movn", opcode) == 0) {
-    char* opi = "101";
-    char* opc = "00";
-    rd = registerToBinary(tokens[1], 5);
-    sf = getSF(rd);
-  }
-
-  if (strcmp("movz", opcode) == 0) {
-    char* opi = "101";
-    char* opc = "10";
-    rd = registerToBinary(tokens[1], 5);
-    sf = getSF(rd);
-
-    if (numTokens == 3) {
-
-    }
+char* DP(char* tokens[], int numTokens) {
+  if (isRegister(tokens[2])) {
+    return DPReg(tokens, numTokens);
+  } else {
+    return DPImm(tokens, numTokens);
   }
 }
