@@ -5,10 +5,10 @@ static uint_32_t conditional(char **token, int cond) {
   instruction += cond;
   // add the address of simm19 << 5
   uint32_t address;
-  if (token[1] != 0 && atoi(token[1]) == 0){
+  if (strcmp(token[1], "0") != 0 && strtol(token[1], NULL, 16) == 0){
     address = findAddressTable(token[1], table);
   } else {
-    address = token[1];
+    address = strtol(token[1], NULL, 16);
   }
   int32_t offset = address - currAddress;
   instruction += (offset & 0x7FFFF) << 5
@@ -21,10 +21,10 @@ uint_32_t B(row *table, char **token) {
     instruction += 0x14000000;
     // add the address of simm26
     uint32_t address;
-      if (token[1] != 0 && atoi(token[1]) == 0){
+      if (strcmp(token[1], "0") != 0 && strtol(token[1], NULL, 16) == 0){
         address = findAddressTable(token[1], table);
       } else {
-        address = token[1];
+        address = strtol(token[1], NULL, 16);
       }
     int32_t offset = address - currAddress;
     instruction += offset & 0x3FFFFFF;
