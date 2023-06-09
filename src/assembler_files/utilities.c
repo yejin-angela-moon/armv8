@@ -68,12 +68,33 @@ bool isStringInSet(const char *target, const char *set[], size_t setSize) {
   return false; // the string was not found in the set
 }
 
-uint8_t registerToNumber(char reg[]) {
-  // ex: "x12" -> 12
-  assert(reg[0] == 'w' || reg[0] == 'x');
-  return atoi(reg + 1);
+bool isRegister(const char* reg) {
+    return (reg[0] == 'w' || reg[0] == 'x');
 }
 
-bool isRegister(char reg[]) {
-  return (reg[0] = 'w' || reg[0] = 'x');
+char* decToBinary(char* str, int nbits) {
+    char* res = "";
+    uint32_t x = atoi(str);
+    uint32_t mask = 1 << (nbits - 1);
+    for (int i = 0; i < nbits; i++) {
+        if ((x & mask) == 0) {
+            strcat(res, "0");
+        } else {
+            strcat(res, "1");
+        }
+        mask = mask >> 1;
+    }
+    strcat(res, "\0");
+    return res;
+}
+
+char* registerToBinary(char* reg, int nbits) {
+    // ex: "x11" -> "1011"
+    assert(isRegister(reg));
+    return decToBinary(reg + 1, nbits);
+}
+
+char* getSF(const char* reg) {
+    assert(isRegister(reg));
+    return reg[0] == 'w' ? "0" : "1";
 }
