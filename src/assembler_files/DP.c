@@ -96,6 +96,28 @@ char* DPImm(char* tokens[], int numTokens) {
             free(hw);
         }
         free(imm16);
+    } else if (strcmp("add", opcode) == 0 || strcmp("adds", opcode) == 0 || strcmp("sub", opcode) == 0 || strcmp("subs", opcode) == 0) {
+        opi = "010";
+        if (strcmp("add", opcode) == 0) {
+            opc = "00";
+        } else if (strcmp("adds", opcode) == 0) {
+            opc = "01";
+        } else if (strcmp("adds", opcode) == 0) {
+            opc = "10";
+        } else {
+            opc = "11";
+        }
+        char sh = numTokens == 3 ? "0" : "1";
+        char* imm12 = stringToBinary(tokens[3], 12);
+        char* rn = registerToBinary(tokens[2]);
+
+        strcat(operand, sh);
+        strcat(operand, imm12);
+        strcat(operand, rn);
+
+        free(sh);
+        free(imm12);
+        free(rn);
     }
 
     strcat(res, sf);
