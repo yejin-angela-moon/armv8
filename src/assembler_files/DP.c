@@ -111,6 +111,33 @@ char* DPImm(char* tokens[], int numTokens) {
     return res;
 }
 
+char* DPReg(char* tokens[], int numTokens) {
+    char* opcode = tokens[0];
+    char* sf = getSF(tokens[1]);
+    char* opc;
+    char* M;
+    char* opr;
+    char* rm;
+    char *operand;
+    char* rn;
+    char* rd = registerToBinary(tokens[1]);
+
+    char *res = (char *) malloc(32 * sizeof(char));
+    assert(res != NULL);
+
+    strcat(res, sf);
+    strcat(res, opc);
+    strcat(res, M);
+    strcat(res, "101");
+    strcat(res, opr);
+    strcat(res, rm);
+    strcat(res, operand);
+    strcat(res, rn);
+    strcat(res, rd);
+    strcat(res, "\0");
+    return res;
+}
+
 char* DP(char* tokens[], int numTokens) {
   if (isRegister(tokens[2])) {
     return DPReg(tokens, numTokens);
