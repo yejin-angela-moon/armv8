@@ -68,10 +68,11 @@ static char getSH(char **tokens, int numTokens) {
 
 char* DPImm(char* tokens[], int numTokens) {
     char* opcode = tokens[0];
-    sf = getSF(tokens[1]);
+    char* sf = getSF(tokens[1]);
     char* opi;
     char* opc;
     char *operand = (char *) malloc(16 * sizeof(char));
+    assert(operand != NULL);
     char* rd = registerToBinary(tokens[1]);
 
     char *res = (char *) malloc(32 * sizeof(char));
