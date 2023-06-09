@@ -14,7 +14,9 @@ void parse(row *table, int numLine, char **lines, char *outputFile) {
     int numToken = 0;
     char **token = tokenizer(lines[i], &numToken);
 
-    if (1) {
+    if (strcmp(token[1], "nop") == 0) {
+      uint32_t instruction = 0xd503201F;
+    } else if (1) {
       //DPI
     } else if (1) {
       //DPR
