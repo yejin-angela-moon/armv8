@@ -89,15 +89,7 @@ static char* decToBinary(uint32_t x, int nbits) {
 }
 
 static uint32_t stringToNumber(char* string) {
-  char* number;
-  char *endptr;
-  if (sscanf(string, "0x%s", number) == 1) {
-    // hex
-    return strtol(number, &endptr, 16);
-  } else {
-    // dec
-    return strtol(string, &endptr, 10);
-  }
+    return (uint32_t)strtol(string, NULL, 0);
 }
 
 char* stringToBinary(char* string, int nbits) {
