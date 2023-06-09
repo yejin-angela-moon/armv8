@@ -68,12 +68,52 @@ bool isStringInSet(const char *target, const char *set[], size_t setSize) {
   return false; // the string was not found in the set
 }
 
-uint8_t registerToNumber(char reg[]) {
-  // ex: "x12" -> 12
-  assert(reg[0] == 'w' || reg[0] == 'x');
-  return atoi(reg + 1);
+bool isRegister(const char* reg) {
+  return (reg[0] == 'w' || reg[0] == 'x');
 }
 
-bool isRegister(char reg[]) {
-  return (reg[0] = 'w' || reg[0] = 'x');
+static char* decToBinary(uint32_t x, int nbits) {
+  char* res = (char *) malloc(32 * sizeof(char));
+  assert(res != NULL);
+  uint32_t mask = 1 << (nbits - 1);
+  for (int i = 0; i < nbits; i++) {
+    if ((x & mask) == 0) {
+      strcat(res, "0");
+    } else {
+      strcat(res, "1");
+    }
+    mask = mask >> 1;
+  }
+  strcat(res, "\0");
+  return res;
+}
+
+static uint32_t stringToNumber(char* string) {
+  char* number;
+  char *endptr;
+  if (sscanf(string, "0x%s", number) == 1) {
+    // hex
+    return strtol(number, &endptr, 16);
+  } else {
+    // dec
+    return strtol(string, &endptr, 10);
+  }
+}
+
+char* stringToBinary(char* string, int nbits) {
+  return decToBinary(stringToNumber(string), nbits);
+}
+
+char* registerToBinary(char* reg) {
+  // ex: "x11" -> "1011"
+  assert(isRegister(reg));
+  if (strcmp(reg + 1, "zr") == 0) {
+    return "11111";
+  }
+  return decToBinary(atoi(reg + 1), 5);
+}
+
+char* getSF(const char* reg) {
+  assert(isRegister(reg));
+  return reg[0] == 'w' ? "0" : "1";
 }

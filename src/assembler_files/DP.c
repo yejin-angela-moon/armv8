@@ -1,72 +1,102 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
+#include <assert.h>
+#include <stdlib.h>
 #include "DP.h"
 
-#define DP_MUL_NUM 2;
-#define DP_TWO_OPERAND_NUM 12;
-#define DP_SINGLE_OPERAND NUM 9;
-#define DP_TWO_OPERAND_NODEST_NUM 3;
-#define DP_MAX_TOKENS 4;
-
-typedef void (*FunctionPointer)(const char *args);
-
-typedef struct {
-  const char* string;
-  FunctionPointer function;
-} StringFunctionMapping;
-
-uint32_t arithmetic(char* tokens) {
-  uint8_t rd = (uint8_t) registerToNumber(tokens[1]);
-
-  char rn[] = tokens[2];
-  char operand[] = tokens[3];
-
-  // maybe strings representing binary e.g. "101010" and concatenate the strings
-  // and then convert into binary using strtol?
-  
-}
-
-/*const char* mulSet[] = {"madd", "msub"}; // Multiply: <mul_opcode> rd, rn, rm, ra
-const char* twoOperandSet[] = {"add", "adds", "sub", "subs", "and", "ands", "bic", "bics", "eor", "orr", "eon", "orn"}; // Two operand: <opcode> rd, rn, <operand>. Arithmetic and bit-logic operations
-const char* singleOperandSet[] = {"mov", "mul", "mneg", "neg", "negs", "mvn", "movz", "movn", "movk"}; // Single operand with destination: <opcode> rd, <operand>
-const char* twoOperandsNoDestSet[] = {"cmp", "cmn", "tst"}; // Two operands, no destination: <opcode> rn, <operand>  */
-
-uint32_t DP(char* tokens, int numTokens) {
-  char opcode = tokens[0];
-
-  StringFunctionMapping dpMappings[] = {
-    {"add", add}, {"adds", add}
-    {"sub", sub}, {"subs", sub}
-  }
-
-  //if (isStringInSet(tokens[0], mulSet, DP_MUL_NUM)) {
-    
- // }
- 
-  for (int i = 0; i < sizeof(dpMappings) / sizeof(dpMappings[0]); i++) {
-    if (strcmp(tokens, dpMappings[i]->string) == 0) {
-      dpMappings[i]->function(tokens);
-      return;
+char getSH(char **tokens, int numTokens) {
+  if (numTokens == 3) {
+    return 0;
+  } else {
+    char shiftType[3]; // buffer to store the shiftType
+    int shiftAmount;          // variable to store the shiftAmount
+    assert(sscanf(tokens[4], "%s #%d", shiftType, &shiftAmount) == 2);
+    if (shiftAmount == 0) {
+      return 0;
+    } else {
+      return 1;
     }
   }
+}
 
- /* if (numTokens == DP_MAX_TOKENS && isRegister(tokens[numTokens])) {
-    multiply(tokens);
-  } else if () {
-    return;
-  }*/
+uint32_t arithmetic(char* tokens[], int numTokens) {
+  char sf = getSF(tokens[1]); // bit 31
+  char* opc; // bits 30 to 29
+  char* rd = registerToBinary(tokens[1]); // bits 4 to 0
 
-  uint32_t output = switch (tokens[0]) {
-    case "add":
-    case "adds":
-    case "sub":
-    case "subs":
-      arithmetic(tokens);
-      break;
-    case "movk":
-    case "movn":
-    case "movz":
-      wide_move(tokens);
-    default: printf(stderr, "invalid opcode\n");
+  char* bits22to5;
+
+  if (isRegister(tokens[3])) {
+    // DPReg
+    char* bits28to25 = "0101"; // M and dpr identifier
+    char* bits15to10;
+    char* rm = registerToBinary(tokens[3]); // bits 20 to 16
+    char* rn = registerToBinary(tokens[2]); // bits 9 to 5
+
+    if (numTokens == 3) {
+      // no shift
+      bits15to10 = "0000";
+    } else {
+      // shift
+      char* bits24to21; // opr
+
+      char shiftType[3]; // buffer to store the shiftType
+      int shiftAmount;          // variable to store the shiftAmount
+
+      assert(sscanf(tokens[4], "%s #%d", shiftType, &shiftAmount) == 2);
+      if (strcmp(shiftType, "lsl") == 0) {
+        bits24to21 = "1000";
+      } else if (strcmp(shiftType, "lsr") == 0) {
+        bits24to21 = "1010";
+      } else if (strcmp(shiftType, "asr") == 0) {
+        bits24to21 = "1100";
+      }
+      bits15to10 = decToBinary(shiftAmount);
+    }
+  } else {
+    // DPImm
+    char* bits28to23 = "100010";
+    char bit22 = getSH(tokens, numTokens); // sh, 1 if shift
+    int immediate;
+    assert(sscanf(tokens[3], "#%d", immediate) == 1);
+    char* bits21to10 = decToBinary(immediate);
+    char* rn = registerToBinary(tokens[1]);
   }
+
+}
+
+uint32_t DP(char* tokens[], int numTokens) {
+  char* opcode = tokens[0];
+  char* rd;
+  char* sf;
+
+  uint32_t output;
+
+  //movz without shift means mov
+
+  if (strcmp("movk", opcode) == 0) {
+    char* opi = "101";
+    char* opc = "11";
+    rd = registerToBinary(tokens[1], 5);
+    sf = getSF(rd);
+  }
+
+  if (strcmp("movn", opcode) == 0) {
+    char* opi = "101";
+    char* opc = "00";
+    rd = registerToBinary(tokens[1], 5);
+    sf = getSF(rd);
+  }
+
+  if (strcmp("movz", opcode) == 0) {
+    char* opi = "101";
+    char* opc = "10";
+    rd = registerToBinary(tokens[1], 5);
+    sf = getSF(rd);
+
+    if (numTokens == 3) {
+
+    }
+  }
+}
