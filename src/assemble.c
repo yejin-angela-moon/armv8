@@ -26,7 +26,13 @@ void parse(row *table, int numLine, char **lines, char *outputFile) {
       //B
       outputLine = B(table, token);
     } else if ((strcmp(token[0], ".int") == 0)) {
-      outputLine = strtol(token[1], NULL, 16) == 0);
+      char[] tyoe = "";
+      strncpy(tyoe, token[1], 2);
+      if (strcmp(tyoe, "0x") == 0) {
+        outputLine = strtol(token[1], NULL, 16) == 0);
+      } else {
+        outputLine = atoi(token[1]);
+      }
     } else {
       //not a instruction
     }
