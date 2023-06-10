@@ -28,13 +28,11 @@ uint_32_t B(row *table, char **token) {
       }
     int32_t offset = address - currAddress;
     instruction += offset & 0x3FFFFFF;
-    return instruction;
   } else if (strcmp(token[0], "br") == 0) {
     instruction += 0xD61F0000;
     // add the register << 5
     uint32_t reg = registerToBinary(token[1]);
     instruction += reg << 5
-    return instruction;
   } else {
     char condStr[] =  token[0];
     strncpy(condStr, 2, 2);
@@ -53,6 +51,8 @@ uint_32_t B(row *table, char **token) {
     } else if (strcmp(condStr, "AL") == 0) {
       return conditional(token, 0xE);
     }
+  } else {
+    return NULL;
   }
-
+  return instruction;
 }

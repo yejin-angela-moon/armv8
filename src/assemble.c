@@ -14,7 +14,7 @@ void parse(row *table, int numLine, char **lines, char *outputFile) {
     int numToken = 0;
     char **token = tokenizer(lines[i], &numToken);
 
-    if (strcmp(token[1], "nop") == 0) {
+    if (strcmp(token[0], "nop") == 0) {
       uint32_t instruction = 0xd503201F;
     } else if (1) {
       //DPI
@@ -22,13 +22,16 @@ void parse(row *table, int numLine, char **lines, char *outputFile) {
       //DPR
     } else if (1) {
       //SDT
-    } else if (1) {
+    } else if ((strcmp(token[0], "b") == 0) || (strcmp(token[0], "br") == 0) || (strcmp(strncat("", token[0], 2), "b.") == 0)) {
       //B
+      outputLine = B(table, token);
+    } else if ((strcmp(token[0], ".int") == 0)) {
+      outputLine = strtol(token[1], NULL, 16) == 0);
     } else {
       //not a instruction
     }
 
-    fprintf(outFile, _, _);
+    fprintf(outFile, "%x\n", outputLine);
 
     free(token);
   }
