@@ -102,7 +102,7 @@ char* registerToBinary(char* reg) {
   if (strcmp(reg + 1, "zr") == 0) {
     return "11111";
   }
-  return decToBinary(atoi(reg + 1), 5);
+  return decToBinary(stringToNumber(reg + 1), 5);
 }
 
 char* getSF(const char* reg) {
