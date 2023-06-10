@@ -109,3 +109,46 @@ char* getSF(const char* reg) {
   assert(isRegister(reg));
   return reg[0] == 'w' ? "0" : "1";
 }
+
+char* opcArithmetic(const char* opcode) {
+    if (strcmp("add", opcode) == 0) {
+        return "00";
+    } else if (strcmp("adds", opcode) == 0) {
+        return "01";
+    } else if (strcmp("sub", opcode) == 0) {
+        return "10";
+    } else if (strcmp("subs", opcode) == 0) {
+        return "11";
+    } else {
+        fprintf(stderr, "invalid opcode\n");
+        exit(1);
+    }
+}
+
+char* opcWideMove(const char* opcode) {
+    if (strcmp("movk", opcode) == 0) {
+       return "11";
+    } else if (strcmp("movn", opcode) == 0) {
+        return "00";
+    } else if (strcmp("movz", opcode) == 0) {
+        return "10";
+    } else {
+        fprintf(stderr, "invalid opcode\n");
+        exit(1);
+    }
+}
+
+char* getShiftCode(char* shift) {
+    if (strcmp("lsl", shift) == 0) {
+        return "00";
+    } else if (strcmp("lsr", shift) == 0) {
+        return "01";
+    } else if (strcmp("asr", shift) == 0) {
+        return "10";
+    } else if (strcmp("ror", shift) == 0) {
+        return "11";
+    } else {
+        fprintf(stderr, "invalid shift name\n");
+        exit(1);
+    }
+}
