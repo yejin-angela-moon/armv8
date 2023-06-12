@@ -9,6 +9,7 @@
 
 #include "utilities.h"
 
+static uint32_t conditional(char **token, int cond);
 uint32_t B(row *table, char **token);
 
 #endif
