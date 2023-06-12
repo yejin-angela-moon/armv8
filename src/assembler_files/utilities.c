@@ -89,15 +89,7 @@ static char* decToBinary(uint32_t x, int nbits) {
 }
 
 static uint32_t stringToNumber(char* string) {
-  char* number;
-  char *endptr;
-  if (sscanf(string, "0x%s", number) == 1) {
-    // hex
-    return strtol(number, &endptr, 16);
-  } else {
-    // dec
-    return strtol(string, &endptr, 10);
-  }
+  return (uint32_t)strtol(string, NULL, 0);
 }
 
 char* stringToBinary(char* string, int nbits) {
@@ -110,10 +102,53 @@ char* registerToBinary(char* reg) {
   if (strcmp(reg + 1, "zr") == 0) {
     return "11111";
   }
-  return decToBinary(atoi(reg + 1), 5);
+  return decToBinary(stringToNumber(reg + 1), 5);
 }
 
 char* getSF(const char* reg) {
   assert(isRegister(reg));
   return reg[0] == 'w' ? "0" : "1";
+}
+
+char* opcArithmetic(const char* opcode) {
+  if (strcmp("add", opcode) == 0) {
+    return "00";
+  } else if (strcmp("adds", opcode) == 0) {
+    return "01";
+  } else if (strcmp("sub", opcode) == 0) {
+    return "10";
+  } else if (strcmp("subs", opcode) == 0) {
+    return "11";
+  } else {
+    fprintf(stderr, "invalid opcode\n");
+    exit(1);
+  }
+}
+
+char* opcWideMove(const char* opcode) {
+  if (strcmp("movk", opcode) == 0) {
+    return "11";
+  } else if (strcmp("movn", opcode) == 0) {
+    return "00";
+  } else if (strcmp("movz", opcode) == 0) {
+    return "10";
+  } else {
+    fprintf(stderr, "invalid opcode\n");
+    exit(1);
+  }
+}
+
+char* getShiftCode(char* shift) {
+  if (strcmp("lsl", shift) == 0) {
+    return "00";
+  } else if (strcmp("lsr", shift) == 0) {
+    return "01";
+  } else if (strcmp("asr", shift) == 0) {
+    return "10";
+  } else if (strcmp("ror", shift) == 0) {
+    return "11";
+  } else {
+    fprintf(stderr, "invalid shift name\n");
+    exit(1);
+  }
 }
