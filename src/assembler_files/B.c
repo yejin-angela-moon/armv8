@@ -11,7 +11,7 @@ static uint32_t conditional(row *table, char **token, int cond, uint32_t *currAd
  } else {
    address = strtol(token[1], NULL, 16);
  }
- int32_t offset = address - *currAddress;
+ int32_t offset = (address - *currAddress) / 4;
  instruction += (offset & 0x7FFFF) << 5;
  return instruction;
 }
@@ -28,9 +28,9 @@ uint32_t B(row *table, char **token, uint32_t *currAddress) {
      address = findAddressTable(token[1], table);
    } else {
      printf("get addr\n");
-     address = strtol(token[1], NULL, 16) / 4;
+     address = strtol(token[1], NULL, 16);
    }
-   int32_t offset = address - *currAddress;
+   int32_t offset = (address - *currAddress) / 4;
    instruction += offset & 0x3FFFFFF;
    printf("get instr\n");
  } else if (strcmp(token[0], "br") == 0) {

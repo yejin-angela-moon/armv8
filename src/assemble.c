@@ -112,6 +112,7 @@ void parse(row *table, int numLine, char **lines, char *outputFile) {
      currAddress += 4;
      fprintf(outFile, "%x", SDT(tokens, table, numToken, currAddress));
    } else if (opcode[0] == 'b') {
+     currAddress += 4;
      //printf("b instr");
      //uint32_t instr = B(table, tokens, &currAddress);
      //printf("instr: %x\n", B(table, tokens, &currAddress));
