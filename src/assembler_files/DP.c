@@ -29,7 +29,7 @@ char* DPImm(char* tokens[], int numTokens) {
 
     if (strcmp("movk", opcode) == 0 || strcmp("movn", opcode) == 0 || strcmp("movz", opcode) == 0) {
         opi = "101";
-        opc = opcWideMove(opcode);
+        *opc = opcWideMove(opcode);
         char* hw = numTokens == 3 ? "00" : decToBinary(stringToNumber(tokens[4]) / 16, 2);
         char* imm16 = stringToBinary(tokens[2], 16); // ???
 
@@ -41,7 +41,7 @@ char* DPImm(char* tokens[], int numTokens) {
         free(imm16);
     } else { // arithmetic
         opi = "010";
-        opc = opcArithmetic(opcode);
+        *opc = opcArithmetic(opcode);
         char* sh = numTokens == 3 ? "0" : "1";
         char* imm12 = stringToBinary(tokens[3], 12);
         char* rn = registerToBinary(tokens[2]);
