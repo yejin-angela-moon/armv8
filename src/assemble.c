@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
+#include <string.h>
 #include "assembler_files/definition.h"
 #include "assembler_files/ioutils.h"
 #include "assembler_files/utilities.h"

@@ -9,6 +9,6 @@
 
 #include "utilities.h"
 
-uint32_t B(row *table, char **token);
+static uint32_t B(row *table, char **token);
 
 #endif
