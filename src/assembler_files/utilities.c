@@ -32,6 +32,14 @@ int getNum(char *string, int start, int size){
     return atoi(substring);
 }
 
+int getNum(char *string, int start, int size){
+    char substring[size];
+    strncpy(substring, string + start, size);
+    substring[size - 1];
+
+    return atoi(substring);
+}
+
 bool containColon(char* line){
   return(strchr(line, ':') != NULL);
 }
@@ -64,6 +72,16 @@ bool isStringInSet(const char *target, const char *set[], size_t setSize) {
     }
   }
   return false; // the string was not found in the set
+}
+
+uint32_t findAddressTable(char *lable, row *table){
+    int i = 0;
+    while(table[i].label[0] == '\0'){
+        if (strcmp(table[i].label, lable) == 0){
+            return table[i].address;
+        }
+        i++;
+    }
 }
 
 
