@@ -12,7 +12,7 @@ int count_lines(char *inputFile){
   int character;
 
   while ((character = fgetc(fp)) != EOF) {
-    if (character == "\n"){
+    if (character == '\n'){
       lineCount++;
     }
   }
@@ -69,7 +69,7 @@ bool isRegister(const char* reg) {
   return (reg[0] == 'w' || reg[0] == 'x');
 }
 
-static char* decToBinary(uint32_t x, int nbits) {
+char* decToBinary(uint32_t x, int nbits) {
   char* res = (char *) malloc(32 * sizeof(char));
   assert(res != NULL);
   uint32_t mask = 1 << (nbits - 1);
@@ -85,7 +85,7 @@ static char* decToBinary(uint32_t x, int nbits) {
   return res;
 }
 
-static uint32_t stringToNumber(char* string) {
+uint32_t stringToNumber(char* string) {
   return (uint32_t)strtol(string, NULL, 0);
 }
 
@@ -110,7 +110,7 @@ char* getSF(const char* reg) {
 int getNum(char *string, int start, int size) {
   char substring[size];
   strncpy(substring, string + start, size);
-  substring[size - 1];
+//  substring[--size];
 
   return (int) stringToNumber(substring);
 }
@@ -123,4 +123,5 @@ uint32_t findAddressTable(char *label, row *table) {
     }
     i++;
   }
+  return i;
 }

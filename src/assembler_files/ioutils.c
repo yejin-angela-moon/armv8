@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
-#include "definition.h"
+
 #include "utilities.h"
 
 char** readFile(int lineNum, int *countLabel ,char *filename) {
@@ -16,13 +16,12 @@ char** readFile(int lineNum, int *countLabel ,char *filename) {
   char **strings = calloc(lineNum, sizeof(char*));
 
   for (int i = 0; i < lineNum; i++){
-    if (fgets(buffer, sizeof(buffer), fp) != NULL)
-    {
-      if(isspace(buffer[0])){
+    if (fgets(buffer, sizeof(buffer), fp) != NULL) {
+      if(isspace(buffer[0])) {
         continue;
       }
       if (containColon(buffer)){
-        *countLabel++;
+        (*countLabel)++;
       }
 
       buffer[strcspn(buffer, "\n")] ='\0';
@@ -33,6 +32,7 @@ char** readFile(int lineNum, int *countLabel ,char *filename) {
   }
 
   fclose(fp);
+  return strings;
 }
 
 void makeSymbolTable(row *table, int lineNum, char **lines){

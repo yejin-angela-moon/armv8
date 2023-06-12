@@ -8,9 +8,14 @@
 #include "assembler_files/B.h"
 #include "assembler_files/SDT.h"
 
+const char *dpSet[] = {"add", "adds", "sub", "subs", "movn", "movz", "movk", "and", "bic", "orr", "orn", "eon", "eor", "ands", "bics", "madd", "msub"};
+const char *sdtSet[] = {"ldr", "str"};
+#define dpSetSize 17
+#define sdtSetSize 2
+
 static char **alias(char **tokens, int *numToken) {
   char *opcode = tokens[0];
-  char **newTokens;
+  char **newTokens = calloc(*numToken + 1, sizeof(tokens));
   if (strcmp("cmp", opcode) == 0) {
     (*numToken)++;
     newTokens[0] = "subs";

@@ -1,4 +1,5 @@
 #include "SDT.h"
+#include "definition.h"
 
 static uint32_t preIndexed(char **token, uint32_t instruction){
   instruction |= 1 << 10;
