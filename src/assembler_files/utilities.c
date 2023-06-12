@@ -25,18 +25,47 @@ bool containColon(char* line) {
 
 
 char **tokenizer(char *line, int *numToken) {
-  int i = 0;
-  char *string;
-  char **token = malloc(MAX_TOKEN * sizeof(char*));
-
-  while (string != NULL){
-    token[i] = string;
-    i++;
-    string = strtok(NULL, delimiter);
+  //char string[20];
+ // printf("string %s\n", string);
+  typedef char word[50];
+  char **token = malloc(sizeof(word) * MAX_TOKEN);
+  for (int i = 0; i < MAX_TOKEN; i++) {
+    token[i] = malloc( 20 * sizeof(char) );
   }
-  *numToken = i;
+
+  printf("mem alloc");
+  int m = 0;
+  int k = 0;
+  for (int c = 0; line[c]; c++) {
+  printf("c %d\n", c);
+  if (line[c] == ' ' || line[c] == '#' || line[c] == ',') {
+    //printf("enter if");
+    token[m][k] = '\0';
+   // printf("string %s\n", string);
+    //strcpy(token[m], string);
+    //printf("mid token %s\n", token[0]);
+    //(*token)++;
+    k = 0;
+    m++;
+  } else {
+   //printf("enter else");
+    token[m][k] = line[c];
+   // printf("leavibg else");
+    k++;
+  }
+
+}
+//printf("string %s\n", string);
+  token[m][k] = '\0';
+//printf("string %s\n", string);
+//printf("m %d\n", m);
+//strcpy(token[m], string);
+//printf("m %d\n", m);
+//  printf("allocate mem\n");
+  printf("token %s +  %s +  %s\n ", token[0], token[1], token[2]);
   return token;
 }
+
 
 void freeLines(char **lines, int numLines){
   for (int i = 0; i < numLines; i++) {

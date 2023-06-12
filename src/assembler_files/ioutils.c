@@ -36,11 +36,14 @@ char** readFile(int lineNum, int *countLabel ,char *filename) {
 }
 
 void makeSymbolTable(row *table, int lineNum, char **lines){
-  for (int i = 0; i < lineNum; i++){
-    if (containColon(lines[i])){
-      table[i].address = i * 4;
-      table[i].label = lines[i];
-      i--;
-    }
-  }
+ int j = 0;
+ for (int i = 0; i < lineNum - 1; i++){
+   printf("%d", i);
+   if (containColon(lines[i])){
+     table[j].address = i * 4;
+     table[j].label = lines[i];
+     j++;
+   }
+ }
+ return;
 }
