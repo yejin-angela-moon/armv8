@@ -64,7 +64,7 @@ uint32_t mode(char **token, row *table, uint32_t instruction){
   }
 }
 
-uint32_t SDT(char **token, row *table, int countToken, uint32_t currAddress){
+uint32_t SDT(char **token, row *table, int countToken, uint32_t currAddress) {
 
   uint32_t instruction = 0;
   if (token[1][0] == 'x'){
@@ -91,11 +91,4 @@ uint32_t SDT(char **token, row *table, int countToken, uint32_t currAddress){
     //str
     return mode(token, table, instruction);
   }
-}
-
-int main(){
-  char *string = "#123";
-  int a = getNum(string, 1, 2);
-  printf("the number is: %d\n", a);
-  return 0;
 }
