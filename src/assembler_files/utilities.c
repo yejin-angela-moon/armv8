@@ -1,22 +1,18 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
-
-#include "definition.h"
+#include "utilities.h"
 
 int count_lines(char *inputFile){
   FILE *fp = fopen(inputFile, "r");
 
-  if (fp == NULL){
-    printf("Failed to open the file.\n");
+  if (fp == NULL) {
+    fprintf(stderr, "Failed to open the file.\n");
     exit(1);
   }
 
   int lineCount = 0;
   int character;
 
-  while((character = fgetc(fp)) != EOF){
-    if(character == "\n"){
+  while ((character = fgetc(fp)) != EOF) {
+    if (character == "\n"){
       lineCount++;
     }
   }
@@ -24,19 +20,12 @@ int count_lines(char *inputFile){
   return lineCount;
 }
 
-int getNum(char *string, int start, int size){
-  char substring[size];
-  strncpy(substring, string + start, size);
-  substring[size - 1];
-
-  return atoi(substring);
-}
-
-bool containColon(char* line){
+bool containColon(char* line) {
   return(strchr(line, ':') != NULL);
 }
 
-char **tokenizer(char *line, int *numToken){
+
+char **tokenizer(char *line, int *numToken) {
   int i = 0;
   char *string;
   char **token = malloc(MAX_TOKEN * sizeof(char*));
@@ -51,11 +40,21 @@ char **tokenizer(char *line, int *numToken){
 }
 
 void freeLines(char **lines, int numLines){
-  for (int i = 0; i < numLines; i++){
+  for (int i = 0; i < numLines; i++) {
     free(lines[i]);
   }
   free(lines);
 }
+
+/*void call_function(char* name, func_map* function_table, int numOfFuncs, char* tokens[], int numOfTokens) {
+  for (int i = 0; i < numOfFuncs/sizeof(function_table[0]); i++) {
+    if (strcmp(function_table[i].name, name) == 0) {
+      function_table[i].func(tokens, numOfTokens);
+      return;
+    }
+  }
+  fprintf(stderr, "Function not found\n");
+}*/
 
 bool isStringInSet(const char *target, const char *set[], size_t setSize) {
   for (size_t i = 0; i < setSize; i++) {
@@ -65,23 +64,6 @@ bool isStringInSet(const char *target, const char *set[], size_t setSize) {
   }
   return false; // the string was not found in the set
 }
-
-uint32_t findAddressTable(char *lable, row *table){
-  int i = 0;
-  while(table[i].label[0] == '\0'){
-    if (strcmp(table[i].label, lable) == 0){
-      return table[i].address;
-    }
-    i++;
-  }
-}
-
-uint8_t registerToNumber(char reg[]) {
-  // ex: "x12" -> 12
-  assert(reg[0] == 'w' || reg[0] == 'x');
-  return atoi(reg + 1);
-}
-
 
 bool isRegister(const char* reg) {
   return (reg[0] == 'w' || reg[0] == 'x');
@@ -104,7 +86,7 @@ static char* decToBinary(uint32_t x, int nbits) {
 }
 
 static uint32_t stringToNumber(char* string) {
-  return (uint32_t)strtol(string, NULL, 0);
+    return (uint32_t)strtol(string, NULL, 0);
 }
 
 char* stringToBinary(char* string, int nbits) {
@@ -125,45 +107,20 @@ char* getSF(const char* reg) {
   return reg[0] == 'w' ? "0" : "1";
 }
 
-char* opcArithmetic(const char* opcode) {
-  if (strcmp("add", opcode) == 0) {
-    return "00";
-  } else if (strcmp("adds", opcode) == 0) {
-    return "01";
-  } else if (strcmp("sub", opcode) == 0) {
-    return "10";
-  } else if (strcmp("subs", opcode) == 0) {
-    return "11";
-  } else {
-    fprintf(stderr, "invalid opcode\n");
-    exit(1);
-  }
+int getNum(char *string, int start, int size) {
+    char substring[size];
+    strncpy(substring, string + start, size);
+    substring[size - 1];
+
+    return (int) stringToNumber(substring);
 }
 
-char* opcWideMove(const char* opcode) {
-  if (strcmp("movk", opcode) == 0) {
-    return "11";
-  } else if (strcmp("movn", opcode) == 0) {
-    return "00";
-  } else if (strcmp("movz", opcode) == 0) {
-    return "10";
-  } else {
-    fprintf(stderr, "invalid opcode\n");
-    exit(1);
-  }
-}
-
-char* getShiftCode(char* shift) {
-  if (strcmp("lsl", shift) == 0) {
-    return "00";
-  } else if (strcmp("lsr", shift) == 0) {
-    return "01";
-  } else if (strcmp("asr", shift) == 0) {
-    return "10";
-  } else if (strcmp("ror", shift) == 0) {
-    return "11";
-  } else {
-    fprintf(stderr, "invalid shift name\n");
-    exit(1);
-  }
+uint32_t findAddressTable(char *label, row *table) {
+    int i = 0;
+    while(table[i].label[0] == '\0'){
+        if (strcmp(table[i].label, label) == 0){
+            return table[i].address;
+        }
+        i++;
+    }
 }
