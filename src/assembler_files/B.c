@@ -1,4 +1,5 @@
 #include "B.h"
+#include "utilities.h"
 
 static uint32_t conditional(row *table, char **token, int cond, uint32_t *currAddress) {
   uint32_t instruction = 0x54000000;

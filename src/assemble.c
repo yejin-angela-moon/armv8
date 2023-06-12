@@ -8,7 +8,8 @@
 #include "assembler_files/B.h"
 #include "assembler_files/SDT.h"
 
-char *dpSet[] = {"add", "adds", "sub", "subs", "movn", "movz", "movk", "and", "bic", "orr", "orn", "eon", "eor", "ands", "bics", "madd", "msub"};
+char *dpSet[] = {"add", "adds", "sub", "subs", "movn", "movz", "movk", "and", "bic", "orr", "orn", "eon", "eor", "ands",
+                 "bics", "madd", "msub"};
 char *sdtSet[] = {"ldr", "str"};
 #define dpSetSize 17
 #define sdtSetSize 2
@@ -22,66 +23,57 @@ static char **alias(char **tokens, int *numToken) {
     newTokens[1] = "rzr";
     newTokens[2] = tokens[1];
     newTokens[3] = tokens[2];
-  }
-  else if (strcmp("cmn", opcode) == 0) {
+  } else if (strcmp("cmn", opcode) == 0) {
     (*numToken)++;
     newTokens[0] = "adds";
     newTokens[1] = "rzr";
     newTokens[2] = tokens[1];
     newTokens[3] = tokens[2];
-  }
-  else if (strcmp("neg", opcode) == 0) {
+  } else if (strcmp("neg", opcode) == 0) {
     (*numToken)++;
     newTokens[0] = "sub";
     newTokens[1] = tokens[1];
     newTokens[2] = "rzr";
     newTokens[3] = tokens[2];
-  }
-  else if (strcmp("negs", opcode) == 0) {
+  } else if (strcmp("negs", opcode) == 0) {
     (*numToken)++;
     newTokens[0] = "subs";
     newTokens[1] = tokens[1];
     newTokens[2] = "rzr";
     newTokens[3] = tokens[2];
-  }
-  else if (strcmp("tst", opcode) == 0) {
+  } else if (strcmp("tst", opcode) == 0) {
     (*numToken)++;
     newTokens[0] = "ands";
     newTokens[1] = "rzr";
     newTokens[2] = tokens[1];
     newTokens[3] = tokens[2];
-  }
-  else if (strcmp("mvn", opcode) == 0) {
+  } else if (strcmp("mvn", opcode) == 0) {
     (*numToken)++;
     newTokens[0] = "orn";
     newTokens[1] = tokens[1];
     newTokens[2] = "rzr";
     newTokens[3] = tokens[2];
-  }
-  else if (strcmp("mov", opcode) == 0) {
+  } else if (strcmp("mov", opcode) == 0) {
     (*numToken)++;
     newTokens[0] = "orr";
     newTokens[1] = tokens[1];
     newTokens[2] = "rzr";
     newTokens[3] = tokens[2];
-  }
-  else if (strcmp("mul", opcode) == 0) {
+  } else if (strcmp("mul", opcode) == 0) {
     (*numToken)++;
     newTokens[0] = "madd";
     newTokens[1] = tokens[1];
     newTokens[2] = tokens[2];
     newTokens[3] = tokens[3];
     newTokens[4] = "rzr";
-  }
-  else if (strcmp("mneg", opcode) == 0) {
+  } else if (strcmp("mneg", opcode) == 0) {
     (*numToken)++;
     newTokens[0] = "msub";
     newTokens[1] = tokens[1];
     newTokens[2] = tokens[2];
     newTokens[3] = tokens[3];
     newTokens[4] = "rzr";
-  }
-  else {
+  } else {
     newTokens = tokens;
   }
   return newTokens;
@@ -103,21 +95,22 @@ void parse(row *table, int numLine, char **lines, char *outputFile) {
 
     if (isStringInSet(opcode, dpSet, dpSetSize)) {
       currAddress += 4;
-      fprintf(outFile, "%s\n", DP(tokens, numToken));
+      fprintf(outFile, "%i", stringToNumber(DP(tokens, numToken)));
     } else if (isStringInSet(opcode, sdtSet, sdtSetSize)) {
       currAddress += 4;
-      fprintf(outFile, "%x\n", SDT(tokens, table, numToken, currAddress));
+      fprintf(outFile, "%x", SDT(tokens, table, numToken, currAddress));
     } else if (opcode[0] == 'b') {
-      fprintf(outFile, "%x\n", B(table, tokens, &currAddress));
+      fprintf(outFile, "%x", B(table, tokens, &currAddress));
     } else if (strcmp("nop", opcode) == 0) {
       currAddress += 4;
-      fprintf(outFile, "%x\n", 0xd503201F);
+      fprintf(outFile, "%x", NOP_INSTRUCTION);
     } else if (strcmp(".int", opcode) == 0) {
-      fprintf(outFile, "%x\n", stringToNumber(tokens[1]));
+      fprintf(outFile, "%x", stringToNumber(tokens[1]));
     }
 
     free(tokens);
   }
+  fclose(outFile);
 }
 
 int main(int argc, char **argv) {

@@ -6,8 +6,8 @@
 #include <stdio.h>
 #include <string.h>
 
-uint32_t B(row *table, char **token, uint32_t *currAddress);
-
 #include "definition.h"
+
+uint32_t B(row *table, char **token, uint32_t *currAddress);
 
 #endif
