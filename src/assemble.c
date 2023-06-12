@@ -4,48 +4,114 @@
 #include "assembler_files/definition.h"
 #include "assembler_files/ioutils.h"
 #include "assembler_files/utilities.h"
+#include "assembler_files/DP.h"
+#include "assembler_files/B.h"
+#include "assembler_files/SDT.h"
+
+char *dpSet[] = {"add", "adds", "sub", "subs", "movn", "movz", "movk", "and", "bic", "orr", "orn", "eon", "eor", "ands",
+                 "bics", "madd", "msub"};
+char *sdtSet[] = {"ldr", "str"};
+#define dpSetSize 17
+#define sdtSetSize 2
+
+static char **alias(char **tokens, int *numToken) {
+  char *opcode = tokens[0];
+  char **newTokens = calloc(*numToken + 1, sizeof(tokens));
+  if (strcmp("cmp", opcode) == 0) {
+    (*numToken)++;
+    newTokens[0] = "subs";
+    newTokens[1] = "rzr";
+    newTokens[2] = tokens[1];
+    newTokens[3] = tokens[2];
+  } else if (strcmp("cmn", opcode) == 0) {
+    (*numToken)++;
+    newTokens[0] = "adds";
+    newTokens[1] = "rzr";
+    newTokens[2] = tokens[1];
+    newTokens[3] = tokens[2];
+  } else if (strcmp("neg", opcode) == 0) {
+    (*numToken)++;
+    newTokens[0] = "sub";
+    newTokens[1] = tokens[1];
+    newTokens[2] = "rzr";
+    newTokens[3] = tokens[2];
+  } else if (strcmp("negs", opcode) == 0) {
+    (*numToken)++;
+    newTokens[0] = "subs";
+    newTokens[1] = tokens[1];
+    newTokens[2] = "rzr";
+    newTokens[3] = tokens[2];
+  } else if (strcmp("tst", opcode) == 0) {
+    (*numToken)++;
+    newTokens[0] = "ands";
+    newTokens[1] = "rzr";
+    newTokens[2] = tokens[1];
+    newTokens[3] = tokens[2];
+  } else if (strcmp("mvn", opcode) == 0) {
+    (*numToken)++;
+    newTokens[0] = "orn";
+    newTokens[1] = tokens[1];
+    newTokens[2] = "rzr";
+    newTokens[3] = tokens[2];
+  } else if (strcmp("mov", opcode) == 0) {
+    (*numToken)++;
+    newTokens[0] = "orr";
+    newTokens[1] = tokens[1];
+    newTokens[2] = "rzr";
+    newTokens[3] = tokens[2];
+  } else if (strcmp("mul", opcode) == 0) {
+    (*numToken)++;
+    newTokens[0] = "madd";
+    newTokens[1] = tokens[1];
+    newTokens[2] = tokens[2];
+    newTokens[3] = tokens[3];
+    newTokens[4] = "rzr";
+  } else if (strcmp("mneg", opcode) == 0) {
+    (*numToken)++;
+    newTokens[0] = "msub";
+    newTokens[1] = tokens[1];
+    newTokens[2] = tokens[2];
+    newTokens[3] = tokens[3];
+    newTokens[4] = "rzr";
+  } else {
+    newTokens = tokens;
+  }
+  return newTokens;
+}
 
 void parse(row *table, int numLine, char **lines, char *outputFile) {
+  uint32_t currAddress = 0;
 
-  File *outFile = fopen(outputFile, "w");
+  FILE *outFile = fopen(outputFile, "w");
 
   for (int i = 0; i < numLine; i++) {
 
     int numToken = 0;
-    char **token = tokenizer(lines[i], &numToken);
+    char **tokens = tokenizer(lines[i], &numToken);
 
-    if (strcmp(token[0], "nop") == 0) {
-      uint32_t instruction = 0xd503201F;
-    } else if (1) {
-      //DPI
-    } else if (1) {
-      //DPR
-    } else if (1) {
-      //SDT
-    } else if ((strcmp(token[0], "b") == 0) || (strcmp(token[0], "br") == 0) || (strcmp(strncat("", token[0], 2), "b.") == 0)) {
-      //B
-      outputLine = B(table, token);
-    } else if ((strcmp(token[0], ".int") == 0)) {
-      char[] tyoe = "";
-      strncpy(tyoe, token[1], 2);
-      if (strcmp(tyoe, "0x") == 0) {
-        outputLine = strtol(token[1], NULL, 16) == 0);
-      } else {
-        outputLine = atoi(token[1]);
-      }
-    } else {
-      //not a instruction
+    tokens = alias(tokens, &numToken);
+
+    char *opcode = tokens[0];
+
+    if (isStringInSet(opcode, dpSet, dpSetSize)) {
+      currAddress += 4;
+      fprintf(outFile, "%i", stringToNumber(DP(tokens, numToken)));
+    } else if (isStringInSet(opcode, sdtSet, sdtSetSize)) {
+      currAddress += 4;
+      fprintf(outFile, "%x", SDT(tokens, table, numToken, currAddress));
+    } else if (opcode[0] == 'b') {
+      fprintf(outFile, "%x", B(table, tokens, &currAddress));
+    } else if (strcmp("nop", opcode) == 0) {
+      currAddress += 4;
+      fprintf(outFile, "%x", NOP_INSTRUCTION);
+    } else if (strcmp(".int", opcode) == 0) {
+      fprintf(outFile, "%x", stringToNumber(tokens[1]));
     }
 
-    fprintf(outFile, "%x\n", outputLine);
-
-    free(token);
+    free(tokens);
   }
-  //Either print as soon as it gets to the instruction
-  //Or store in an output String array then output
-
+  fclose(outFile);
 }
-
 
 int main(int argc, char **argv) {
   assert(argc == 3);
@@ -53,16 +119,18 @@ int main(int argc, char **argv) {
   char *inputFile = argv[1];
   char *outputFile = argv[2];
 
-  int numLine = count_line(inputFile);
+  int numLine = count_lines(inputFile);
 
   int countLabel = 0;
-  char **lines = readFile(inputFile, numLine, &countLabel);
+  char **lines = readFile(numLine, &countLabel, inputFile);
 
   row *symbol_table = malloc(sizeof(row) * countLabel);
+  makeSymbolTable(symbol_table, numLine, lines);
 
-  parse(symbol_table, numLine, lines);
+  parse(symbol_table, numLine, lines, outputFile);
 
   free(symbol_table);
   freeLines(lines, numLine);
 
+  return EXIT_SUCCESS;
 }
