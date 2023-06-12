@@ -153,7 +153,7 @@ char* DPReg(char* tokens[], int numTokens) {
     return res;
 }
 
-static char* DP(char* tokens[], int numTokens) {
+char* DP(char* tokens[], int numTokens) {
     if (isRegister(tokens[3])) {
         return DPReg(tokens, numTokens);
     } else {

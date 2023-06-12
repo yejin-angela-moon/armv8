@@ -1,9 +1,8 @@
 #ifndef UTILITIES_H
 #define UTILITIES_H
 
-#include <stdbool.h>
-#include <stdint.h>
 #include "definition.h"
+#include "utilities.h"
 
 int count_lines(char *inputFile);
 bool containColon(char* line);

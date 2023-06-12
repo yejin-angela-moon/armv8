@@ -64,7 +64,7 @@ uint32_t mode(char **token, row *table, uint32_t instruction){
   }
 }
 
-static uint32_t SDT(char **token, row *table, int countToken, uint32_t currAddress){
+uint32_t SDT(char **token, row *table, int countToken, uint32_t currAddress){
 
   uint32_t instruction = 0;
   if (token[1][0] == 'x'){

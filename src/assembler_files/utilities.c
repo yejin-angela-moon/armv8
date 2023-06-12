@@ -1,8 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
-
-#include "definition.h"
+#include "utilities.h"
 
 int count_lines(char *inputFile){
     FILE *fp = fopen(inputFile, "r");

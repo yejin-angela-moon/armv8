@@ -1,10 +1,13 @@
 #ifndef DEFINITION_H
 #define DEFINITION_H
 
-#include <stddef.h>
-#include <assert.h>
+#include <stdio.h>
 #include <stdint.h>
 #include <string.h>
+#include <assert.h>
+#include <stdlib.h>
+#include <stddef.h>
+#include <stdbool.h>
 
 const char *dpSet[] = {"add", "adds", "sub", "subs", "movn", "movk", "movz",
                        "madd", "msub", "and", "bic", "orr", "orn", "eon",
