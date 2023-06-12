@@ -5,6 +5,11 @@
 #include <stdint.h>
 #include "definition.h"
 
+const char *dpSet[] = {"add", "adds", "sub", "subs", "movn", "movk", "movz",
+                       "madd", "msub", "and", "bic", "orr", "orn", "eon",
+                       "eor", "ands", "bics", "tst", "neg", "mvn", "mov",
+                       "mul"};
+
 int count_lines(char *inputFile);
 bool containColon(char* line);
 void freeLines(char **lines, int numLines);

@@ -7,7 +7,6 @@
 #include "assembler_files/DP.h"
 #include "assembler_files/B.h"
 
-const char *dpSet[] = {"add", "adds", "sub", "subs"};
 
 void parse(row *table, int numLine, char **lines, char *outputFile) {
 
@@ -24,7 +23,7 @@ void parse(row *table, int numLine, char **lines, char *outputFile) {
         } else if (isStringInSet(tokens[0], dpSet, dpSetSize)) {
             //DPI
             char *line = DP(tokens, numToken);
-        } else if (1) {
+        } else if ((strcmp(tokens[0], "ldr") == 0 || strcmp(tokens[0], "str") == 0) {
             //SDT
         } else if ((strcmp(tokens[0], "b") == 0) || (strcmp(tokens[0], "br") == 0) || (strcmp(strncat("", token[0], 2), "b.") == 0)) {
             //B
@@ -38,7 +37,7 @@ void parse(row *table, int numLine, char **lines, char *outputFile) {
                 outputLine = atoi(tokens[1]);
             }
         } else {
-            //not a instruction
+            //not an instruction
         }
 
         fprintf(outFile, "%x\n", outputLine);

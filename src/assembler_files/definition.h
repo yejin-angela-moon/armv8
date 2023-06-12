@@ -10,13 +10,7 @@
 typedef struct {
     char *label;
     uint32_t address;
-} row; 
-
-typedef struct {
-    char* name;
-    uint32_t (*func)(char* tokens[], int numOfTokens);
-} func_map;
-
+} row;
 
 #define MAX_LINE_LENGTH 256
 #define MAX_TOKEN 6

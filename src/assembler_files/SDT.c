@@ -96,6 +96,6 @@ uint32_t SDT(char **token, row *table, int countToken, uint32_t currAddress){
 int main(){
   char *string = "#123";
   int a = getNum(string, 1, 2);
-  printf("the number is: %d\n", 2);
+  printf("the number is: %d\n", a);
   return 0;
 }
