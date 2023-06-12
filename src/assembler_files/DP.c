@@ -1,6 +1,11 @@
+#include <stdio.h>
+#include <stdint.h>
+#include <string.h>
+#include <assert.h>
+#include <stdlib.h>
 #include "DP.h"
 
-/*static char getSH(char **tokens, int numTokens) {
+char getSH(char **tokens, int numTokens) {
   if (numTokens == 3) {
     return 0;
   } else {
@@ -13,150 +18,97 @@
       return 1;
     }
   }
-}*/
-
-char* DPImm(char* tokens[], int numTokens) {
-  char* opcode = tokens[0];
-  char* sf = getSF(tokens[1]);
-  char* opi;
-  char* opc;
-  char *operand = (char *) malloc(16 * sizeof(char));
-  assert(operand != NULL);
-  char* rd = registerToBinary(tokens[1]);
-
-  char *res = (char *) malloc(32 * sizeof(char));
-  assert(res != NULL);
-
-  if (strcmp("movk", opcode) == 0 || strcmp("movn", opcode) == 0 || strcmp("movz", opcode) == 0) {
-    opi = "101";
-    opc = opcWideMove(opcode);
-    char* hw = numTokens == 3 ? "00" : decToBinary(stringToNumber(tokens[4]) / 16, 2);
-    char* imm16 = stringToBinary(tokens[2], 16); // ???
-
-    strcat(operand, hw);
-    strcat(operand, imm16);
-    if (numTokens != 3) {
-      free(hw);
-    }
-    free(imm16);
-  } else { // arithmetic
-    opi = "010";
-    opc = opcArithmetic(opcode);
-    char* sh = numTokens == 3 ? "0" : "1";
-    char* imm12 = stringToBinary(tokens[3], 12);
-    char* rn = registerToBinary(tokens[2]);
-
-    strcat(operand, sh);
-    strcat(operand, imm12);
-    strcat(operand, rn);
-
-    free(sh);
-    free(imm12);
-    free(rn);
-  }
-
-
-  strcat(res, sf);
-  strcat(res, opc);
-  strcat(res, "100");
-  strcat(res, opi);
-  strcat(res, operand);
-  strcat(res, rd);
-  strcat(res, "\0");
-
-  free(operand);
-  free(rd);
-  return res;
 }
 
-char* DPReg(char* tokens[], int numTokens) {
-  char* opcode = tokens[0];
-  char* sf = getSF(tokens[1]);
-  char* opc;
-  char* M;
-  char* opr = (char *) malloc(4 * sizeof(char));
-  char* rm = registerToBinary(tokens[3]);
-  char *operand = (char *) malloc(6 * sizeof(char));
-  assert(operand != NULL);
-  char* rn = registerToBinary(tokens[2]);
-  char* rd = registerToBinary(tokens[1]);
+uint32_t arithmetic(char* tokens[], int numTokens) {
+  char* result = (char *)malloc(32 * sizeof(char));
 
-  char *res = (char *) malloc(32 * sizeof(char));
-  assert(res != NULL);
 
-  if (strcmp("madd", opcode) == 0 || strcmp("msub", opcode) == 0) {
-    operand[0] = strcmp("madd", opcode) == 0 ? '0' : '1';
-    strcat(operand, registerToBinary(tokens[4]));
-    M = "1";
-    opr = "1000";
-  } else {
-    char* shiftCode = numTokens > 4 ? getShiftCode(tokens[4]) : "00";
-    char* N;
-
-    operand = stringToBinary(tokens[5], 6);
-    M = "0";
-    if (strcmp("and", opcode) == 0) {
-      opc = "00";
-      strcat(opr, "0");
-      N = "0";
-    } else if (strcmp("bic", opcode) == 0) {
-      opc = "00";
-      strcat(opr, "0");
-      N = "1";
-    } else if (strcmp("orr", opcode) == 0) {
-      opc = "01";
-      strcat(opr, "0");
-      N = "0";
-    } else if (strcmp("orn", opcode) == 0) {
-      opc = "01";
-      strcat(opr, "0");
-      N = "1";
-    } else if (strcmp("eon", opcode) == 0) {
-      opc = "10";
-      strcat(opr, "0");
-      N = "0";
-    } else if (strcmp("eor", opcode) == 0) {
-      opc = "10";
-      strcat(opr, "0");
-      N = "1";
-    } else if (strcmp("ands", opcode) == 0) {
-      opc = "11";
-      strcat(opr, "0");
-      N = "0";
-    } else if (strcmp("bics", opcode) == 0) {
-      opc = "11";
-      strcat(opr, "0");
-      N = "1";
-    } else { // arithmetic
-      opc = opcArithmetic(opcode);
-      strcat(opr, "1");
-      N = "0";
-    }
-
-    strcat(opr, shiftCode);
-    strcat(opr, N);
+  char sf = getSF(tokens[1]); // bit 31
+  char* opc; // bits 30 to 29
+  if (strcmp(tokens[0], "add") == 0) {
+    opc = "00";
+  } else if (strcmp(tokens[0], "adds") == 0) {
+    opc = "01";
+  } else if (strcmp(tokens[0], "sub") == 0) {
+    opc = "10";
+  } else if (strcmp(tokens[0], "subs") == 0) {
+    opc = "11";
   }
+  char* rd = registerToBinary(tokens[1]); // bits 4 to 0
 
-  strcat(res, sf);
-  strcat(res, opc);
-  strcat(res, M);
-  strcat(res, "101");
-  strcat(res, opr);
-  strcat(res, rm);
-  strcat(res, operand);
-  strcat(res, rn);
-  strcat(res, rd);
-  strcat(res, "\0");
+  char* bits22to5;
 
-  free(opr);
-  free(operand);
-  return res;
-}
-
-char* DP(char* tokens[], int numTokens) {
   if (isRegister(tokens[3])) {
-    return DPReg(tokens, numTokens);
+    // DPReg
+    char* bits28to25 = "0101"; // M and dpr identifier
+    char* bits15to10;
+    char* rm = registerToBinary(tokens[3]); // bits 20 to 16
+    char* rn = registerToBinary(tokens[2]); // bits 9 to 5
+
+    if (numTokens == 3) {
+      // no shift
+      bits15to10 = "0000";
+    } else {
+      // shift
+      char* bits24to21; // opr
+
+      char shiftType[3]; // buffer to store the shiftType
+      int shiftAmount;          // variable to store the shiftAmount
+
+      assert(sscanf(tokens[4], "%s #%d", shiftType, &shiftAmount) == 2);
+      if (strcmp(shiftType, "lsl") == 0) {
+        bits24to21 = "1000";
+      } else if (strcmp(shiftType, "lsr") == 0) {
+        bits24to21 = "1010";
+      } else if (strcmp(shiftType, "asr") == 0) {
+        bits24to21 = "1100";
+      }
+      bits15to10 = decToBinary(shiftAmount);
+    }
   } else {
-    return DPImm(tokens, numTokens);
+    // DPImm
+    char* bits28to23 = "100010";
+    char bit22 = getSH(tokens, numTokens); // sh, 1 if shift
+    int immediate;
+    assert(sscanf(tokens[3], "#%d", immediate) == 1);
+    char* bits21to10 = stringToBinary(immediate);
+    char* rn = registerToBinary(tokens[1]);
+  }
+
+}
+
+uint32_t DP(char* tokens[], int numTokens) {
+  char* opcode = tokens[0];
+  char* rd;
+  char* sf;
+
+  uint32_t output;
+
+  //movz without shift means mov
+
+  if (strcmp("movk", opcode) == 0) {
+    char* opi = "101";
+    char* opc = "11";
+    rd = registerToBinary(tokens[1]);
+    sf = getSF(rd);
+  }
+
+  if (strcmp("movn", opcode) == 0) {
+    char* opi = "101";
+    char* opc = "00";
+    rd = registerToBinary(tokens[1]);
+    sf = getSF(rd);
+  }
+
+  if (strcmp("movz", opcode) == 0) {
+    char* opi = "101";
+    char* opc = "10";
+    rd = registerToBinary(tokens[1]);
+    sf = getSF(rd);
+
+    if (numTokens == 3) {
+
+    }
   }
 }
