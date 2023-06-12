@@ -16,7 +16,6 @@ int count_lines(char *inputFile){
       lineCount++;
     }
   }
-
   return lineCount;
 }
 
@@ -56,7 +55,7 @@ void freeLines(char **lines, int numLines){
   fprintf(stderr, "Function not found\n");
 }*/
 
-bool isStringInSet(const char *target, const char *set[], size_t setSize) {
+bool isStringInSet(char *target, char *set[], size_t setSize) {
   for (size_t i = 0; i < setSize; i++) {
     if (strcmp(target, set[i]) == 0) {
       return true; // found the string in the set

@@ -8,8 +8,8 @@
 #include "assembler_files/B.h"
 #include "assembler_files/SDT.h"
 
-const char *dpSet[] = {"add", "adds", "sub", "subs", "movn", "movz", "movk", "and", "bic", "orr", "orn", "eon", "eor", "ands", "bics", "madd", "msub"};
-const char *sdtSet[] = {"ldr", "str"};
+char *dpSet[] = {"add", "adds", "sub", "subs", "movn", "movz", "movk", "and", "bic", "orr", "orn", "eon", "eor", "ands", "bics", "madd", "msub"};
+char *sdtSet[] = {"ldr", "str"};
 #define dpSetSize 17
 #define sdtSetSize 2
 
