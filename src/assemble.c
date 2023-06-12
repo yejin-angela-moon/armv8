@@ -6,6 +6,7 @@
 #include "assembler_files/utilities.h"
 #include "assembler_files/DP.h"
 #include "assembler_files/B.h"
+#include "assembler_files/SDT.h"
 
 const char *dpSet[] = {"add", "adds", "sub", "subs"};
 
