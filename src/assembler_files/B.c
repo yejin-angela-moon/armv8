@@ -1,6 +1,6 @@
 #include "B.h"
 
-static uint_32_t conditional(char **token, int cond) {
+static uint32_t conditional(char **token, int cond) {
   uint32_t instruction = 0x54000000;
   instruction += cond;
   // add the address of simm19 << 5
@@ -15,8 +15,8 @@ static uint_32_t conditional(char **token, int cond) {
   return instruction;
 }
 
-uint_32_t B(row *table, char **token) {
-  uint_32_t instruction = 0;
+uint32_t B(row *table, char **token) {
+  uint32_t instruction = 0;
   if (strcmp(token[0], "b") == 0) {
     instruction += 0x14000000;
     // add the address of simm26

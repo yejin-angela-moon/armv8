@@ -9,4 +9,6 @@
 
 #include "utilities.h"
 
+char* DP(char* tokens[], int numTokens);
+
 #endif

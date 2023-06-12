@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="CMakePresetLoader">{
-  &quot;useNewFormat&quot;: true
-}</component>
+  <component name="CMakePresetLoader"><![CDATA[{
+  "useNewFormat": true
+}]]></component>
   <component name="CMakeReloadState">
     <option name="reloaded" value="true" />
   </component>
@@ -53,6 +53,7 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
+<<<<<<< HEAD
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
     &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
@@ -66,6 +67,20 @@
     &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
     &quot;last_opened_file_path&quot;: &quot;/homes/ym1721/armv8_48/src/assembler_files&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;
+=======
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_ADD_EXTERNAL_FILES": "true",
+    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.cidr.known.project.marker": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "cf.first.check.clang-format": "false",
+    "cidr.known.project.marker": "true",
+    "last_opened_file_path": "/homes/ym1721/armv8_48/src/assembler_files",
+    "nodejs_package_manager_path": "npm"
+>>>>>>> dd7651e9b3ae882f7f01dedfbc4543192d25951e
   }
 }</component>
   <component name="RunManager">
@@ -88,9 +103,13 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1686232873535</updated>
+<<<<<<< HEAD
       <workItem from="1686232874643" duration="7353000" />
       <workItem from="1686311245865" duration="8583000" />
       <workItem from="1686576479248" duration="748000" />
+=======
+      <workItem from="1686232874643" duration="6077000" />
+>>>>>>> dd7651e9b3ae882f7f01dedfbc4543192d25951e
     </task>
     <servers />
   </component>

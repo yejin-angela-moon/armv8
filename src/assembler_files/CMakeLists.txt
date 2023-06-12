@@ -9,10 +9,12 @@ add_executable(assembler_files
         B.c
         B.h
         definition.h
+        DP.c
+        DP.h
         ioutils.c
         ioutils.h
         SDT.c
         SDT.h
         symbol_table.c
         utilities.c
-        utilities.h DP.c DP.h SDT.c)
+        utilities.h)

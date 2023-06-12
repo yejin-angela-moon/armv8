@@ -56,6 +56,13 @@ build CMakeFiles/assembler_files.dir/B.c.o: C_COMPILER__assembler_files_Debug /h
   OBJECT_DIR = CMakeFiles/assembler_files.dir
   OBJECT_FILE_DIR = CMakeFiles/assembler_files.dir
 
+build CMakeFiles/assembler_files.dir/DP.c.o: C_COMPILER__assembler_files_Debug /homes/ym1721/armv8_48/src/assembler_files/DP.c || cmake_object_order_depends_target_assembler_files
+  DEP_FILE = CMakeFiles/assembler_files.dir/DP.c.o.d
+  FLAGS = -g -std=gnu11
+  INCLUDES = -I/homes/ym1721/armv8_48/src/assembler_files/.
+  OBJECT_DIR = CMakeFiles/assembler_files.dir
+  OBJECT_FILE_DIR = CMakeFiles/assembler_files.dir
+
 build CMakeFiles/assembler_files.dir/ioutils.c.o: C_COMPILER__assembler_files_Debug /homes/ym1721/armv8_48/src/assembler_files/ioutils.c || cmake_object_order_depends_target_assembler_files
   DEP_FILE = CMakeFiles/assembler_files.dir/ioutils.c.o.d
   FLAGS = -g -std=gnu11
@@ -84,13 +91,6 @@ build CMakeFiles/assembler_files.dir/utilities.c.o: C_COMPILER__assembler_files_
   OBJECT_DIR = CMakeFiles/assembler_files.dir
   OBJECT_FILE_DIR = CMakeFiles/assembler_files.dir
 
-build CMakeFiles/assembler_files.dir/DP.c.o: C_COMPILER__assembler_files_Debug /homes/ym1721/armv8_48/src/assembler_files/DP.c || cmake_object_order_depends_target_assembler_files
-  DEP_FILE = CMakeFiles/assembler_files.dir/DP.c.o.d
-  FLAGS = -g -std=gnu11
-  INCLUDES = -I/homes/ym1721/armv8_48/src/assembler_files/.
-  OBJECT_DIR = CMakeFiles/assembler_files.dir
-  OBJECT_FILE_DIR = CMakeFiles/assembler_files.dir
-
 
 # =============================================================================
 # Link build statements for EXECUTABLE target assembler_files
@@ -99,7 +99,7 @@ build CMakeFiles/assembler_files.dir/DP.c.o: C_COMPILER__assembler_files_Debug /
 #############################################
 # Link the executable assembler_files
 
-build assembler_files: C_EXECUTABLE_LINKER__assembler_files_Debug CMakeFiles/assembler_files.dir/B.c.o CMakeFiles/assembler_files.dir/ioutils.c.o CMakeFiles/assembler_files.dir/SDT.c.o CMakeFiles/assembler_files.dir/symbol_table.c.o CMakeFiles/assembler_files.dir/utilities.c.o CMakeFiles/assembler_files.dir/DP.c.o
+build assembler_files: C_EXECUTABLE_LINKER__assembler_files_Debug CMakeFiles/assembler_files.dir/B.c.o CMakeFiles/assembler_files.dir/DP.c.o CMakeFiles/assembler_files.dir/ioutils.c.o CMakeFiles/assembler_files.dir/SDT.c.o CMakeFiles/assembler_files.dir/symbol_table.c.o CMakeFiles/assembler_files.dir/utilities.c.o
   FLAGS = -g
   OBJECT_DIR = CMakeFiles/assembler_files.dir
   POST_BUILD = :
