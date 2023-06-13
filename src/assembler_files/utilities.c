@@ -31,11 +31,11 @@ char **tokenizer(char *line, int *numToken, char ** token) {
   int m = 0;
   int k = 0;
   for (int c = 0; line[c]; c++) {
-  printf("c %d\n", c);
+  //printf("c %d\n", c);
   if (line[c] == ' ') {
     //printf("enter if");
     token[m][k] = '\0';
-    printf("string %s\n", token[m]);
+    //printf("string %s\n", token[m]);
     //strcpy(token[m], string);
     //printf("mid token %s\n", token[0]);
     //(*token)++;

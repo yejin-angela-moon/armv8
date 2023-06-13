@@ -114,7 +114,7 @@ void parse(row *table, int numLine, char **lines, char *outputFile) {
    int numToken = 0;
    printf("ready to take from %s\n", lines[i]);
    tokens = tokenizer(lines[i], &numToken, tokens);
-   printf("token\n");
+   //printf("token\n");
 
    tokens = alias(tokens, &numToken);
    printf("opcode:%s ", tokens[0]);
@@ -123,21 +123,24 @@ void parse(row *table, int numLine, char **lines, char *outputFile) {
    printf("opcode:%s ", opcode);
 
    if (isStringInSet(opcode, dpSet, dpSetSize)) {
-     printf("dp since the op is %s", tokens[0]);
-     printf("number of token = %d", numToken);
+     //printf("dp since the op is %s", tokens[0]);
+     //printf("number of token = %d", numToken);
      currAddress += 4;
 
-     result = calloc( sizeof(char), 32);
+     result = malloc( sizeof(char)* 32);
      if (result == NULL) {
        printf("fail on allocating result");
      }
-     DP(tokens, numToken, result);
+
+     strncpy(result, DP(tokens, numToken), 32);
+     //printf("print result %s\n", result);
      uint32_t instr = strtoll(result, NULL, 2);
      //free(str);
      printf("instr = %x", instr);
      fprintf(outFile, "%x\n", instr);
-     printf("print in file");
+     //printf("print in file %s\n", result);
      //free(result);
+
 
    } else if (isStringInSet(opcode, sdtSet, sdtSetSize)) {
      currAddress += 4;
@@ -182,16 +185,16 @@ int main(int argc, char **argv) {
 
  int countLabel = 0;
  char **lines = readFile(numLine, &countLabel, inputFile);
- printf("ready to row\n");
+ //printf("ready to row\n");
 
  row *symbol_table = malloc(sizeof(row) * countLabel);
- printf("ready to symbol\n");
+ //printf("ready to symbol\n");
  makeSymbolTable(symbol_table, numLine, lines);
-  printf("ready to parse\n");
+  //printf("ready to parse\n");
  parse(symbol_table, numLine, lines, outputFile);
- printf("exit\n");
+ //printf("exit\n");
  free(symbol_table);
- printf("free table\n");
+ //printf("free table\n");
  freeLines(lines, numLine);
  printf("free lines\n");
 

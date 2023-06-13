@@ -43,7 +43,7 @@ static char* getShiftCode(char* shift) {
   }
 }
 
-void DPImm(char* tokens[], int numTokens, char *result) {
+char* DPImm(char* tokens[], int numTokens) {
   char* opcode = tokens[0];
   char* sf = getSF(tokens[1]);
   char* opi;
@@ -99,29 +99,29 @@ void DPImm(char* tokens[], int numTokens, char *result) {
 
   //free(operand);
   free(rd);
-  //char * result = malloc( sizeof(char) * 32);
-    strcpy(result, res);
-
-  return ;
+  char * result = malloc( sizeof(char) * 32);
+  strncpy(result, res, 32);
+  // printf("getting\n", result);
+  return result;
 }
 
-void DPReg(char* tokens[], int numTokens, char * result) {
+char* DPReg(char* tokens[], int numTokens) {
   char* opcode = tokens[0];
   char* sf = getSF(tokens[1]);
   char* opc;
   char* M;
-  printf("ready assert");
+ // printf("ready assert");
   char* opr = (char *) malloc(4 * sizeof(char));
   char* rm = registerToBinary(tokens[3]);
-  printf("ready assert2");
+ // printf("ready assert2");
   char *operand = (char *) malloc(6 * sizeof(char));
   assert(operand != NULL);
   char* rn = registerToBinary(tokens[2]);
   char* rd = registerToBinary(tokens[1]);
-  printf("ready assert3");
+//  printf("ready assert3");
   char res[32];
 //  assert(res != NULL);
-  printf("pass assert");
+ // printf("pass assert");
   if (strcmp("madd", opcode) == 0 || strcmp("msub", opcode) == 0) {
     operand[0] = strcmp("madd", opcode) == 0 ? '0' : '1';
     strcat(operand, registerToBinary(tokens[4]));
@@ -195,18 +195,20 @@ void DPReg(char* tokens[], int numTokens, char * result) {
   free(operand);
   free(opr);
 
-  //char * result = malloc( sizeof(char) * 32);
-  strcpy(result, res);
+  char * result = malloc( sizeof(char) * 32);
+  //printf("getting %s\n", result);
+  strncpy(result, res, 32);
+  //printf("getting %s\n", result);
 
-  return ;
+  return result;
 }
 
-void DP(char* tokens[], int numTokens, char* result) {
+char* DP(char* tokens[], int numTokens) {
   if (isRegister(tokens[3])) {
     //printf("reg\n");
-    DPReg(tokens, numTokens, result);
+    return DPReg(tokens, numTokens);
   } else {
    // printf("imm\n");
-    DPImm(tokens, numTokens, result);
+    return DPImm(tokens, numTokens);
   }
 }
