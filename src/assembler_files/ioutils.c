@@ -4,35 +4,40 @@
 
 #include "utilities.h"
 
-char** readFile(int lineNum, int *countLabel ,char *filename) {
-  FILE *fp = fopen(filename, "r");
+char **readFile(int lineNum, int *countLabel, char *filename) {
+    FILE *file = fopen(filename, "r");
+    assert(file != NULL);
 
-  if (fp == NULL) {
-    fprintf(stderr, "can't open %s\n", filename);
-    exit(1);
-  }
+    char **strings = malloc(lineNum * sizeof(char *));
 
-  char buffer[MAX_LINE_LENGTH];
-  char **strings = calloc(lineNum, sizeof(char*));
-
-  for (int i = 0; i < lineNum; i++){
-    if (fgets(buffer, sizeof(buffer), fp) != NULL) {
-      if(isspace(buffer[0])) {
-        continue;
-      }
-      if (containColon(buffer)){
-        (*countLabel)++;
-      }
-
-      buffer[strcspn(buffer, "\n")] ='\0';
-      strings[i] = (char*)calloc(MAX_LINE_LENGTH, sizeof(char));
-
-      strcpy(strings[i], buffer);
+    for (int i = 0; i < lineNum; i++) {
+        strings[i] = malloc(MAX_LINE_LENGTH * sizeof(char));
     }
-  }
 
-  fclose(fp);
-  return strings;
+    int ch;
+    bool isLineEmpty = 1;
+    int stringIndex = 0;
+    int indexInsideString = 0;
+    while ((ch = fgetc(file)) != EOF) {
+        if (ch == '\n') {
+            if (!isLineEmpty) {
+                strings[stringIndex][indexInsideString] = '\0';
+                stringIndex++;
+            }
+            isLineEmpty = 1;
+            indexInsideString = 0;
+        } else {
+            if (ch == ':') {
+                (*countLabel)++;
+            }
+            isLineEmpty = 0;
+            strings[stringIndex][indexInsideString] = (char) ch;
+            indexInsideString++;
+        }
+    }
+
+    fclose(file);
+    return strings;
 }
 
 void makeSymbolTable(row *table, int lineNum, char **lines){
