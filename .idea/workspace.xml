@@ -6,9 +6,6 @@
       <change beforePath="$PROJECT_DIR$/src/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/src/Makefile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/assemble.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/assemble.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/assemble.exe" beforeDir="false" afterPath="$PROJECT_DIR$/src/assemble.exe" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/assembler_files/DP.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/assembler_files/DP.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/assembler_files/utilities.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/assembler_files/utilities.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/assembler_files/utilities.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/assembler_files/utilities.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/emulate.exe" beforeDir="false" afterPath="$PROJECT_DIR$/src/emulate.exe" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />

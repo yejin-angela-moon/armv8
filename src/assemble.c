@@ -146,7 +146,7 @@ void parse(row *table, int numLine, char **lines, char *outputFile) {
         }
 
         printf("output = %x \n", result);
-        fwrite(&result, sizeof(uint32_t), 1, outFile);
+        fwrite(&result, sizeof(int32_t), 1, outFile);
         //printf("tokens before free %s + %s + %s + %s + %s + %s + %s + %s\n ", tokens[0], tokens[1], tokens[2], tokens[3], tokens[4], tokens[5], tokens[6]);
         //printf("num token = %d", numToken);
         for (int i = 0; i < numToken; i ++) {
@@ -158,25 +158,11 @@ void parse(row *table, int numLine, char **lines, char *outputFile) {
              }
         }
 
-        //printf("tokens after free %s + %s + %s + %s + %s + %s + %s + %s\n ", tokens[0], tokens[1], tokens[2], tokens[3], tokens[4], tokens[5], tokens[6]);
- /*
-        for (int i = 3; i > 0; i--) {
-                     printf("allocating %d ", i);
-                     //free(tokens[i]);
-                     tokens[i] = calloc( sizeof(char), 60);
-                     if (tokens[i] == NULL) {
-                       printf("error alloc token %d\n", i);
-                     }
-                }
-        printf("tokens after alloc %s + %s + %s + %s + %s + %s + %s + %s\n ", tokens[0], tokens[1], tokens[2], tokens[3], tokens[4], tokens[5], tokens[6]);
-*/
-
 
     }
     for (int i = MAX_TOKEN; i > 0; i--) {
        free(tokens[i]);
     }
-         //free(tokens[3]);
     free(tokens);
 
     fclose(outFile);
