@@ -79,7 +79,10 @@ void parse(row *table, int numLine, char **lines, char *outputFile) {
     FILE *outFile = fopen(outputFile, "wb");
     assert(outFile != NULL);
 
+    char * store_DP;
+
     for (int i = 0; i < numLine; i++) {
+        printf("%i", i);
 
         int numToken = 0;
         char **tokens = tokenizer(lines[i], &numToken);
@@ -92,7 +95,10 @@ void parse(row *table, int numLine, char **lines, char *outputFile) {
 
         if (isStringInSet(opcode, dpSet, dpSetSize)) {
             currAddress += 4;
-            result = binaryStringToNumber(DP(tokens, numToken));
+            store_DP = (char *) malloc(33 * sizeof(char));
+            store_DP = DP(tokens, numToken);
+            result = binaryStringToNumber(store_DP);
+            free(store_DP);
         } else if (isStringInSet(opcode, sdtSet, sdtSetSize)) {
             currAddress += 4;
             result = SDT(tokens, table, numToken, currAddress);
@@ -109,6 +115,7 @@ void parse(row *table, int numLine, char **lines, char *outputFile) {
             continue;
         }
 
+        printf("%x \n", result);
         fwrite(&result, sizeof(uint32_t), 1, outFile);
         free(tokens);
     }
