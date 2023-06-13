@@ -175,9 +175,11 @@ void parse(row *table, int numLine, char **lines, char *outputFile) {
    }
     //printf("after token %s +  %s +  %s+  %s\n ", tokens[0], tokens[1], tokens[2], tokens[3]);
    // itoa(instruction, buffer, 1);
-    sprintf(buffer, "%u", instruction);
-    printf("buffer = %s", buffer);
-    fwrite(buffer,sizeof(buffer),1,outFile);
+    //char* bit = numberToString(instruction);
+    //printf("buffer = %s\n", bit);
+    sprintf(buffer, "%x", instruction);
+    fwrite(buffer,8,1,outFile);
+    //free(bit);
  }
     for (int i = MAX_TOKEN; i > 0; i--) {
          free(tokens[i]);

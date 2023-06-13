@@ -125,6 +125,20 @@ char* stringToBinary(char* string, int nbits) {
   return decToBinary(stringToNumber(string), nbits);
 }
 
+char* numberToString(uint32_t bits) {
+   char binary[32];
+   for (int i = 31; i >= 0; i--) {
+     if (bits >> i & 1) {
+       binary[31-i] = '1';
+     } else {
+       binary[31-i] = '0';
+     }
+   }
+   char * copy = malloc(sizeof(char) * 32);
+   strncpy(copy, binary, 32);
+   return copy;
+}
+
 char* registerToBinary(char* reg) {
   // ex: "x11" -> "1011"
   assert(isRegister(reg));
