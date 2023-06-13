@@ -128,8 +128,8 @@ char* DPReg(char* tokens[], int numTokens) {
 
   if (strcmp(opcode, "madd") == 0 || strcmp(opcode, "msub") == 0) {
     opc = "00";
-    operand[0] = strcmp("madd", opcode) == 0 ? '0' : '1';
-    strcpy(operand, registerToBinary(tokens[4]));
+    operand[0] = strcmp(opcode, "madd") == 0 ? '0' : '1';
+    strcat(operand, registerToBinary(tokens[4]));
     M = "1";
     opr = "1000";
   } else {
@@ -192,20 +192,16 @@ char* DPReg(char* tokens[], int numTokens) {
   strcat(res, rd);
   strcat(res, "\0");
 
-  free(opr);
-
   if (strcmp("madd", opcode) == 0 || strcmp("msub", opcode) == 0 || numTokens > 4) {
     free(operand);
   }
+
   return res;
 }
 
 char* DP(char* tokens[], int numTokens) {
-  if (strcmp(tokens[0], "movn") == 0 || strcmp(tokens[0], "movk") == 0 || strcmp(tokens[0], "movz") == 0) {
-    return DPImm(tokens, numTokens);
-  } else if (isRegister(tokens[3])) {
-    return DPReg(tokens, numTokens);
-  } else {
+  if (strcmp(tokens[0], "movn") == 0 || strcmp(tokens[0], "movk") == 0 || strcmp(tokens[0], "movz") == 0 ||!(isRegister(tokens[3]))) {
     return DPImm(tokens, numTokens);
   }
+  return DPReg(tokens, numTokens);
 }
