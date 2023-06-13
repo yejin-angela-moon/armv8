@@ -1,61 +1,62 @@
 #include "DP.h"
 
 static char* opcArithmetic(const char* opcode) {
-    if (strcmp("add", opcode) == 0) {
-        return "00";
-    } else if (strcmp("adds", opcode) == 0) {
-        return "01";
-    } else if (strcmp("sub", opcode) == 0) {
-        return "10";
-    } else if (strcmp("subs", opcode) == 0) {
-        return "11";
-    } else {
-        fprintf(stderr, "invalid opcode\n");
-        exit(1);
-    }
+  if (strcmp("add", opcode) == 0) {
+    return "00";
+  } else if (strcmp("adds", opcode) == 0) {
+    return "01";
+  } else if (strcmp("sub", opcode) == 0) {
+    return "10";
+  } else if (strcmp("subs", opcode) == 0) {
+    return "11";
+  } else {
+    fprintf(stderr, "invalid opcode\n");
+    exit(1);
+  }
 }
 
 static char* opcWideMove(const char* opcode) {
-    if (strcmp("movk", opcode) == 0) {
-        return "11";
-    } else if (strcmp("movn", opcode) == 0) {
-        return "00";
-    } else if (strcmp("movz", opcode) == 0) {
-        return "10";
-    } else {
-        fprintf(stderr, "invalid opcode\n");
-        exit(1);
-    }
+  if (strcmp("movk", opcode) == 0) {
+    return "11";
+  } else if (strcmp("movn", opcode) == 0) {
+    return "00";
+  } else if (strcmp("movz", opcode) == 0) {
+    return "10";
+  } else {
+    fprintf(stderr, "invalid opcode\n");
+    exit(1);
+  }
 }
 
 static char* getShiftCode(char* shift) {
-    if (strcmp("lsl", shift) == 0) {
-        return "00";
-    } else if (strcmp("lsr", shift) == 0) {
-        return "01";
-    } else if (strcmp("asr", shift) == 0) {
-        return "10";
-    } else if (strcmp("ror", shift) == 0) {
-        return "11";
-    } else {
-        fprintf(stderr, "invalid shift name\n");
-        exit(1);
-    }
+  if (strcmp("lsl", shift) == 0) {
+    return "00";
+  } else if (strcmp("lsr", shift) == 0) {
+    return "01";
+  } else if (strcmp("asr", shift) == 0) {
+    return "10";
+  } else if (strcmp("ror", shift) == 0) {
+    return "11";
+  } else {
+    fprintf(stderr, "invalid shift name\n");
+    exit(1);
+  }
 }
+
 
 char* DPImm(char* tokens[], int numTokens) {
     char* opcode = tokens[0];
     char* sf = getSF(tokens[1]);
     char* opi;
     char* opc;
-    char *operand = (char *) malloc(17 * sizeof(char));
+    char *operand = (char *) malloc(18 * sizeof(char));
     assert(operand != NULL);
     char* rd = registerToBinary(tokens[1]);
 
     char res[32];
     //assert(res != NULL);
 
-    if (strcmp("movk", opcode) == 0 || strcmp("movn", opcode) == 0 || strcmp("movz", opcode) == 0) {
+     if (strcmp("movk", opcode) == 0 || strcmp("movn", opcode) == 0 || strcmp("movz", opcode) == 0) {
         opi = "101";
         opc = opcWideMove(opcode);
         char* hw = numTokens == 3 ? "00" : decToBinary(stringToNumber(tokens[4]) / 16, 2);
@@ -64,9 +65,10 @@ char* DPImm(char* tokens[], int numTokens) {
         strcpy(operand, hw);
         strcat(operand, imm16);
         if (numTokens != 3) {
-            free(hw);
+          free(hw);
         }
         free(imm16);
+
     } else { // arithmetic
         opi = "010";
         opc = opcArithmetic(opcode);

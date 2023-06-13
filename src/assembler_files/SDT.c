@@ -49,7 +49,7 @@ static uint32_t LL(char **token, row *table, uint32_t instruction, uint32_t curr
   return instruction;
 }
 
-uint32_t mode(char **token, uint32_t instruction, int countToken) {
+uint32_t mode(char **token, uint32_t instruction, int countToken){
 
   int xn = getNum(token[2], 2, 2);
   instruction |= xn << 5;
@@ -87,5 +87,5 @@ uint32_t SDT(char **token, row *table, int countToken, uint32_t currAddress) {
     //ldr
     instruction |= 1 << 22;
   }
-   return mode(token, instruction, countToken);
+  return mode(token, instruction, countToken);
 }
