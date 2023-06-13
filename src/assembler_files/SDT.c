@@ -5,9 +5,9 @@ static uint32_t preIndexed(char **token, uint32_t instruction){
   instruction |= 1 << 10;
   instruction |= 1 << 11;
 
-  int simm = getNum(token[2], 1, 3);
+  int simm = strtol(strtok(token[3], "]!"), NULL, 10);
 
-  instruction |= simm << 12;
+  instruction |= (simm << 12);
   return instruction;
 }
 
@@ -16,7 +16,7 @@ static uint32_t postIndexed(char **token, uint32_t instruction){
   instruction |= 1 << 11;
 
   int simm = getNum(token[2],1, 3);
-  instruction |= simm << 12;
+  instruction |= (simm << 12) /4;
   return instruction;
 }
 
@@ -32,7 +32,7 @@ static uint32_t unsignedOffset(char **token, uint32_t instruction){
   instruction |= 1 << 24;
 
   if (token[3] != NULL){
-    instruction |= getNum(token[3], 1, 3) << 10;
+    instruction |= (getNum(token[3], 1, 3) << 10) / 4;
   }
 
   return instruction;
@@ -43,7 +43,7 @@ static uint32_t LL(char **token, row *table, uint32_t instruction, uint32_t curr
 
   uint32_t addressLabel = findAddressTable(token[2], table);
 
-  int32_t offset = addressLabel - currAddress;
+  int32_t offset = (addressLabel - currAddress) / 4;
   instruction |= (offset & MASK_TO_19BITS) << 5;
 
   return instruction;

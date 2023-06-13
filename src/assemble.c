@@ -86,6 +86,8 @@ void parse(row *table, int numLine, char **lines, char *outputFile) {
 
     tokens = alias(tokens, &numToken);
 
+    printf("tokens: %s: %s: %s: %s: %s", tokens[0], tokens[1], tokens[2], tokens[3], tokens[4]);
+
     char *opcode = tokens[0];
 
     uint32_t result;
@@ -108,6 +110,8 @@ void parse(row *table, int numLine, char **lines, char *outputFile) {
       free(tokens);
       continue;
     }
+
+    printf("%x\n", result);
 
     fwrite(&result, sizeof(uint32_t), 1, outFile);
     free(tokens);
