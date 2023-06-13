@@ -6,10 +6,11 @@ static uint32_t conditional(row *table, char **token, int cond, uint32_t *currAd
  instruction += cond;
  // add the address of simm19 << 5
  uint32_t address;
- if (strcmp(token[1], "0") != 0 && strtol(token[1], NULL, 16) == 0){
+ char *endptr;
+ if (strcmp(token[1], "0") != 0 && strtol(token[1], &endptr, 16) == 0){
    address = findAddressTable(token[1], table);
  } else {
-   address = strtol(token[1], NULL, 16);
+   address = strtol(token[1], &endptr, 16);
  }
  int32_t offset = (address - *currAddress) / 4;
  instruction += (offset & 0x7FFFF) << 5;
@@ -24,11 +25,12 @@ uint32_t B(row *table, char **token, uint32_t *currAddress) {
    //printf("mid ins %x", instruction);
    // add the address of simm26
    uint32_t address;
-   if (strcmp(token[1], "0") != 0 && strtol(token[1], NULL, 16) == 0){
+   char *endptr;
+   if (strcmp(token[1], "0") != 0 && strtol(token[1], &endptr, 16) == 0){
      address = findAddressTable(token[1], table);
    } else {
      //printf("get addr\n");
-     address = strtol(token[1], NULL, 16);
+     address = strtol(token[1], &endptr, 16);
    }
    int32_t offset = (address - *currAddress) / 4;
    instruction += offset & 0x3FFFFFF;
