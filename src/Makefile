@@ -10,7 +10,7 @@ CFLAGS  ?= -std=c17 -g\
 all: assemble emulate
 
 assemble: assemble.o assembler_files/B.o assembler_files/DP.o assembler_files/SDT.o assembler_files/ioutils.o assembler_files/utilities.o
-emulate: emulate.o emulate_files/B.o emulate_files/DPImm.o emulate_files/DPReg.o emulate_files/ioutils.o emulate_files/SDT.o emulate_files/utilities.o
+emulate: emulate.o emulate_files/B.o emulate_files/DPImm.o emulate_files/DPReg.o emuate_files/ioutils.o emulate_files/SDT.o emulate_files/utilities.o
 
 clean:
 	$(RM) *.o assemble emulate

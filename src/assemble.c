@@ -43,8 +43,9 @@ static char **alias(char **tokens, int *numToken) {
   } else if (strcmp("tst", opcode) == 0) {
     newTokens[0] = "ands";
     newTokens[1] = getZeroRegister(tokens[1]);
-    newTokens[2] = tokens[1];
-    newTokens[3] = tokens[2];
+    for (int i = 2; i < *numToken + 1; i++) {
+      newTokens[i] = tokens[i - 1];
+    }
   } else if (strcmp("mvn", opcode) == 0) {
     newTokens[0] = "orn";
     newTokens[1] = tokens[1];
@@ -96,19 +97,24 @@ void parse(row *table, int numLine, char **lines, char *outputFile) {
     uint32_t result;
 
     if (isStringInSet(opcode, dpSet, dpSetSize)) {
-      currAddress += 4;
       result = binaryStringToNumber(DP(tokens, numToken));
+      currAddress += 4;
     } else if (isStringInSet(opcode, sdtSet, sdtSetSize)) {
-      currAddress += 4;
       result = SDT(tokens, table, numToken, currAddress);
+      currAddress += 4;
     } else if (opcode[0] == 'b') {
-      currAddress += 4;
       result = B(table, tokens, &currAddress);
-    } else if (strcmp("nop", opcode) == 0) {
       currAddress += 4;
+    } else if (strcmp("nop", opcode) == 0) {
       result = NOP_INSTRUCTION;
+      currAddress += 4;
     } else if (strcmp(".int", opcode) == 0) {
-      result = stringToNumber(tokens[1]);
+      if (strchr(tokens[1],'x') != NULL) {
+        result = strtol(tokens[1], NULL, 16);
+      } else {
+        result = strtol(tokens[1], NULL, 10);
+      }
+      currAddress += 4;
     } else {
       //label
       free(tokens);
