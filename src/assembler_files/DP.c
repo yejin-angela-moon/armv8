@@ -71,7 +71,15 @@ char* DPImm(char* tokens[], int numTokens) {
     opi = "010";
     opc = opcArithmetic(opcode);
     //printf("num of tokens %d", numTokens);
-    char* sh = numTokens - 1 == 3 ? "0" : "1";
+    char* sh;
+    if (numTokens == 4) {
+      sh = "0";
+    } else if (strcmp(tokens[5], "0") == 0) {
+      sh = "0";
+
+    } else {
+      sh = "1";
+    }
     char* imm12 = stringToBinary(tokens[3], 12);
     char* rn = registerToBinary(tokens[2]);
 
