@@ -95,7 +95,7 @@ void parse(row *table, int numLine, char **lines, char *outputFile) {
 
     if (isStringInSet(opcode, dpSet, dpSetSize)) {
       currAddress += 4;
-      fprintf(outFile, "%i", stringToNumber(DP(tokens, numToken)));
+      fprintf(outFile, "%x", stringToNumber(DP(tokens, numToken)));
     } else if (isStringInSet(opcode, sdtSet, sdtSetSize)) {
       currAddress += 4;
       fprintf(outFile, "%x", SDT(tokens, table, numToken, currAddress));

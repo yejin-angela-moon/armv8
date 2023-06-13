@@ -36,11 +36,22 @@ char** readFile(int lineNum, int *countLabel ,char *filename) {
 }
 
 void makeSymbolTable(row *table, int lineNum, char **lines){
+  int tableIndex = 0;
   for (int i = 0; i < lineNum; i++){
     if (containColon(lines[i])){
-      table[i].address = i * 4;
-      table[i].label = lines[i];
-      i--;
+      // Extract the label name from the line (assuming it's up to the colon)
+      char *labelEnd = strchr(lines[i], ':');
+      int labelLength = labelEnd - lines[i];
+      table[tableIndex].label = malloc(labelLength + 1);
+      strncpy(table[tableIndex].label, lines[i], labelLength);
+      table[tableIndex].label[labelLength] = '\0';
+
+      // Assign the address (assuming each instruction is 4 bytes)
+      table[tableIndex].address = i * 4;
+
+      // Move to the next position in the table
+      tableIndex++;
     }
   }
 }
+
