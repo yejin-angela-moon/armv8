@@ -20,51 +20,51 @@ static char **alias(char **tokens, int *numToken) {
   assert(newTokens != NULL);
   if (strcmp("cmp", opcode) == 0) {
     newTokens[0] = "subs";
-    newTokens[1] = "rzr";
+    newTokens[1] = getZeroRegister(tokens[1]);
     newTokens[2] = tokens[1];
     newTokens[3] = tokens[2];
   } else if (strcmp("cmn", opcode) == 0) {
     newTokens[0] = "adds";
-    newTokens[1] = "rzr";
+    newTokens[1] = getZeroRegister(tokens[1]);
     newTokens[2] = tokens[1];
     newTokens[3] = tokens[2];
   } else if (strcmp("neg", opcode) == 0) {
     newTokens[0] = "sub";
     newTokens[1] = tokens[1];
-    newTokens[2] = "rzr";
+    newTokens[2] = getZeroRegister(tokens[1]);
     newTokens[3] = tokens[2];
   } else if (strcmp("negs", opcode) == 0) {
     newTokens[0] = "subs";
     newTokens[1] = tokens[1];
-    newTokens[2] = "rzr";
+    newTokens[2] = getZeroRegister(tokens[1]);
     newTokens[3] = tokens[2];
   } else if (strcmp("tst", opcode) == 0) {
     newTokens[0] = "ands";
-    newTokens[1] = "rzr";
+    newTokens[1] = getZeroRegister(tokens[1]);
     newTokens[2] = tokens[1];
     newTokens[3] = tokens[2];
   } else if (strcmp("mvn", opcode) == 0) {
     newTokens[0] = "orn";
     newTokens[1] = tokens[1];
-    newTokens[2] = "rzr";
+    newTokens[2] = getZeroRegister(tokens[1]);
     newTokens[3] = tokens[2];
   } else if (strcmp("mov", opcode) == 0) {
     newTokens[0] = "orr";
     newTokens[1] = tokens[1];
-    newTokens[2] = "rzr";
+    newTokens[2] = getZeroRegister(tokens[1]);
     newTokens[3] = tokens[2];
   } else if (strcmp("mul", opcode) == 0) {
     newTokens[0] = "madd";
     newTokens[1] = tokens[1];
     newTokens[2] = tokens[2];
     newTokens[3] = tokens[3];
-    newTokens[4] = "rzr";
+    newTokens[4] = getZeroRegister(tokens[1]);
   } else if (strcmp("mneg", opcode) == 0) {
     newTokens[0] = "msub";
     newTokens[1] = tokens[1];
     newTokens[2] = tokens[2];
     newTokens[3] = tokens[3];
-    newTokens[4] = "rzr";
+    newTokens[4] = getZeroRegister(tokens[1]);
   } else {
     free(newTokens);
     return tokens;

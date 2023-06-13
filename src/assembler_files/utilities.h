@@ -24,5 +24,6 @@ char* getSF(const char* reg);
 bool isStringInSet(char *target, char *set[], size_t setSize);
 int getNum(char *string, int start, int size);
 uint32_t findAddressTable(char *label, row *table);
+char *getZeroRegister(const char *reg);
 
 #endif
