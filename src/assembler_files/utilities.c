@@ -24,45 +24,42 @@ bool containColon(char* line) {
 }
 
 
-char **tokenizer(char *line, int *numToken) {
+char **tokenizer(char *line, int *numToken, char ** token) {
   //char string[20];
- // printf("string %s\n", string);
-  typedef char word[50];
-  char **token = malloc(sizeof(word) * MAX_TOKEN);
-  for (int i = 0; i < MAX_TOKEN; i++) {
-    token[i] = malloc( 20 * sizeof(char) );
-  }
+  printf("string %s\n", line);
 
-  printf("mem alloc");
   int m = 0;
   int k = 0;
   for (int c = 0; line[c]; c++) {
   printf("c %d\n", c);
-  if (line[c] == ' ' || line[c] == '#' || line[c] == ',') {
+  if (line[c] == ' ') {
     //printf("enter if");
     token[m][k] = '\0';
-   // printf("string %s\n", string);
+    printf("string %s\n", token[m]);
     //strcpy(token[m], string);
     //printf("mid token %s\n", token[0]);
     //(*token)++;
     k = 0;
     m++;
+  } else if (line[c] == '#' || line[c] == ',') {
+
   } else {
-   //printf("enter else");
+   // printf("enter else");
     token[m][k] = line[c];
-   // printf("leavibg else");
+    //printf("leavibg else");
     k++;
   }
 
 }
 //printf("string %s\n", string);
   token[m][k] = '\0';
+  *numToken = m;
 //printf("string %s\n", string);
 //printf("m %d\n", m);
 //strcpy(token[m], string);
 //printf("m %d\n", m);
 //  printf("allocate mem\n");
-  printf("token %s +  %s +  %s\n ", token[0], token[1], token[2]);
+  printf("token %s + %s + %s + %s\n ", token[0], token[1], token[2], token[3]);
   return token;
 }
 
@@ -101,7 +98,13 @@ char* decToBinary(uint32_t x, int nbits) {
   char* res = (char *) malloc(32 * sizeof(char));
   assert(res != NULL);
   uint32_t mask = 1 << (nbits - 1);
-  for (int i = 0; i < nbits; i++) {
+  if ((x & mask) == 0) {
+        strcpy(res, "0");
+      } else {
+        strcpy(res, "1");
+      }
+  mask = mask >> 1;
+  for (int i = 1; i < nbits; i++) {
     if ((x & mask) == 0) {
       strcat(res, "0");
     } else {
@@ -116,6 +119,7 @@ char* decToBinary(uint32_t x, int nbits) {
 uint32_t stringToNumber(char* string) {
   return (uint32_t)strtol(string, NULL, 0);
 }
+
 
 char* stringToBinary(char* string, int nbits) {
   return decToBinary(stringToNumber(string), nbits);

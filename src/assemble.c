@@ -85,18 +85,35 @@ void parse(row *table, int numLine, char **lines, char *outputFile) {
  printf("line no %d: \n", numLine);
 
  FILE *outFile = fopen(outputFile, "w");
- rewind(outFile);
+ //rewind(outFile);
  if (outFile == NULL) {
    printf("error on opening");
  }
  printf("file opened\n");
+ typedef char word[60];
+
+ char **tokens = calloc(sizeof(word), MAX_TOKEN);
+ if (tokens == NULL) {
+   printf("error on allocating mem");
+ }
+ //printf("mem allocing");
+ for (int i = 0; i < MAX_TOKEN; i++) {
+   //printf("get in loop");
+   //token[i] = malloc( sizeof(word) );
+   if ((tokens[i] = calloc( sizeof(char), 60))== NULL) {
+       printf("error on allocating mem for token[%d]", i);
+     }
+ }
+
+ printf("mem alloc\n");
+ char * result;
  for (int i = 0; i < numLine - 1; i++) {
 
    printf("line: %d\n", i);
 
    int numToken = 0;
    printf("ready to take from %s\n", lines[i]);
-   char **tokens = tokenizer(lines[i], &numToken);
+   tokens = tokenizer(lines[i], &numToken, tokens);
    printf("token\n");
 
    tokens = alias(tokens, &numToken);
@@ -106,17 +123,27 @@ void parse(row *table, int numLine, char **lines, char *outputFile) {
    printf("opcode:%s ", opcode);
 
    if (isStringInSet(opcode, dpSet, dpSetSize)) {
+     printf("dp since the op is %s", tokens[0]);
+     printf("number of token = %d", numToken);
      currAddress += 4;
-     fprintf(outFile, "%i", stringToNumber(DP(tokens, numToken)));
+
+     result = calloc( sizeof(char), 32);
+     if (result == NULL) {
+       printf("fail on allocating result");
+     }
+     DP(tokens, numToken, result);
+     uint32_t instr = strtoll(result, NULL, 2);
+     //free(str);
+     printf("instr = %x", instr);
+     fprintf(outFile, "%x\n", instr);
+     printf("print in file");
+     //free(result);
+
    } else if (isStringInSet(opcode, sdtSet, sdtSetSize)) {
      currAddress += 4;
      fprintf(outFile, "%x", SDT(tokens, table, numToken, currAddress));
    } else if (opcode[0] == 'b') {
      currAddress += 4;
-     //printf("b instr");
-     //uint32_t instr = B(table, tokens, &currAddress);
-     //printf("instr: %x\n", B(table, tokens, &currAddress));
-     //rewind(outFile);
      fprintf(outFile, "%x\n", B(table, tokens, &currAddress));
      //fflush(outFile);
      //printf("b end");
@@ -127,18 +154,20 @@ void parse(row *table, int numLine, char **lines, char *outputFile) {
    } else if (strcmp(".int", opcode) == 0) {
      fprintf(outFile, "%x", stringToNumber(tokens[1]));
    }
-   numToken = 1;
-    //printf("before token %s +  %s +  %s\n ", tokens[0], tokens[1], tokens[2]);
-    for (int i = 0; i < MAX_TOKEN; i++) {
-        free(tokens[i]);
-      }
-   free(tokens);
+    printf("before token %s +  %s +  %s+  %s\n ", tokens[0], tokens[1], tokens[2], tokens[3]);
+
    //printf("%d", numToken);
-  // for (int i = 0; i < numToken; i ++) {
-    // tokens[i] = NULL;
-   //}
-    printf("after token %s +  %s +  %s\n ", tokens[0], tokens[1], tokens[2]);
+   for (int i = 0; i < numToken + 1; i ++) {
+     free(tokens[i]);
+     tokens[i] = calloc( sizeof(char), 60);
+   }
+    printf("after token %s +  %s +  %s+  %s\n ", tokens[0], tokens[1], tokens[2], tokens[3]);
  }
+    for (int i = MAX_TOKEN; i > 0; i--) {
+         free(tokens[i]);
+     }
+     //free(tokens[3]);
+    free(tokens);
  fclose(outFile);
 }
 

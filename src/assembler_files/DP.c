@@ -43,17 +43,18 @@ static char* getShiftCode(char* shift) {
   }
 }
 
-char* DPImm(char* tokens[], int numTokens) {
+void DPImm(char* tokens[], int numTokens, char *result) {
   char* opcode = tokens[0];
   char* sf = getSF(tokens[1]);
   char* opi;
   char* opc;
-  char *operand = (char *) malloc(16 * sizeof(char));
-  assert(operand != NULL);
+  char operand[16];
+  //assert(operand != NULL);
   char* rd = registerToBinary(tokens[1]);
 
-  char *res = (char *) malloc(32 * sizeof(char));
-  assert(res != NULL);
+  char res[32];
+  //assert(res != NULL);
+  //printf("start res = %s\n", res);
 
   if (strcmp("movk", opcode) == 0 || strcmp("movn", opcode) == 0 || strcmp("movz", opcode) == 0) {
     opi = "101";
@@ -61,20 +62,22 @@ char* DPImm(char* tokens[], int numTokens) {
     char* hw = numTokens == 3 ? "00" : decToBinary(stringToNumber(tokens[4]) / 16, 2);
     char* imm16 = stringToBinary(tokens[2], 16); // ???
 
-    strcat(operand, hw);
+    strcpy(operand, hw);
     strcat(operand, imm16);
     if (numTokens != 3) {
       free(hw);
     }
     free(imm16);
   } else { // arithmetic
+     //printf("way res = %s\n", res);
     opi = "010";
     opc = opcArithmetic(opcode);
     char* sh = numTokens == 3 ? "0" : "1";
     char* imm12 = stringToBinary(tokens[3], 12);
+    //printf("imm12 = %s\n", imm12);
     char* rn = registerToBinary(tokens[2]);
 
-    strcat(operand, sh);
+    strcpy(operand, sh);
     strcat(operand, imm12);
     strcat(operand, rn);
 
@@ -84,34 +87,41 @@ char* DPImm(char* tokens[], int numTokens) {
   }
 
 
-  strcat(res, sf);
+  strcpy(res, sf);
   strcat(res, opc);
   strcat(res, "100");
   strcat(res, opi);
+
   strcat(res, operand);
   strcat(res, rd);
   strcat(res, "\0");
+  printf("res = %s \n", res);
 
-  free(operand);
+  //free(operand);
   free(rd);
-  return res;
+  //char * result = malloc( sizeof(char) * 32);
+    strcpy(result, res);
+
+  return ;
 }
 
-char* DPReg(char* tokens[], int numTokens) {
+void DPReg(char* tokens[], int numTokens, char * result) {
   char* opcode = tokens[0];
   char* sf = getSF(tokens[1]);
   char* opc;
   char* M;
+  printf("ready assert");
   char* opr = (char *) malloc(4 * sizeof(char));
   char* rm = registerToBinary(tokens[3]);
+  printf("ready assert2");
   char *operand = (char *) malloc(6 * sizeof(char));
   assert(operand != NULL);
   char* rn = registerToBinary(tokens[2]);
   char* rd = registerToBinary(tokens[1]);
-
-  char *res = (char *) malloc(32 * sizeof(char));
-  assert(res != NULL);
-
+  printf("ready assert3");
+  char res[32];
+//  assert(res != NULL);
+  printf("pass assert");
   if (strcmp("madd", opcode) == 0 || strcmp("msub", opcode) == 0) {
     operand[0] = strcmp("madd", opcode) == 0 ? '0' : '1';
     strcat(operand, registerToBinary(tokens[4]));
@@ -125,7 +135,9 @@ char* DPReg(char* tokens[], int numTokens) {
     M = "0";
     if (strcmp("and", opcode) == 0) {
       opc = "00";
-      strcat(opr, "0");
+      printf("before opr = %s", opr);
+      strcpy(opr, "0");
+      printf("after opr = %s", opr);
       N = "0";
     } else if (strcmp("bic", opcode) == 0) {
       opc = "00";
@@ -163,9 +175,11 @@ char* DPReg(char* tokens[], int numTokens) {
 
     strcat(opr, shiftCode);
     strcat(opr, N);
+    //printf("last opr = %s", opr);
   }
+  //printf("before res = %s", res);
 
-  strcat(res, sf);
+  strcpy(res, sf);
   strcat(res, opc);
   strcat(res, M);
   strcat(res, "101");
@@ -175,16 +189,24 @@ char* DPReg(char* tokens[], int numTokens) {
   strcat(res, rn);
   strcat(res, rd);
   strcat(res, "\0");
+  printf("res for reg = %s\n", res);
 
-  free(opr);
+
   free(operand);
-  return res;
+  free(opr);
+
+  //char * result = malloc( sizeof(char) * 32);
+  strcpy(result, res);
+
+  return ;
 }
 
-char* DP(char* tokens[], int numTokens) {
+void DP(char* tokens[], int numTokens, char* result) {
   if (isRegister(tokens[3])) {
-    return DPReg(tokens, numTokens);
+    //printf("reg\n");
+    DPReg(tokens, numTokens, result);
   } else {
-    return DPImm(tokens, numTokens);
+   // printf("imm\n");
+    DPImm(tokens, numTokens, result);
   }
 }
