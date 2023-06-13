@@ -1,22 +1,27 @@
 #include "utilities.h"
 
-int count_lines(char *inputFile){
-  FILE *fp = fopen(inputFile, "r");
+int count_lines(char *inputFile) {
+    FILE *file;
+    int ch;
+    int linesCount = 0;
+    bool isLineEmpty = 1;
 
-  if (fp == NULL) {
-    fprintf(stderr, "Failed to open the file.\n");
-    exit(1);
-  }
+    file = fopen(inputFile, "r");
+    assert(file != NULL);
 
-  int lineCount = 0;
-  int character;
-
-  while ((character = fgetc(fp)) != EOF) {
-    if (character == '\n'){
-      lineCount++;
+    while ((ch = fgetc(file)) != EOF) {
+        if (ch == '\n') {
+            if (!isLineEmpty) {
+                linesCount++;
+            }
+            isLineEmpty = 1;
+        } else {
+            isLineEmpty = 0;
+        }
     }
-  }
-  return lineCount;
+
+    fclose(file);
+    return linesCount;
 }
 
 bool containColon(char* line) {
