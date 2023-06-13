@@ -128,3 +128,7 @@ uint32_t findAddressTable(char *label, row *table) {
   }
   return i;
 }
+
+char *getZeroRegister(const char *reg) {
+  return reg[0] == 'w' ? "wzr" : "xzr";
+}

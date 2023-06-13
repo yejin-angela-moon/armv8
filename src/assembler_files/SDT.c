@@ -5,18 +5,21 @@ static uint32_t preIndexed(char **token, uint32_t instruction){
   instruction |= 1 << 10;
   instruction |= 1 << 11;
 
-  int simm = strtol(strtok(token[3], "]!"), NULL, 10);
+  int32_t simm = strtol(strtok(token[3], "]!"), NULL, 10);
 
-  instruction |= (simm << 12);
+  instruction |= simm << 12;
   return instruction;
 }
 
 static uint32_t postIndexed(char **token, uint32_t instruction){
   instruction |= 1 << 10;
-  instruction |= 1 << 11;
 
-  int simm = getNum(token[2],1, 3);
-  instruction |= (simm << 12) /4;
+  int16_t simm = strtol(strtok(token[3], "-"), NULL, 10);
+  if (strchr( token[3],'-') != NULL) {
+    simm = (~simm) + 1;
+  }
+
+  instruction |= (simm & 0x01FF) << 12;
   return instruction;
 }
 
@@ -57,6 +60,7 @@ uint32_t mode(char **token, uint32_t instruction, int countToken){
   if (countToken >= 4 && strchr(token[3],'!') != NULL){
     return preIndexed(token, instruction);
   } else if(strchr( token[2],']') != NULL){
+    printf("post");
     return postIndexed(token, instruction);
   } else if(strchr( token[3],'x') != NULL || strchr(token[3],'w') != NULL){
     return registerOffset(token, instruction);
