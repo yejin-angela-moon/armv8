@@ -60,7 +60,6 @@ uint32_t mode(char **token, uint32_t instruction, int countToken){
   if (countToken >= 4 && strchr(token[3],'!') != NULL){
     return preIndexed(token, instruction);
   } else if(strchr( token[2],']') != NULL){
-    printf("post");
     return postIndexed(token, instruction);
   } else if(strchr( token[3],'x') != NULL || strchr(token[3],'w') != NULL){
     return registerOffset(token, instruction);
