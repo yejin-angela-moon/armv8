@@ -140,7 +140,6 @@ char* DPReg(char* tokens[], int numTokens) {
     M = "0";
     if (strcmp("and", opcode) == 0) {
       opc = "00";
-      //printf("opc = %s\n", opc);
       strcpy(opr, "0");
       N = "0";
     } else if (strcmp("bic", opcode) == 0) {
@@ -155,11 +154,11 @@ char* DPReg(char* tokens[], int numTokens) {
       opc = "01";
       strcpy(opr, "0");
       N = "1";
-    } else if (strcmp("eon", opcode) == 0) {
+    } else if (strcmp("eor", opcode) == 0) {
       opc = "10";
       strcpy(opr, "0");
       N = "0";
-    } else if (strcmp("eor", opcode) == 0) {
+    } else if (strcmp("eon", opcode) == 0) {
       opc = "10";
       strcpy(opr, "0");
       N = "1";
