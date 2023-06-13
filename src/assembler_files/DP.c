@@ -48,12 +48,12 @@ char* DPImm(char* tokens[], int numTokens) {
     char* sf = getSF(tokens[1]);
     char* opi;
     char* opc;
-    char *operand = (char *) malloc(16 * sizeof(char));
+    char *operand = (char *) malloc(17 * sizeof(char));
     assert(operand != NULL);
     char* rd = registerToBinary(tokens[1]);
 
-    char *res = (char *) malloc(33 * sizeof(char));
-    assert(res != NULL);
+    char res[32];
+    //assert(res != NULL);
 
     if (strcmp("movk", opcode) == 0 || strcmp("movn", opcode) == 0 || strcmp("movz", opcode) == 0) {
         opi = "101";
@@ -61,7 +61,7 @@ char* DPImm(char* tokens[], int numTokens) {
         char* hw = numTokens == 3 ? "00" : decToBinary(stringToNumber(tokens[4]) / 16, 2);
         char* imm16 = stringToBinary(tokens[2], 16); // ???
 
-        strcat(operand, hw);
+        strcpy(operand, hw);
         strcat(operand, imm16);
         if (numTokens != 3) {
             free(hw);
@@ -95,11 +95,15 @@ char* DPImm(char* tokens[], int numTokens) {
     strcat(res, rd);
     strcat(res, "\0");
 
-   // printf("res = %s\n", res);
 
+    //printf("before free %s", operand);
     free(operand);
+    //printf("after free %s", operand);
+    //printf("res = %s\n", res);
     //free(rd);
-    return res;
+    char *result  = (char *) malloc(32 * sizeof(char));
+    strncpy(result, res, 32);
+    return result;
 }
 
 char* DPReg(char* tokens[], int numTokens) {
@@ -114,8 +118,8 @@ char* DPReg(char* tokens[], int numTokens) {
     char* rn = registerToBinary(tokens[2]);
     char* rd = registerToBinary(tokens[1]);
 
-    char *res = (char *) malloc(33 * sizeof(char));
-    assert(res != NULL);
+    char res[32];
+   // assert(res != NULL);
 
     if (strcmp("madd", opcode) == 0 || strcmp("msub", opcode) == 0) {
         operand[0] = strcmp("madd", opcode) == 0 ? '0' : '1';
@@ -188,7 +192,9 @@ char* DPReg(char* tokens[], int numTokens) {
     if (strcmp("madd", opcode) == 0 || strcmp("msub", opcode) == 0 || numTokens > 4) {
         free(operand);
     }
-    return res;
+    char *result  = (char *) malloc(32 * sizeof(char));
+    strncpy(result, res, 32);
+    return result;
 }
 
 char* DP(char* tokens[], int numTokens) {

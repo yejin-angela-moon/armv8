@@ -80,24 +80,54 @@ void parse(row *table, int numLine, char **lines, char *outputFile) {
     assert(outFile != NULL);
 
     char * store_DP;
+    typedef char word[60];
+    char **tokens = calloc(sizeof(word), MAX_TOKEN);
+    if (tokens == NULL) {
+        printf("error on allocating mem");
+    }
+      //printf("mem allocing");
+    for (int i = 0; i < MAX_TOKEN; i++) {
+       //printf("get in loop");
+       //token[i] = malloc( sizeof(word) );
+        if ((tokens[i] = calloc( sizeof(char), 60)) == NULL) {
+           printf("error on allocating mem for token[%d]", i);
+       }
+    }
+    //printf("tokens %s + %s + %s + %s\n ", tokens[0], tokens[1], tokens[2], tokens[3]);
+
 
     for (int i = 0; i < numLine; i++) {
-        //printf("%i", i);
+        //printf("%i\n", i);
 
         int numToken = 0;
-        char **tokens = tokenizer(lines[i], &numToken);
+        //printf("ready to get tokens\n");
+       // printf("tokens %s + %s + %s + %s + %s + %s + %s + %s\n ", tokens[0], tokens[1], tokens[2], tokens[3], tokens[4], tokens[5], tokens[6]);
+        tokens = tokenizer(lines[i], &numToken, tokens);
+       // printf("token get");
 
         tokens = alias(tokens, &numToken);
+        //printf("token alias\n");
+       // printf("tokens %s + %s + %s + %s + %s + %s + %s + %s\n ", tokens[0], tokens[1], tokens[2], tokens[3], tokens[4], tokens[5], tokens[6]);
 
         char *opcode = tokens[0];
 
         uint32_t result;
 
         if (isStringInSet(opcode, dpSet, dpSetSize)) {
+            //printf("in dp");
             currAddress += 4;
-            store_DP = (char *) malloc(33 * sizeof(char));
-            store_DP = DP(tokens, numToken);
-            result = binaryStringToNumber(store_DP);
+            store_DP = (char *) malloc(32 * sizeof(char));
+           // store_DP = malloc( sizeof(char)* 32);
+            if (store_DP == NULL) {
+               printf("fail on allocating result");
+            }
+            //printf("ori store_DP = %s\n", store_DP);
+           // printf("get result %s", DP(tokens, numToken));
+            //store_DP = DP(tokens, numToken);
+            //for ( char *p = DP(tokens, numToken); ( *p = *from ) != '\0'; ++p, ++from )
+            strncpy(store_DP, DP(tokens, numToken), 32);
+           // printf("store_DP = %s\n", store_DP);
+            result = strtoll(store_DP, NULL, 2);
             free(store_DP);
         } else if (isStringInSet(opcode, sdtSet, sdtSetSize)) {
             currAddress += 4;
@@ -111,14 +141,44 @@ void parse(row *table, int numLine, char **lines, char *outputFile) {
             result = stringToNumber(tokens[1]);
         } else {
             //label
-            free(tokens);
+            //free(tokens);
             continue;
         }
 
-        printf("%x \n", result);
+        printf("output = %x \n", result);
         fwrite(&result, sizeof(uint32_t), 1, outFile);
-        free(tokens);
+        //printf("tokens before free %s + %s + %s + %s + %s + %s + %s + %s\n ", tokens[0], tokens[1], tokens[2], tokens[3], tokens[4], tokens[5], tokens[6]);
+        //printf("num token = %d", numToken);
+        for (int i = 0; i < numToken; i ++) {
+             free(tokens[i]);
+             //printf("token %d: %s, ", i, tokens[i]);
+             tokens[i] = malloc( sizeof(char) * 60);
+             if (tokens[i] == NULL) {
+               printf("error on alloc tokens %d", i);
+             }
+        }
+
+        //printf("tokens after free %s + %s + %s + %s + %s + %s + %s + %s\n ", tokens[0], tokens[1], tokens[2], tokens[3], tokens[4], tokens[5], tokens[6]);
+ /*
+        for (int i = 3; i > 0; i--) {
+                     printf("allocating %d ", i);
+                     //free(tokens[i]);
+                     tokens[i] = calloc( sizeof(char), 60);
+                     if (tokens[i] == NULL) {
+                       printf("error alloc token %d\n", i);
+                     }
+                }
+        printf("tokens after alloc %s + %s + %s + %s + %s + %s + %s + %s\n ", tokens[0], tokens[1], tokens[2], tokens[3], tokens[4], tokens[5], tokens[6]);
+*/
+
+
     }
+    for (int i = MAX_TOKEN; i > 0; i--) {
+       free(tokens[i]);
+    }
+         //free(tokens[3]);
+    free(tokens);
+
     fclose(outFile);
 }
 

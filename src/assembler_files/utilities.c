@@ -29,16 +29,34 @@ bool containColon(char *line) {
 }
 
 
-char **tokenizer(char *line, int *numToken) {
-    int i = 0;
-    char **tokens = malloc(MAX_TOKEN * sizeof(char*));
-    tokens[0] = strtok(line, delimiter);
-    while (tokens[i] != NULL) {
-        i++;
-        tokens[i] = strtok(NULL, delimiter);
-    }
-    *numToken = i;
-    return tokens;
+char **tokenizer(char *line, int *numToken, char **token) {
+
+   int m = 0;
+     int k = 0;
+     for (int c = 0; line[c]; c++) {
+     //printf("c %d\n", c);
+     if (line[c] == ' ') {
+       //printf("enter if");
+       token[m][k] = '\0';
+       k = 0;
+       m++;
+     } else if (line[c] == '#' || line[c] == ',') {
+
+     } else {
+      // printf("enter else");
+       token[m][k] = line[c];
+       //printf("leavibg else");
+       k++;
+     }
+
+   }
+
+     token[m][k] = '\0';
+     *numToken = m + 1;
+
+     //printf("token %s + %s + %s + %s\n ", token[0], token[1], token[2], token[3]);
+     return token;
+
 }
 
 void freeLines(char **lines, int numLines) {
