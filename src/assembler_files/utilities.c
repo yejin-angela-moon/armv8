@@ -120,7 +120,7 @@ int getNum(char *string, int start, int size) {
 
 uint32_t findAddressTable(char *label, row *table) {
   int i = 0;
-  while (table[i].label[0] == '\0') {
+  while (table[i].label[0] != '\0') {
     if (strcmp(table[i].label, label) == 0) {
       return table[i].address;
     }

@@ -87,7 +87,7 @@ void parse(row *table, int numLine, char **lines, char *outputFile) {
     int numToken = 0;
     char **tokens = tokenizer(lines[i], &numToken);
     //printf("tokens %s + %s + %s + %s + %s + %s\n ", tokens[0], tokens[1], tokens[2], tokens[3], tokens[4], tokens[5]);
-
+    //printf("tokens %s + %s\n ", tokens[0], tokens[1]);
     tokens = alias(tokens, &numToken);
    // printf("tokens %s + %s + %s + %s + %s + %s\n ", tokens[0], tokens[1], tokens[2], tokens[3], tokens[4], tokens[5]);
 
@@ -102,6 +102,7 @@ void parse(row *table, int numLine, char **lines, char *outputFile) {
       currAddress += 4;
       result = SDT(tokens, table, numToken, currAddress);
     } else if (opcode[0] == 'b') {
+      currAddress += 4;
       result = B(table, tokens, &currAddress);
     } else if (strcmp("nop", opcode) == 0) {
       currAddress += 4;
