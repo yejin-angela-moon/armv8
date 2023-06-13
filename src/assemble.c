@@ -82,7 +82,7 @@ static char **alias(char **tokens, int *numToken) {
 void parse(row *table, int numLine, char **lines, char *outputFile) {
   uint32_t currAddress = 0;
 
-  FILE *outFile = fopen(outputFile, "w");
+  FILE *outFile = fopen(outputFile, "wb+");
 
   for (int i = 0; i < numLine; i++) {
 
@@ -95,17 +95,26 @@ void parse(row *table, int numLine, char **lines, char *outputFile) {
 
     if (isStringInSet(opcode, dpSet, dpSetSize)) {
       currAddress += 4;
-      fprintf(outFile, "%i", stringToNumber(DP(tokens, numToken)));
+        fwrite()
+      fprintf(outFile, "%i\n", stringToNumber(DP(tokens, numToken)));
+//      printf("%i\n", stringToNumber(DP(tokens, numToken)));
+
     } else if (isStringInSet(opcode, sdtSet, sdtSetSize)) {
       currAddress += 4;
-      fprintf(outFile, "%x", SDT(tokens, table, numToken, currAddress));
+      fprintf(outFile, "%x\n", SDT(tokens, table, numToken, currAddress));
+      printf( "%x\n", SDT(tokens, table, numToken, currAddress));
+
     } else if (opcode[0] == 'b') {
-      fprintf(outFile, "%x", B(table, tokens, &currAddress));
+      fprintf(outFile, "%x\n", B(table, tokens, &currAddress));
+      printf( "%x\n", B(table, tokens, &currAddress));
+
     } else if (strcmp("nop", opcode) == 0) {
       currAddress += 4;
-      fprintf(outFile, "%x", NOP_INSTRUCTION);
+      fprintf(outFile, "%x\n", NOP_INSTRUCTION);
+      printf( "%x\n", NOP_INSTRUCTION);
+
     } else if (strcmp(".int", opcode) == 0) {
-      fprintf(outFile, "%x", stringToNumber(tokens[1]));
+      fprintf(outFile, "%x\n", stringToNumber(tokens[1]));
     }
 
     free(tokens);

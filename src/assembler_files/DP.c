@@ -52,7 +52,7 @@ char* DPImm(char* tokens[], int numTokens) {
   assert(operand != NULL);
   char* rd = registerToBinary(tokens[1]);
 
-  char *res = (char *) malloc(32 * sizeof(char));
+  char *res = (char *) malloc(33 * sizeof(char));
   assert(res != NULL);
 
   if (strcmp("movk", opcode) == 0 || strcmp("movn", opcode) == 0 || strcmp("movz", opcode) == 0) {
@@ -78,7 +78,6 @@ char* DPImm(char* tokens[], int numTokens) {
     strcat(operand, imm12);
     strcat(operand, rn);
 
-    free(sh);
     free(imm12);
     free(rn);
   }
@@ -93,11 +92,12 @@ char* DPImm(char* tokens[], int numTokens) {
   strcat(res, "\0");
 
   free(operand);
-  free(rd);
+  //free(rd);
   return res;
 }
 
 char* DPReg(char* tokens[], int numTokens) {
+
   char* opcode = tokens[0];
   char* sf = getSF(tokens[1]);
   char* opc;
@@ -109,7 +109,7 @@ char* DPReg(char* tokens[], int numTokens) {
   char* rn = registerToBinary(tokens[2]);
   char* rd = registerToBinary(tokens[1]);
 
-  char *res = (char *) malloc(32 * sizeof(char));
+  char *res = (char *) malloc(33 * sizeof(char));
   assert(res != NULL);
 
   if (strcmp("madd", opcode) == 0 || strcmp("msub", opcode) == 0) {
@@ -121,7 +121,7 @@ char* DPReg(char* tokens[], int numTokens) {
     char* shiftCode = numTokens > 4 ? getShiftCode(tokens[4]) : "00";
     char* N;
 
-    operand = stringToBinary(tokens[5], 6);
+    operand = numTokens > 4 ? stringToBinary(tokens[5], 6) : "000000";
     M = "0";
     if (strcmp("and", opcode) == 0) {
       opc = "00";
@@ -177,7 +177,9 @@ char* DPReg(char* tokens[], int numTokens) {
   strcat(res, "\0");
 
   free(opr);
-  free(operand);
+  if (strcmp("madd", opcode) == 0 || strcmp("msub", opcode) == 0 || numTokens > 4) {
+      free(operand);
+  }
   return res;
 }
 

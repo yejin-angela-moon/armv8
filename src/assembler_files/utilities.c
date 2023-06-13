@@ -31,14 +31,14 @@ bool containColon(char* line) {
 
 char **tokenizer(char *line, int *numToken) {
   int i = 0;
-  char *string;
   char **token = malloc(MAX_TOKEN * sizeof(char*));
 
-  while (string != NULL){
-    token[i] = string;
+  token[0] = strtok(line, delimiter);
+  while (token[i] != NULL){
     i++;
-    string = strtok(NULL, delimiter);
+    token[i] = strtok(NULL, delimiter);
   }
+
   *numToken = i;
   return token;
 }
@@ -49,16 +49,6 @@ void freeLines(char **lines, int numLines){
   }
   free(lines);
 }
-
-/*void call_function(char* name, func_map* function_table, int numOfFuncs, char* tokens[], int numOfTokens) {
-  for (int i = 0; i < numOfFuncs/sizeof(function_table[0]); i++) {
-    if (strcmp(function_table[i].name, name) == 0) {
-      function_table[i].func(tokens, numOfTokens);
-      return;
-    }
-  }
-  fprintf(stderr, "Function not found\n");
-}*/
 
 bool isStringInSet(char *target, char *set[], size_t setSize) {
   for (size_t i = 0; i < setSize; i++) {
