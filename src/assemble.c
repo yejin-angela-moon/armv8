@@ -21,8 +21,10 @@ static char **alias(char **tokens, int *numToken) {
     if (strcmp("cmp", opcode) == 0) {
         newTokens[0] = "subs";
         newTokens[1] = "rzr";
-        newTokens[2] = tokens[1];
-        newTokens[3] = tokens[2];
+        for (int i = 2; i < *numToken + 1; i++) {
+          newTokens[i] = tokens[i-1];
+        }
+
     } else if (strcmp("cmn", opcode) == 0) {
         newTokens[0] = "adds";
         newTokens[1] = "rzr";
@@ -104,10 +106,11 @@ void parse(row *table, int numLine, char **lines, char *outputFile) {
        // printf("tokens %s + %s + %s + %s + %s + %s + %s + %s\n ", tokens[0], tokens[1], tokens[2], tokens[3], tokens[4], tokens[5], tokens[6]);
         tokens = tokenizer(lines[i], &numToken, tokens);
        // printf("token get");
+        printf("tokens %s + %s + %s + %s + %s + %s + %s + %s\n ", tokens[0], tokens[1], tokens[2], tokens[3], tokens[4], tokens[5], tokens[6]);
 
         tokens = alias(tokens, &numToken);
         //printf("token alias\n");
-       // printf("tokens %s + %s + %s + %s + %s + %s + %s + %s\n ", tokens[0], tokens[1], tokens[2], tokens[3], tokens[4], tokens[5], tokens[6]);
+        printf("tokens %s + %s + %s + %s + %s + %s + %s + %s\n ", tokens[0], tokens[1], tokens[2], tokens[3], tokens[4], tokens[5], tokens[6]);
 
         char *opcode = tokens[0];
 
@@ -145,8 +148,7 @@ void parse(row *table, int numLine, char **lines, char *outputFile) {
             continue;
         }
 
-        printf("output = %x \n", result);
-        fwrite(&result, sizeof(int32_t), 1, outFile);
+
         //printf("tokens before free %s + %s + %s + %s + %s + %s + %s + %s\n ", tokens[0], tokens[1], tokens[2], tokens[3], tokens[4], tokens[5], tokens[6]);
         //printf("num token = %d", numToken);
         for (int i = 0; i < numToken; i ++) {
@@ -157,6 +159,8 @@ void parse(row *table, int numLine, char **lines, char *outputFile) {
                printf("error on alloc tokens %d", i);
              }
         }
+        printf("output = %x \n", result);
+        fwrite(&result, sizeof(int32_t), 1, outFile);
 
 
     }
