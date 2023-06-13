@@ -106,11 +106,11 @@ void parse(row *table, int numLine, char **lines, char *outputFile) {
        // printf("tokens %s + %s + %s + %s + %s + %s + %s + %s\n ", tokens[0], tokens[1], tokens[2], tokens[3], tokens[4], tokens[5], tokens[6]);
         tokens = tokenizer(lines[i], &numToken, tokens);
        // printf("token get");
-        printf("tokens %s + %s + %s + %s + %s + %s + %s + %s\n ", tokens[0], tokens[1], tokens[2], tokens[3], tokens[4], tokens[5], tokens[6]);
+      //  printf("tokens %s + %s + %s + %s + %s + %s + %s + %s\n ", tokens[0], tokens[1], tokens[2], tokens[3], tokens[4], tokens[5], tokens[6]);
 
         tokens = alias(tokens, &numToken);
         //printf("token alias\n");
-        printf("tokens %s + %s + %s + %s + %s + %s + %s + %s\n ", tokens[0], tokens[1], tokens[2], tokens[3], tokens[4], tokens[5], tokens[6]);
+        //printf("tokens %s + %s + %s + %s + %s + %s + %s + %s\n ", tokens[0], tokens[1], tokens[2], tokens[3], tokens[4], tokens[5], tokens[6]);
 
         char *opcode = tokens[0];
 
