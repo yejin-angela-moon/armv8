@@ -5,10 +5,12 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/src/Makefile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/assemble.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/assemble.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/assemble.exe" beforeDir="false" afterPath="$PROJECT_DIR$/src/assemble.exe" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assembler_files/B.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/assembler_files/B.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assembler_files/DP.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/assembler_files/DP.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assembler_files/SDT.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/assembler_files/SDT.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assembler_files/ioutils.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/assembler_files/ioutils.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/assembler_files/utilities.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/assembler_files/utilities.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/assembler_files/utilities.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/assembler_files/utilities.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/emulate.exe" beforeDir="false" afterPath="$PROJECT_DIR$/src/emulate.exe" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -26,13 +28,13 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">

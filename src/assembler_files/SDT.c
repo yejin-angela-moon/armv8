@@ -49,12 +49,12 @@ static uint32_t LL(char **token, row *table, uint32_t instruction, uint32_t curr
   return instruction;
 }
 
-uint32_t mode(char **token, row *table, uint32_t instruction){
+uint32_t mode(char **token, uint32_t instruction, int countToken){
 
   int xn = getNum(token[2], 2, 2);
   instruction |= xn << 5;
 
-  if (strchr(token[3],'!') != NULL){
+  if (countToken >= 4 && strchr(token[3],'!') != NULL){
     return preIndexed(token, instruction);
   } else if(strchr( token[2],']') != NULL){
     return postIndexed(token, instruction);
@@ -86,10 +86,7 @@ uint32_t SDT(char **token, row *table, int countToken, uint32_t currAddress) {
   if (strcmp(token[0], "ldr") == 0){
     //ldr
     instruction |= 1 << 22;
-    return mode(token, table, instruction);
-
-  } else {
-    //str
-    return mode(token, table, instruction);
   }
+  return mode(token, instruction, countToken);
 }
+
