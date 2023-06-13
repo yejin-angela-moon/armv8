@@ -130,7 +130,7 @@ char* DPReg(char* tokens[], int numTokens) {
         M = "0";
         if (strcmp("and", opcode) == 0) {
             opc = "00";
-            printf("opc = %s\n", opc);
+            //printf("opc = %s\n", opc);
             strcpy(opr, "0");
             N = "0";
         } else if (strcmp("bic", opcode) == 0) {

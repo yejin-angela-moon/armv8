@@ -82,7 +82,7 @@ void parse(row *table, int numLine, char **lines, char *outputFile) {
     char * store_DP;
 
     for (int i = 0; i < numLine; i++) {
-        printf("%i", i);
+        //printf("%i", i);
 
         int numToken = 0;
         char **tokens = tokenizer(lines[i], &numToken);
