@@ -5,9 +5,10 @@ static uint32_t conditional(row *table, char **token, int cond, uint32_t *currAd
   uint32_t instruction = 0x54000000;
   instruction += cond;
   // add the address of simm19 << 5
-  uint32_t address;
+  int32_t address;
   //char *endptr;
-  if (strcmp(token[1], "0") != 0 && strtol(token[1], NULL, 16) == 0){
+//  printf("another %s", strchr(token[1], '0'));
+  if (strchr(token[1], '0') == NULL && strtol(token[1], NULL, 10) == 0){
     address = findAddressTable(token[1], table);
   } else {
     address = strtol(token[1], NULL, 16);
