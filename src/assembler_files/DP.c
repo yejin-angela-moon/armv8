@@ -126,7 +126,8 @@ char* DPReg(char* tokens[], int numTokens) {
   char *res = (char *) malloc(33 * sizeof(char));
   assert(res != NULL);
 
-  if (strcmp("madd", opcode) == 0 || strcmp("msub", opcode) == 0) {
+  if (strcmp(opcode, "madd") == 0 || strcmp(opcode, "msub") == 0) {
+    opc = "00";
     operand[0] = strcmp("madd", opcode) == 0 ? '0' : '1';
     strcpy(operand, registerToBinary(tokens[4]));
     M = "1";
@@ -190,6 +191,8 @@ char* DPReg(char* tokens[], int numTokens) {
   strcat(res, rn);
   strcat(res, rd);
   strcat(res, "\0");
+
+  free(opr);
 
   if (strcmp("madd", opcode) == 0 || strcmp("msub", opcode) == 0 || numTokens > 4) {
     free(operand);
