@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
+#include <string.h>
 #include "assembler_files/definition.h"
 #include "assembler_files/ioutils.h"
 #include "assembler_files/utilities.h"
@@ -83,8 +84,9 @@ void parse(row *table, int numLine, char **lines, char *outputFile) {
  printf("start phrase ");
  uint32_t currAddress = 0;
  printf("line no %d: \n", numLine);
+ char buffer[8];
 
- FILE *outFile = fopen(outputFile, "w");
+ FILE *outFile = fopen(outputFile, "wb");
  //rewind(outFile);
  if (outFile == NULL) {
    printf("error on opening");
@@ -117,10 +119,12 @@ void parse(row *table, int numLine, char **lines, char *outputFile) {
    //printf("token\n");
 
    tokens = alias(tokens, &numToken);
-   printf("opcode:%s ", tokens[0]);
+  // printf("opcode:%s ", tokens[0]);
 
    char *opcode = tokens[0];
-   printf("opcode:%s ", opcode);
+   printf("opcode:%s \n", opcode);
+
+   uint32_t instruction = 0;
 
    if (isStringInSet(opcode, dpSet, dpSetSize)) {
      //printf("dp since the op is %s", tokens[0]);
@@ -136,35 +140,44 @@ void parse(row *table, int numLine, char **lines, char *outputFile) {
      //printf("print result %s\n", result);
      uint32_t instr = strtoll(result, NULL, 2);
      //free(str);
-     printf("instr = %x", instr);
-     fprintf(outFile, "%x\n", instr);
+     //printf("instr = %x", instr);
+     //fprintf(outFile, "%x\n", instr);
+     instruction = instr;
      //printf("print in file %s\n", result);
      free(result);
 
 
    } else if (isStringInSet(opcode, sdtSet, sdtSetSize)) {
      currAddress += 4;
-     fprintf(outFile, "%x", SDT(tokens, table, numToken, currAddress));
+     //fprintf(outFile, "%x", SDT(tokens, table, numToken, currAddress));
+     instruction = SDT(tokens, table, numToken, currAddress);
    } else if (opcode[0] == 'b') {
      currAddress += 4;
-     fprintf(outFile, "%x\n", B(table, tokens, &currAddress));
+     //fprintf(outFile, "%x\n", B(table, tokens, &currAddress));
+     instruction = B(table, tokens, &currAddress);
      //fflush(outFile);
      //printf("b end");
    } else if (strcmp("nop", opcode) == 0) {
      currAddress += 4;
      //printf("instr: %x\n", NOP_INSTRUCTION);
-     fprintf(outFile, "%x\n", NOP_INSTRUCTION);
+     //fprintf(outFile, "%x\n", NOP_INSTRUCTION);
+     instruction = NOP_INSTRUCTION;
    } else if (strcmp(".int", opcode) == 0) {
-     fprintf(outFile, "%x", stringToNumber(tokens[1]));
+     //fprintf(outFile, "%x", stringToNumber(tokens[1]));
+     instruction = stringToNumber(tokens[1]);
    }
-    printf("before token %s +  %s +  %s+  %s\n ", tokens[0], tokens[1], tokens[2], tokens[3]);
+   // printf("before token %s +  %s +  %s+  %s\n ", tokens[0], tokens[1], tokens[2], tokens[3]);
 
    //printf("%d", numToken);
    for (int i = 0; i < numToken + 1; i ++) {
      free(tokens[i]);
      tokens[i] = calloc( sizeof(char), 60);
    }
-    printf("after token %s +  %s +  %s+  %s\n ", tokens[0], tokens[1], tokens[2], tokens[3]);
+    //printf("after token %s +  %s +  %s+  %s\n ", tokens[0], tokens[1], tokens[2], tokens[3]);
+   // itoa(instruction, buffer, 1);
+    sprintf(buffer, "%u", instruction);
+    printf("buffer = %s", buffer);
+    fwrite(buffer,sizeof(buffer),1,outFile);
  }
     for (int i = MAX_TOKEN; i > 0; i--) {
          free(tokens[i]);
