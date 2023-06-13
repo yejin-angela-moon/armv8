@@ -139,7 +139,7 @@ void parse(row *table, int numLine, char **lines, char *outputFile) {
      printf("instr = %x", instr);
      fprintf(outFile, "%x\n", instr);
      //printf("print in file %s\n", result);
-     //free(result);
+     free(result);
 
 
    } else if (isStringInSet(opcode, sdtSet, sdtSetSize)) {
