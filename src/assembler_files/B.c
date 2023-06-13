@@ -13,7 +13,7 @@ static uint32_t conditional(row *table, char **token, int cond, uint32_t *currAd
     address = strtol(token[1], NULL, 16);
   }
 
-  int32_t offset = (address - *currAddress) / 4;
+  int32_t offset = (address - *currAddress - 4) / 4;
   instruction += (offset & 0x7FFFF) << 5;
   return instruction;
 }
