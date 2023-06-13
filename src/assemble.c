@@ -27,8 +27,9 @@ static char **alias(char **tokens, int *numToken) {
   } else if (strcmp("cmn", opcode) == 0) {
     newTokens[0] = "adds";
     newTokens[1] = getZeroRegister(tokens[1]);
-    newTokens[2] = tokens[1];
-    newTokens[3] = tokens[2];
+    for (int i = 2; i < *numToken + 1; i++) {
+      newTokens[i] = tokens[i - 1];
+    }
   } else if (strcmp("neg", opcode) == 0) {
     newTokens[0] = "sub";
     newTokens[1] = tokens[1];
@@ -85,8 +86,10 @@ void parse(row *table, int numLine, char **lines, char *outputFile) {
 
     int numToken = 0;
     char **tokens = tokenizer(lines[i], &numToken);
+    //printf("tokens %s + %s + %s + %s + %s + %s\n ", tokens[0], tokens[1], tokens[2], tokens[3], tokens[4], tokens[5]);
 
     tokens = alias(tokens, &numToken);
+   // printf("tokens %s + %s + %s + %s + %s + %s\n ", tokens[0], tokens[1], tokens[2], tokens[3], tokens[4], tokens[5]);
 
     char *opcode = tokens[0];
 
