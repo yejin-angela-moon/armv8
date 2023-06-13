@@ -111,7 +111,7 @@ char *stringToBinary(char *string, int nbits) {
 }
 
 uint32_t binaryStringToNumber(char* string) {
-    return (uint32_t) strtoll(string, NULL, 2);
+    return (uint32_t) strtol(string, NULL, 2);
 }
 
 char *registerToBinary(char *reg) {
