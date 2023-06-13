@@ -48,11 +48,11 @@ char* DPImm(char* tokens[], int numTokens) {
   char* sf = getSF(tokens[1]);
   char* opi;
   char* opc;
-  char *operand = (char *) malloc(16 * sizeof(char));
+  char *operand = (char *) malloc(18 * sizeof(char));
   assert(operand != NULL);
   char* rd = registerToBinary(tokens[1]);
 
-  char *res = (char *) malloc(32 * sizeof(char));
+  char *res = (char *) malloc(33 * sizeof(char));
   assert(res != NULL);
 
   if (strcmp("movk", opcode) == 0 || strcmp("movn", opcode) == 0 || strcmp("movz", opcode) == 0) {
@@ -61,7 +61,7 @@ char* DPImm(char* tokens[], int numTokens) {
     char* hw = numTokens == 3 ? "00" : decToBinary(stringToNumber(tokens[4]) / 16, 2);
     char* imm16 = stringToBinary(tokens[2], 16); // ???
 
-    strcat(operand, hw);
+    strcpy(operand, hw);
     strcat(operand, imm16);
     if (numTokens != 3) {
       free(hw);
@@ -70,21 +70,24 @@ char* DPImm(char* tokens[], int numTokens) {
   } else { // arithmetic
     opi = "010";
     opc = opcArithmetic(opcode);
-    char* sh = numTokens == 3 ? "0" : "1";
+    //printf("num of tokens %d", numTokens);
+    char* sh = numTokens - 1 == 3 ? "0" : "1";
     char* imm12 = stringToBinary(tokens[3], 12);
     char* rn = registerToBinary(tokens[2]);
 
-    strcat(operand, sh);
+    strcpy(operand, sh);
     strcat(operand, imm12);
     strcat(operand, rn);
 
-    free(sh);
+    // printf("operand = %s\n", operand);
+
+    //free(sh);
     free(imm12);
     free(rn);
   }
 
 
-  strcat(res, sf);
+  strcpy(res, sf);
   strcat(res, opc);
   strcat(res, "100");
   strcat(res, opi);
@@ -92,8 +95,10 @@ char* DPImm(char* tokens[], int numTokens) {
   strcat(res, rd);
   strcat(res, "\0");
 
+  // printf("res = %s\n", res);
+
   free(operand);
-  free(rd);
+  //free(rd);
   return res;
 }
 
@@ -109,7 +114,7 @@ char* DPReg(char* tokens[], int numTokens) {
   char* rn = registerToBinary(tokens[2]);
   char* rd = registerToBinary(tokens[1]);
 
-  char *res = (char *) malloc(32 * sizeof(char));
+  char *res = (char *) malloc(33 * sizeof(char));
   assert(res != NULL);
 
   if (strcmp("madd", opcode) == 0 || strcmp("msub", opcode) == 0) {
@@ -121,43 +126,44 @@ char* DPReg(char* tokens[], int numTokens) {
     char* shiftCode = numTokens > 4 ? getShiftCode(tokens[4]) : "00";
     char* N;
 
-    operand = stringToBinary(tokens[5], 6);
+    operand = numTokens > 4 ? stringToBinary(tokens[5], 6) : "000000";
     M = "0";
     if (strcmp("and", opcode) == 0) {
       opc = "00";
-      strcat(opr, "0");
+      //printf("opc = %s\n", opc);
+      strcpy(opr, "0");
       N = "0";
     } else if (strcmp("bic", opcode) == 0) {
       opc = "00";
-      strcat(opr, "0");
+      strcpy(opr, "0");
       N = "1";
     } else if (strcmp("orr", opcode) == 0) {
       opc = "01";
-      strcat(opr, "0");
+      strcpy(opr, "0");
       N = "0";
     } else if (strcmp("orn", opcode) == 0) {
       opc = "01";
-      strcat(opr, "0");
+      strcpy(opr, "0");
       N = "1";
     } else if (strcmp("eon", opcode) == 0) {
       opc = "10";
-      strcat(opr, "0");
+      strcpy(opr, "0");
       N = "0";
     } else if (strcmp("eor", opcode) == 0) {
       opc = "10";
-      strcat(opr, "0");
+      strcpy(opr, "0");
       N = "1";
     } else if (strcmp("ands", opcode) == 0) {
       opc = "11";
-      strcat(opr, "0");
+      strcpy(opr, "0");
       N = "0";
     } else if (strcmp("bics", opcode) == 0) {
       opc = "11";
-      strcat(opr, "0");
+      strcpy(opr, "0");
       N = "1";
     } else { // arithmetic
       opc = opcArithmetic(opcode);
-      strcat(opr, "1");
+      strcpy(opr, "1");
       N = "0";
     }
 
@@ -165,7 +171,7 @@ char* DPReg(char* tokens[], int numTokens) {
     strcat(opr, N);
   }
 
-  strcat(res, sf);
+  strcpy(res, sf);
   strcat(res, opc);
   strcat(res, M);
   strcat(res, "101");
@@ -176,13 +182,14 @@ char* DPReg(char* tokens[], int numTokens) {
   strcat(res, rd);
   strcat(res, "\0");
 
-  free(opr);
-  free(operand);
+  if (strcmp("madd", opcode) == 0 || strcmp("msub", opcode) == 0 || numTokens > 4) {
+    free(operand);
+  }
   return res;
 }
 
 char* DP(char* tokens[], int numTokens) {
-  if (isRegister(tokens[3])) {
+  if (isRegister(tokens[2])) {
     return DPReg(tokens, numTokens);
   } else {
     return DPImm(tokens, numTokens);

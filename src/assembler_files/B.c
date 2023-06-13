@@ -6,12 +6,13 @@ static uint32_t conditional(row *table, char **token, int cond, uint32_t *currAd
   instruction += cond;
   // add the address of simm19 << 5
   uint32_t address;
-  if (strcmp(token[1], "0") != 0 && strtol(token[1], NULL, 16) == 0){
+  char *endptr;
+  if (strcmp(token[1], "0") != 0 && strtol(token[1], &endptr, 16) == 0){
     address = findAddressTable(token[1], table);
   } else {
-    address = strtol(token[1], NULL, 16);
+    address = strtol(token[1], &endptr, 16);
   }
-  int32_t offset = address - *currAddress;
+  int32_t offset = (address - *currAddress) / 4;
   instruction += (offset & 0x7FFFF) << 5;
   return instruction;
 }
@@ -19,16 +20,21 @@ static uint32_t conditional(row *table, char **token, int cond, uint32_t *currAd
 uint32_t B(row *table, char **token, uint32_t *currAddress) {
   uint32_t instruction = 0;
   if (strcmp(token[0], "b") == 0) {
+    //printf("token = b\n");
     instruction += 0x14000000;
+    //printf("mid ins %x", instruction);
     // add the address of simm26
     uint32_t address;
-    if (strcmp(token[1], "0") != 0 && strtol(token[1], NULL, 16) == 0){
+    char *endptr;
+    if (strcmp(token[1], "0") != 0 && strtol(token[1], &endptr, 16) == 0){
       address = findAddressTable(token[1], table);
     } else {
-      address = strtol(token[1], NULL, 16);
+      //printf("get addr\n");
+      address = strtol(token[1], &endptr, 16);
     }
-    int32_t offset = address - *currAddress;
+    int32_t offset = (address - *currAddress) / 4;
     instruction += offset & 0x3FFFFFF;
+    //printf("get instr\n");
   } else if (strcmp(token[0], "br") == 0) {
     instruction += 0xD61F0000;
     // add the register << 5
@@ -61,5 +67,6 @@ uint32_t B(row *table, char **token, uint32_t *currAddress) {
       return conditional(table, token, 0xE, currAddress);
     }
   }
+  //printf("%x", instruction);
   return instruction;
 }
