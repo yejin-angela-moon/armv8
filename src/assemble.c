@@ -98,12 +98,15 @@ void parse(row *table, int numLine, char **lines, char *outputFile) {
     uint32_t result;
 
     char *store_DP = (char *) malloc(33 * sizeof(char));
-    assert(store_DP != NULL);;
+    assert(store_DP != NULL);
 
     if (isStringInSet(opcode, dpSet, dpSetSize)) {
       //strcpy(store_DP, DP(tokens, numToken));
       DP(tokens, numToken, store_DP);
-      result = binaryStringToNumber(store_DP);
+     // printf("DP = %s||\n", store_DP);
+      result = strtoll(store_DP, NULL, 2);
+     // char* bin = "10011011000011000000010001110000";
+      // printf("result = %x\n", strtoll(bin, NULL, 2));
       //result = binaryStringToNumber(DP(tokens, numToken));
       currAddress += 4;
     } else if (isStringInSet(opcode, sdtSet, sdtSetSize)) {

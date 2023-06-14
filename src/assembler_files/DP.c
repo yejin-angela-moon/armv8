@@ -115,8 +115,8 @@ char* DPReg(char* tokens[], int numTokens, char *res) {
   char* sf = getSF(tokens[1]);
   char* opc;
   char* M;
-  char opr[5];
-  //assert(opr != NULL);
+  char* opr = (char *) malloc(4 * sizeof(char));
+  assert(opr != NULL);
   char* rm = registerToBinary(tokens[3]);
   char *operand = (char *) malloc(6 * sizeof(char));
   assert(operand != NULL);
@@ -131,7 +131,7 @@ char* DPReg(char* tokens[], int numTokens, char *res) {
     operand[0] = strcmp(opcode, "madd") == 0 ? '0' : '1';
     strcat(operand, registerToBinary(tokens[4]));
     M = "1";
-    strcpy(opr, "1000");
+    opr = "1000";
   } else {
     char* shiftCode = numTokens > 4 ? getShiftCode(tokens[4]) : "00";
     char* N;
@@ -194,7 +194,7 @@ char* DPReg(char* tokens[], int numTokens, char *res) {
   if (strcmp("madd", opcode) == 0 || strcmp("msub", opcode) == 0 || numTokens > 4) {
     free(operand);
   }
-  //free(opr);
+  free(opr);
 
 
   return res;
