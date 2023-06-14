@@ -1,11 +1,12 @@
 #include "SDT.h"
+#include "definition.h"
 
 static uint32_t preIndexed(char **token, uint32_t instruction) {
   instruction |= 1 << 10;
   instruction |= 1 << 11;
 
   int32_t simm = stringToNumber(token[3]);
-  instruction |= (simm & MASK_9) << 12;
+  instruction |= (simm & 0x01FF) << 12;
 
   return instruction;
 }
@@ -15,14 +16,14 @@ static uint32_t postIndexed(char **token, uint32_t instruction, int countToken) 
 
   int16_t simm = stringToNumber(token[3]);
 
-  instruction |= (simm & MASK_9) << 12;
+  instruction |= (simm & 0x01FF) << 12;
   return instruction;
 }
 
 static uint32_t registerOffset(char **token, uint32_t instruction) {
   instruction |= REGISTER_OFFSET << 10;
 
-  int xm = stringToNumber(token[3]);
+  int xm = getNum(token[3], 1, 2);
   instruction |= xm << 16;
   return instruction;
 }
@@ -92,4 +93,5 @@ uint32_t SDT(char **token, row *table, int countToken, uint32_t currAddress) {
   }
   return mode(token, instruction, countToken);
 }
+
 
