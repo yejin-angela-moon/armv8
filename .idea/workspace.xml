@@ -2,6 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="261f69a2-4e52-48ca-877c-34f9234aae3a" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/src/Makefile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/assembler_files/SDT.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/assembler_files/SDT.c" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
