@@ -5,7 +5,11 @@ static uint32_t preIndexed(char **token, uint32_t instruction){
   instruction |= 1 << 10;
   instruction |= 1 << 11;
 
-  int32_t simm = strtol(strtok(token[3], "]!"), NULL, 10);
+  int32_t simm = stringToNumber(token[3]);
+  if (strchr( token[3],'-') != NULL) {
+     simm = (~simm) + 1;
+  }
+
 
   instruction |= simm << 12;
   return instruction;
