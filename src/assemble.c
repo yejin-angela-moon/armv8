@@ -97,14 +97,14 @@ void parse(row *table, int numLine, char **lines, char *outputFile) {
     char *opcode = tokens[0];
     uint32_t result;
 
-    char *store_DP = (char *) malloc(33 * sizeof(char));
-    assert(store_DP != NULL);
+  //  char *store_DP = (char *) malloc(33 * sizeof(char));
+   // assert(store_DP != NULL);
 
     if (isStringInSet(opcode, dpSet, dpSetSize)) {
       //strcpy(store_DP, DP(tokens, numToken));
-      DP(tokens, numToken, store_DP);
+      result = DP(tokens, numToken);
      // printf("DP = %s||\n", store_DP);
-      result = strtoll(store_DP, NULL, 2);
+     //// result = strtoll(store_DP, NULL, 2);
      // char* bin = "10011011000011000000010001110000";
       // printf("result = %x\n", strtoll(bin, NULL, 2));
       //result = binaryStringToNumber(DP(tokens, numToken));
@@ -134,7 +134,7 @@ void parse(row *table, int numLine, char **lines, char *outputFile) {
     printf("%x\n", result);
     fwrite(&result, sizeof(int32_t), 1, outFile);
     free(tokens);
-    free(store_DP);
+    //free(store_DP);
   }
   fclose(outFile);
 }
