@@ -120,11 +120,8 @@ void parse(row *table, int numLine, char **lines, char *outputFile) {
       result = NOP_INSTRUCTION;
       currAddress += 4;
     } else if (strcmp(".int", opcode) == 0) {
-      if (strchr(tokens[1],'x') != NULL) {
-        result = strtol(tokens[1], NULL, 16);
-      } else {
-        result = strtol(tokens[1], NULL, 10);
-      }
+      result = strtol(tokens[1], NULL, 0);
+
       currAddress += 4;
     } else {
       //label

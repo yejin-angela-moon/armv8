@@ -62,7 +62,7 @@ uint32_t DPImm(char** tokens, int numTokens) {
   if (strcmp("movk", opcode) == 0 || strcmp("movn", opcode) == 0 || strcmp("movz", opcode) == 0) {
     opi = 0x5;
     opc = opcWideMove(opcode);
-    uint32_t hw = numTokens == 3 ? 0 : stringToNumber(tokens[4]) / 16;
+    uint32_t hw = numTokens == 3 ? 0 : strtol(tokens[4], NULL, 0) / 16;
     uint32_t imm16 = strtol(tokens[2], NULL, 0); // ???
 
     printf("imm16 %x\n", imm16);
