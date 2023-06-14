@@ -111,7 +111,7 @@ void parse(row *table, int numLine, char **lines, char *outputFile) {
       //result = binaryStringToNumber(DP(tokens, numToken));
       currAddress += 4;
     } else if (isStringInSet(opcode, sdtSet, sdtSetSize)) {
-      //result = SDT(tokens, table, numToken, currAddress);
+      result = SDT(tokens, table, numToken, currAddress);
       currAddress += 4;
     } else if (opcode[0] == 'b') {
       result = B(table, tokens, &currAddress);
