@@ -54,7 +54,7 @@ uint32_t DPImm(char** tokens, int numTokens) {
   //char *operand = (char *) malloc(19 * sizeof(char));
   //assert(operand != NULL);
   uint32_t operand = 0;
-  uint32_t rd = strtol(registerToBinary(tokens[1]), NULL, 2);
+  uint32_t rd = registerToBinary(tokens[1]);
 
   //char *res = (char *) malloc(33 * sizeof(char));
   //assert(res != NULL);
@@ -91,8 +91,8 @@ uint32_t DPImm(char** tokens, int numTokens) {
       sh = 1;
     }
     uint16_t imm12 = strtol(tokens[3], NULL, 0);
-    uint32_t rn = stringToNumber(tokens[2] + 1);
-    printf("imm12 = %x\n", imm12);
+    uint32_t rn = registerToBinary(tokens[2]);
+   // printf("imm12 = %x\n", imm12);
 
     //strcpy(operand, sh);
     //strcat(operand, imm12);
@@ -138,12 +138,12 @@ uint32_t DPReg(char** tokens, int numTokens) {
  // uint32_t opr = (char *) malloc(5 * sizeof(char));
   uint32_t opr;
   //assert(opr != NULL);
-  uint32_t rm = strtol(registerToBinary(tokens[3]), NULL, 2);
+  uint32_t rm = registerToBinary(tokens[3]);
   //char *operand = (char *) malloc(7 * sizeof(char));
   uint32_t operand = 0;
   //assert(operand != NULL);
-  uint32_t rn = strtol(registerToBinary(tokens[2]), NULL, 2);
-  uint32_t rd = strtol(registerToBinary(tokens[1]), NULL, 2);
+  uint32_t rn = registerToBinary(tokens[2]);
+  uint32_t rd = registerToBinary(tokens[1]);
 
   //char *res = (char *) malloc(33 * sizeof(char));
   //assert(res != NULL);
@@ -152,7 +152,7 @@ uint32_t DPReg(char** tokens, int numTokens) {
     opc = 0;
     operand += (strcmp(opcode, "madd") == 0 ? 0 : 1) << 5;
    // strcpy(operand, strcmp(opcode, "madd") == 0 ? "0" : "1");
-    operand += strtol(registerToBinary(tokens[4]), NULL, 2);
+    operand += registerToBinary(tokens[4]);
    // strcat(operand, registerToBinary(tokens[4]));
     M = 1;
     opr = 8;

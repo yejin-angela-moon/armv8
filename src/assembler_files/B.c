@@ -48,7 +48,7 @@ uint32_t B(row *table, char **token, uint32_t *currAddress) {
   } else if (strcmp(token[0], "br") == 0) {
     instruction += 0xD61F0000;
     // add the register << 5
-    uint32_t reg = stringToNumber(token[1] + 1);
+    uint32_t reg = registerToBinary(token[1]);
     instruction += reg << 5;
   } else {
     //char *condStr = (char *) malloc(sizeof(char) * strlen(token[0]));

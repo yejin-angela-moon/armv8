@@ -67,7 +67,9 @@ bool isRegister(const char *reg) {
   return (tolower(reg[0]) == 'w' || tolower(reg[0]) == 'x');
 }
 
-char *decToBinary(uint32_t x, int nbits) {
+/*
+
+char *decToBinary(uint32_t x, int nbits) { //no need for this now
   char *res = (char *) malloc(32 * sizeof(char));
   assert(res != NULL);
   uint32_t mask = 1 << (nbits - 1);
@@ -89,26 +91,26 @@ char *decToBinary(uint32_t x, int nbits) {
   return res;
 }
 
-uint32_t stringToNumber(char *string) {
+uint32_t stringToNumber(char *string) {  //dont think we need to make one function for this
   return (uint32_t) strtol(string, NULL, 0);
 }
 
 
-char *stringToBinary(char *string, int nbits) {
+char *stringToBinary(char *string, int nbits) { //dont think we need this now
   return decToBinary(stringToNumber(string), nbits);
 }
 
-uint32_t binaryStringToNumber(char* string) {
+uint32_t binaryStringToNumber(char* string) { //no need for this
   return (uint32_t) strtoll(string, NULL, 2);
 }
-
-char *registerToBinary(char *reg) {
+*/
+int registerToBinary(char *reg) { 
   // ex: "x11" -> "1011"
   assert(isRegister(reg));
   if (strcmp(reg + 1, "zr") == 0) {
-    return "11111";
+    return 0x1F;
   }
-  return decToBinary(stringToNumber(reg + 1), 5);
+  return strtol((reg + 1), NULL, 0);
 }
 
 char *getSF(const char *reg) {
@@ -121,7 +123,7 @@ int getNum(char *string, int start, int size) {
   strncpy(substring, string + start, size);
 //  substring[--size];
 
-  return (int) stringToNumber(substring);
+  return strtol(substring, NULL, 0);
 }
 
 uint32_t findAddressTable(char *label, row *table) {
