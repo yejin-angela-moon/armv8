@@ -43,7 +43,7 @@ void deleteColon(char *line, unsigned long lineLength) {
 
 char **tokenizer(char *line, int *numToken) {
   int i = 0;
-  char **tokens = malloc(MAX_TOKEN * sizeof(char*));
+  char **tokens = malloc(MAX_TOKEN * sizeof(char *));
   tokens[0] = strtok(line, delimiter);
   while (tokens[i] != NULL) {
     i++;
@@ -104,7 +104,7 @@ char *stringToBinary(char *string, int nbits) {
   return decToBinary(stringToNumber(string), nbits);
 }
 
-uint32_t binaryStringToNumber(char* string) {
+uint32_t binaryStringToNumber(char *string) {
   return (uint32_t) strtoll(string, NULL, 2);
 }
 
