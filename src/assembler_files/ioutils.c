@@ -44,12 +44,15 @@ char **readFile(int lineNum, int *countLabel, char *filename) {
 
 void makeSymbolTable(row *table, int lineNum, char **lines) {
   int j = 0;
+  int addr = 0;
   for (int i = 0; i < lineNum; i++) {
     if (containColon(lines[i])) {
-      table[j].address = i * 4 + 4;
-      lines[i][strlen(lines[i]) - 1] = '\0'; // delete last char (colon) in label
+      table[j].address = addr*4;
+      deleteColon(lines[i], strlen(lines[i]));
       table[j].label = lines[i];
       j++;
+    } else {
+      addr++;
     }
   }
 }

@@ -7,11 +7,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <ctype.h>
 
 #include "definition.h"
 
 int count_lines(char *inputFile);
 bool containColon(char* line);
+void deleteColon(char *line, unsigned long lineLength);
 void freeLines(char **lines, int numLines);
 char **tokenizer(char *line, int *numToken);
 char* decToBinary(uint32_t x, int nbits);
@@ -27,3 +29,4 @@ uint32_t findAddressTable(char *label, row *table);
 char *getZeroRegister(const char *reg);
 
 #endif
+

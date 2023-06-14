@@ -28,6 +28,12 @@ bool containColon(char *line) {
   return (strchr(line, ':') != NULL);
 }
 
+void deleteColon(char *line, unsigned long lineLength) {
+  while (isspace(line[lineLength - 1]) || line[lineLength - 1] == ':') {
+    line[lineLength - 1] = '\0';
+    lineLength--;
+  }
+}
 
 char **tokenizer(char *line, int *numToken) {
   int i = 0;
@@ -93,7 +99,7 @@ char *stringToBinary(char *string, int nbits) {
 }
 
 uint32_t binaryStringToNumber(char* string) {
-  return (uint32_t) strtol(string, NULL, 2);
+  return (uint32_t) strtoll(string, NULL, 2);
 }
 
 char *registerToBinary(char *reg) {
@@ -120,7 +126,7 @@ int getNum(char *string, int start, int size) {
 
 uint32_t findAddressTable(char *label, row *table) {
   int i = 0;
-  while (table[i].label[0] == '\0') {
+  while (table[i].label[0] != '\0') {
     if (strcmp(table[i].label, label) == 0) {
       return table[i].address;
     }

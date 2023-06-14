@@ -21,13 +21,15 @@ static char **alias(char **tokens, int *numToken) {
   if (strcmp("cmp", opcode) == 0) {
     newTokens[0] = "subs";
     newTokens[1] = getZeroRegister(tokens[1]);
-    newTokens[2] = tokens[1];
-    newTokens[3] = tokens[2];
+    for (int i = 2; i < *numToken + 1; i++) {
+      newTokens[i] = tokens[i - 1];
+    }
   } else if (strcmp("cmn", opcode) == 0) {
     newTokens[0] = "adds";
     newTokens[1] = getZeroRegister(tokens[1]);
-    newTokens[2] = tokens[1];
-    newTokens[3] = tokens[2];
+    for (int i = 2; i < *numToken + 1; i++) {
+      newTokens[i] = tokens[i - 1];
+    }
   } else if (strcmp("neg", opcode) == 0) {
     newTokens[0] = "sub";
     newTokens[1] = tokens[1];
@@ -41,8 +43,9 @@ static char **alias(char **tokens, int *numToken) {
   } else if (strcmp("tst", opcode) == 0) {
     newTokens[0] = "ands";
     newTokens[1] = getZeroRegister(tokens[1]);
-    newTokens[2] = tokens[1];
-    newTokens[3] = tokens[2];
+    for (int i = 2; i < *numToken + 1; i++) {
+      newTokens[i] = tokens[i - 1];
+    }
   } else if (strcmp("mvn", opcode) == 0) {
     newTokens[0] = "orn";
     newTokens[1] = tokens[1];
@@ -70,6 +73,7 @@ static char **alias(char **tokens, int *numToken) {
     return tokens;
   }
   (*numToken)++;
+  free(tokens);
   return newTokens;
 }
 
@@ -83,32 +87,40 @@ void parse(row *table, int numLine, char **lines, char *outputFile) {
 
     int numToken = 0;
     char **tokens = tokenizer(lines[i], &numToken);
-
+    //printf("tokens %s + %s + %s + %s + %s + %s\n ", tokens[0], tokens[1], tokens[2], tokens[3], tokens[4], tokens[5]);
+    //printf("tokens %s + %s\n ", tokens[0], tokens[1]);
     tokens = alias(tokens, &numToken);
+    // printf("tokens %s + %s + %s + %s + %s + %s\n ", tokens[0], tokens[1], tokens[2], tokens[3], tokens[4], tokens[5]);
 
     char *opcode = tokens[0];
 
     uint32_t result;
 
     if (isStringInSet(opcode, dpSet, dpSetSize)) {
-      currAddress += 4;
       result = binaryStringToNumber(DP(tokens, numToken));
-    } else if (isStringInSet(opcode, sdtSet, sdtSetSize)) {
       currAddress += 4;
+    } else if (isStringInSet(opcode, sdtSet, sdtSetSize)) {
       result = SDT(tokens, table, numToken, currAddress);
+      currAddress += 4;
     } else if (opcode[0] == 'b') {
       result = B(table, tokens, &currAddress);
-    } else if (strcmp("nop", opcode) == 0) {
       currAddress += 4;
+    } else if (strcmp("nop", opcode) == 0) {
       result = NOP_INSTRUCTION;
+      currAddress += 4;
     } else if (strcmp(".int", opcode) == 0) {
-      result = stringToNumber(tokens[1]);
-    } else {
-      //label
+      if (strchr(tokens[1],'x') != NULL) {
+        result = strtol(tokens[1], NULL, 16);
+      } else {
+        result = strtol(tokens[1], NULL, 10);
+      }
+      currAddress += 4;
+    } else { //label
       free(tokens);
       continue;
     }
 
+    printf("%x\n", result);
     fwrite(&result, sizeof(uint32_t), 1, outFile);
     free(tokens);
   }
