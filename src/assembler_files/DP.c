@@ -115,7 +115,7 @@ char* DPReg(char* tokens[], int numTokens, char *res) {
   char* sf = getSF(tokens[1]);
   char* opc;
   char* M;
-  char* opr = (char *) malloc(4 * sizeof(char));
+  char* opr = (char *) malloc(5 * sizeof(char));
   assert(opr != NULL);
   char* rm = registerToBinary(tokens[3]);
   char *operand = (char *) malloc(6 * sizeof(char));
