@@ -28,10 +28,11 @@ char **readFile(int lineNum, int *countLabel, char *filename) {
       indexInsideString++;
 //      prevCharNewline = false;
     } else if (c == '\n') {
-      indexInsideString = 0;
       if (!thisLineEmpty) {
+        strings[stringIndex][indexInsideString] = '\0';
         stringIndex++;
       }
+      indexInsideString = 0;
       thisLineEmpty = true;
 //      prevCharNewline = true;
     } else { // isspace(c)
