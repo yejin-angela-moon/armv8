@@ -11,12 +11,17 @@ static uint32_t preIndexed(char **token, uint32_t instruction){
   return instruction;
 }
 
-static uint32_t postIndexed(char **token, uint32_t instruction){
+static uint32_t postIndexed(char **token, uint32_t instruction, int countToken){
   instruction |= 1 << 10;
 
-  int16_t simm = strtol(strtok(token[3], "-"), NULL, 10);
-  if (strchr( token[3],'-') != NULL) {
-    simm = (~simm) + 1;
+  int16_t simm;
+  if (countToken == 3){
+    simm =0;
+  } else {
+    simm  = strtol(strtok(token[3], "-"), NULL, 10);
+    if (strchr( token[3],'-') != NULL) {
+      simm = (~simm) + 1;
+    }
   }
 
   instruction |= (simm & 0x01FF) << 12;
@@ -31,11 +36,15 @@ static uint32_t registerOffset(char **token, uint32_t instruction){
   return instruction;
 }
 
-static uint32_t unsignedOffset(char **token, uint32_t instruction){
+static uint32_t unsignedOffset(char **token, uint32_t instruction, int countToken){
   instruction |= 1 << 24;
 
-  if (token[3] != NULL){
-    instruction |= (getNum(token[3], 1, 3) << 10) / 4;
+  if (countToken > 3){
+    if(token[1][0] == 'x'){
+    	instruction |= stringToNumber(token[3])/8 << 10;
+    }else {
+        instruction |= stringToNumber(token[3])/4 << 10;
+    }	
   }
 
   return instruction;
@@ -59,12 +68,12 @@ uint32_t mode(char **token, uint32_t instruction, int countToken){
 
   if (countToken >= 4 && strchr(token[3],'!') != NULL){
     return preIndexed(token, instruction);
-  } else if(strchr( token[2],']') != NULL){
-    return postIndexed(token, instruction);
-  } else if(strchr( token[3],'x') != NULL || strchr(token[3],'w') != NULL){
+  } else if(countToken >= 4  && strchr( token[2],']') != NULL){
+    return postIndexed(token, instruction, countToken);
+  } else if(countToken >= 4 && (strchr( token[3],'x') != NULL || strchr(token[3],'w') != NULL)){
     return registerOffset(token, instruction);
   } else {
-    return unsignedOffset(token, instruction);
+    return unsignedOffset(token, instruction, countToken);
   }
 }
 
