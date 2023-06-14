@@ -48,7 +48,7 @@ static uint32_t unsignedOffset(char **token, uint32_t instruction, int countToke
     	instruction |= stringToNumber(token[3])/8 << 10;
     }else {
         instruction |= stringToNumber(token[3])/4 << 10;
-    }	
+    }
   }
 
   return instruction;
@@ -73,11 +73,13 @@ uint32_t mode(char **token, uint32_t instruction, int countToken){
   if (countToken >= 4 && strchr(token[3],'!') != NULL){
     return preIndexed(token, instruction);
   } else if(countToken >= 4  && strchr( token[2],']') != NULL){
+   //printf("post\n  ");
     return postIndexed(token, instruction, countToken);
-  } else if(countToken >= 4 && (strchr( token[3],'x') != NULL || strchr(token[3],'w') != NULL)){
+  } else if(countToken >= 4 && isRegister(strtok(token[3], "]"))){
+   //printf("reg\n  ");
     return registerOffset(token, instruction);
   } else {
-   // printf("unsigned\n  ");
+   //printf("unsigned\n  ");
     return unsignedOffset(token, instruction, countToken);
   }
 }

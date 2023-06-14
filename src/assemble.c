@@ -88,7 +88,7 @@ void parse(row *table, int numLine, char **lines, char *outputFile) {
     int numToken = 0;
     char **tokens = tokenizer(lines[i], &numToken);
     //printf("tokens %s + %s + %s + %s + %s + %s\n ", tokens[0], tokens[1], tokens[2], tokens[3], tokens[4], tokens[5]);
-   //printf("tokens %s + %s\n ", tokens[0], tokens[1]);
+   printf("tokens %s + %s + %s + %s\n ", tokens[0], tokens[1], tokens[2], tokens[3]);
    if (tokens[0] == NULL) {
      tokens[0] = "";
    }
@@ -97,7 +97,11 @@ void parse(row *table, int numLine, char **lines, char *outputFile) {
     char *opcode = tokens[0];
     uint32_t result;
 
+   // char *store_DP;
+
     if (isStringInSet(opcode, dpSet, dpSetSize)) {
+      //strcpy(store_DP, DP(tokens, numToken));
+      //result = binaryStringToNumber(store_DP);
       result = binaryStringToNumber(DP(tokens, numToken));
       currAddress += 4;
     } else if (isStringInSet(opcode, sdtSet, sdtSetSize)) {
