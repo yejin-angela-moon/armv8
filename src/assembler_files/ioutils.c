@@ -47,7 +47,7 @@ void makeSymbolTable(row *table, int lineNum, char **lines) {
   int addr = 0;
   for (int i = 0; i < lineNum; i++) {
     if (containColon(lines[i])) {
-      table[j].address = addr*4;
+      table[j].address = addr * 4;
       deleteColon(lines[i], strlen(lines[i]));
       table[j].label = lines[i];
       j++;
