@@ -8,7 +8,10 @@ static uint32_t conditional(row *table, char **token, int cond, uint32_t *currAd
   int32_t address;
   //char *endptr;
 //  printf("another %s", strchr(token[1], '0'));
-  if (strcmp(token[1], "0x0") != 0 && strtol(token[1], NULL, 10) == 0){
+  char isHex[2];
+  strncpy(isHex, token[1], 2);
+  int num = getNum(token[1], 2, strlen(token[1]) - 2);
+  if (strcmp(isHex, "0x") != 0 && num == 0){
     address = findAddressTable(token[1], table);
     //printf("another %x from table", address);
   } else {
@@ -23,14 +26,16 @@ static uint32_t conditional(row *table, char **token, int cond, uint32_t *currAd
 uint32_t B(row *table, char **token, uint32_t *currAddress) {
   uint32_t instruction = 0;
   if (strcmp(token[0], "b") == 0) {
-    //printf("token = b\n");
+   // printf("token = b\n");
     instruction += 0x14000000;
     //printf("mid ins %x", instruction);
     // add the address of simm26
     uint32_t address;
-    //char *endptr;
-    if (strcmp(token[1], "0x0") != 0 && strtol(token[1], NULL, 10) == 0){
-
+    char isHex[2];
+    strncpy(isHex, token[1], 2);
+    int num = getNum(token[1], 2, strlen(token[1]) - 2);
+    if (strcmp(isHex, "0x") != 0 && num == 0){
+     // printf("get same\n");
       address = findAddressTable(token[1], table);
      // printf("another %x from table", address);
     } else {
