@@ -128,7 +128,7 @@ char* DPReg(char* tokens[], int numTokens, char *res) {
 
   if (strcmp(opcode, "madd") == 0 || strcmp(opcode, "msub") == 0) {
     opc = "00";
-    operand[0] = strcmp(opcode, "madd") == 0 ? '0' : '1';
+    strcpy(operand, strcmp(opcode, "madd") == 0 ? "0" : "1");
     strcat(operand, registerToBinary(tokens[4]));
     M = "1";
     strcpy(opr, "1000");
@@ -136,7 +136,7 @@ char* DPReg(char* tokens[], int numTokens, char *res) {
     char* shiftCode = numTokens > 4 ? getShiftCode(tokens[4]) : "00";
     char* N;
 
-    operand = numTokens > 4 ? stringToBinary(tokens[5], 6) : "000000";
+    strcpy(operand, numTokens > 4 ? stringToBinary(tokens[5], 6) : "000000");
     M = "0";
     if (strcmp("and", opcode) == 0) {
       opc = "00";
@@ -192,7 +192,7 @@ char* DPReg(char* tokens[], int numTokens, char *res) {
   strcat(res, "\0");
 
   //if (strcmp("madd", opcode) == 0 || strcmp("msub", opcode) == 0 || numTokens > 4) {
-    free(operand);
+  free(operand);
   //}
   free(opr);
 
