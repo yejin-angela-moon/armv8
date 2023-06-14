@@ -46,6 +46,7 @@ static uint32_t getShiftCode(char* shift) {
 }
 
 uint32_t DPImm(char** tokens, int numTokens) {
+  printf("this is imm");
   char* opcode = tokens[0];
   uint32_t sf = strtol(getSF(tokens[1]), NULL, 2);
   uint32_t opi;
@@ -62,7 +63,9 @@ uint32_t DPImm(char** tokens, int numTokens) {
     opi = 0x5;
     opc = opcWideMove(opcode);
     uint32_t hw = numTokens == 3 ? 0 : stringToNumber(tokens[4]) / 16;
-    uint16_t imm16 = strtol(tokens[2], NULL, 16); // ???
+    uint32_t imm16 = strtol(tokens[2], NULL, 16); // ???
+
+    printf("imm16 %x\n", imm16);
 
     operand += hw << 16;
     operand += imm16;
@@ -74,6 +77,7 @@ uint32_t DPImm(char** tokens, int numTokens) {
     //}
     //free(imm16);
   } else { // arithmetic
+    printf("Arith\n");
     opi = 0x2;
     opc = opcArithmetic(opcode);
     //printf("num of tokens %d", numTokens);
@@ -86,8 +90,9 @@ uint32_t DPImm(char** tokens, int numTokens) {
     } else {
       sh = 1;
     }
-    uint16_t imm12 = strtol(tokens[3], NULL, 16) & 0x0FFF ;
+    uint16_t imm12 = strtol(tokens[3], NULL, 0);
     uint32_t rn = stringToNumber(tokens[2] + 1);
+    printf("imm12 = %x\n", imm12);
 
     //strcpy(operand, sh);
     //strcat(operand, imm12);
@@ -125,6 +130,7 @@ uint32_t DPImm(char** tokens, int numTokens) {
 }
 
 uint32_t DPReg(char** tokens, int numTokens) {
+  printf("this is reg");
   char* opcode = tokens[0];
   uint32_t sf = strtol(getSF(tokens[1]), NULL, 2);
   uint32_t opc;
@@ -151,8 +157,11 @@ uint32_t DPReg(char** tokens, int numTokens) {
     M = 1;
     opr = 8;
   } else {
+    printf("get in else\n");
     uint32_t shiftCode = numTokens > 4 ? getShiftCode(tokens[4]) : 0;
     uint32_t N;
+
+    operand += numTokens > 4 ? strtol(tokens[5], NULL, 0) : 0;
 
    // strcpy(operand, numTokens > 4 ? stringToBinary(tokens[5], 6) : "000000");
     M = 0;
@@ -189,8 +198,9 @@ uint32_t DPReg(char** tokens, int numTokens) {
       opr = 0;
       N = 1;
     } else { // arithmetic
+      printf("arith\n");
       opc = opcArithmetic(opcode);
-      opr = 1;
+      opr = 1 << 3;
       N = 0;
     }
 
@@ -232,7 +242,7 @@ uint32_t DPReg(char** tokens, int numTokens) {
 }
 
 uint32_t DP(char** tokens, int numTokens) {
-  if (strcmp(tokens[0], "movn") == 0 || strcmp(tokens[0], "movk") == 0 || strcmp(tokens[0], "movz") == 0 ||!(isRegister(tokens[3]))) {
+  if (strcmp(tokens[0], "movn") == 0 || strcmp(tokens[0], "movk") == 0 || strcmp(tokens[0], "movz") == 0 || !(isRegister(tokens[3]))) {
     return DPImm(tokens, numTokens);
   }
   return DPReg(tokens, numTokens);
