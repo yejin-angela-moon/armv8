@@ -15,7 +15,7 @@ int count_lines(char *inputFile);
 bool containColon(char* line);
 void deleteColon(char *line, unsigned long lineLength);
 void freeLines(char **lines, int numLines);
-char **tokenizer(char *line, int *numToken);
+char **tokenizer(char *line, int *numToken, char **tokens);
 char* decToBinary(uint32_t x, int nbits);
 uint32_t stringToNumber(char* string);
 char* stringToBinary(char* string, int nbits);

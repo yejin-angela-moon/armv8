@@ -86,7 +86,8 @@ void parse(row *table, int numLine, char **lines, char *outputFile) {
   for (int i = 0; i < numLine; i++) {
 
     int numToken = 0;
-    char **tokens = tokenizer(lines[i], &numToken);
+    char **tokens = malloc(MAX_TOKEN * sizeof(char*));
+    tokens = tokenizer(lines[i], &numToken, tokens);
     //printf("tokens %s + %s + %s + %s + %s + %s\n ", tokens[0], tokens[1], tokens[2], tokens[3], tokens[4], tokens[5]);
   // printf("tokens %s + %s + %s + %s + %s + %s\n ", tokens[0], tokens[1], tokens[2], tokens[3], tokens[4], tokens[5]);
    if (tokens[0] == NULL) {
@@ -127,7 +128,7 @@ void parse(row *table, int numLine, char **lines, char *outputFile) {
       currAddress += 4;
     } else {
       //label
-      free(tokens);
+      //free(tokens);
       continue;
     }
 
