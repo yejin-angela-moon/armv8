@@ -122,8 +122,8 @@ void parse(row *table, int numLine, char **lines, char *outputFile) {
       continue;
     }
 
-    //printf("%x\n", result);
-    fwrite(&result, sizeof(uint32_t), 1, outFile);
+    printf("%x\n", result);
+    fwrite(&result, sizeof(int32_t), 1, outFile);
     free(tokens);
   }
   fclose(outFile);
