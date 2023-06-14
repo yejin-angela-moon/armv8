@@ -28,6 +28,12 @@ bool containColon(char *line) {
   return (strchr(line, ':') != NULL);
 }
 
+void deleteColon(char *line, unsigned long lineLength) {
+  while (isspace(line[lineLength - 1]) || line[lineLength - 1] == ':') {
+    line[lineLength - 1] = '\0';
+    lineLength--;
+  }
+}
 
 char **tokenizer(char *line, int *numToken) {
   int i = 0;
@@ -58,7 +64,7 @@ bool isStringInSet(char *target, char *set[], size_t setSize) {
 }
 
 bool isRegister(const char *reg) {
-  return (reg[0] == 'w' || reg[0] == 'x');
+  return (tolower(reg[0]) == 'w' || tolower(reg[0]) == 'x');
 }
 
 char *decToBinary(uint32_t x, int nbits) {
@@ -107,7 +113,7 @@ char *registerToBinary(char *reg) {
 
 char *getSF(const char *reg) {
   assert(isRegister(reg));
-  return reg[0] == 'w' ? "0" : "1";
+  return tolower(reg[0] == 'w') ? "0" : "1";
 }
 
 int getNum(char *string, int start, int size) {
@@ -130,5 +136,5 @@ uint32_t findAddressTable(char *label, row *table) {
 }
 
 char *getZeroRegister(const char *reg) {
-  return reg[0] == 'w' ? "wzr" : "xzr";
+  return tolower(reg[0]) == 'w' ? "wzr" : "xzr";
 }

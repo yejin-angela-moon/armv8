@@ -5,7 +5,6 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/src/Makefile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/assemble.exe" beforeDir="false" afterPath="$PROJECT_DIR$/src/assemble.exe" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/assembler_files/B.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/assembler_files/B.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/emulate.exe" beforeDir="false" afterPath="$PROJECT_DIR$/src/emulate.exe" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
