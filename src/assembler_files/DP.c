@@ -63,7 +63,7 @@ uint32_t DPImm(char** tokens, int numTokens) {
     opi = 0x5;
     opc = opcWideMove(opcode);
     uint32_t hw = numTokens == 3 ? 0 : stringToNumber(tokens[4]) / 16;
-    uint32_t imm16 = strtol(tokens[2], NULL, 16); // ???
+    uint32_t imm16 = strtol(tokens[2], NULL, 0); // ???
 
     printf("imm16 %x\n", imm16);
 
