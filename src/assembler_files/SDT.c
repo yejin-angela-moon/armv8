@@ -73,6 +73,7 @@ uint32_t mode(char **token, uint32_t instruction, int countToken){
   } else if(countToken >= 4 && (strchr( token[3],'x') != NULL || strchr(token[3],'w') != NULL)){
     return registerOffset(token, instruction);
   } else {
+    printf("unsigned");
     return unsignedOffset(token, instruction, countToken);
   }
 }
