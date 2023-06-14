@@ -20,7 +20,7 @@ static uint32_t postIndexed(char **token, uint32_t instruction, int countToken){
 
   int16_t simm;
   if (countToken == 3){
-    simm =0;
+    simm = 0;
   } else {
     simm  = strtol(strtok(token[3], "-"), NULL, 10);
     if (strchr( token[3],'-') != NULL) {
