@@ -1,32 +1,25 @@
 #include "SDT.h"
 #include "definition.h"
 
-static int ldrInstruction(char **token) {
- uint32_t instruction = 0;
- if (token[1][0] == 'x'){
-       instruction |= 1 << 30;
-     }
-
-     int rt = getNum(token[1], 1, 2);
-     instruction |= rt;
-
-     instruction |= SDT_INSTRUC;
-
-
-       if (strcmp(token[0], "ldr") == 0){
-         //ldr
-         instruction |= 1 << 22;
-       }
-       int xn = getNum(token[2], 2, 2);
-         instruction |= xn << 5;
-
-         return instruction;
-}
-
 static uint32_t preIndexed(char **token){
 
   uint32_t instruction = 0;
-  instruction  |= ldrInstruction(token);
+    if (token[1][0] == 'x'){
+      instruction |= 1 << 30;
+    }
+
+    int rt = getNum(token[1], 1, 2);
+    instruction |= rt;
+
+instruction |= SDT_INSTRUC;
+
+
+  if (strcmp(token[0], "ldr") == 0){
+    //ldr
+    instruction |= 1 << 22;
+  }
+int xn = getNum(token[2], 2, 2);
+  instruction |= xn << 5;
 
   instruction |= 1 << 10;
   instruction |= 1 << 11;
@@ -43,7 +36,23 @@ static uint32_t preIndexed(char **token){
 
 static uint32_t postIndexed(char **token, int countToken){
 uint32_t instruction = 0;
- instruction  |= ldrInstruction(token);
+  if (token[1][0] == 'x'){
+    instruction |= 1 << 30;
+  }
+
+  int rt = getNum(token[1], 1, 2);
+  instruction |= rt;
+
+instruction |= SDT_INSTRUC;
+
+
+  if (strcmp(token[0], "ldr") == 0){
+    //ldr
+    instruction |= 1 << 22;
+  }
+
+int xn = getNum(token[2], 2, 2);
+  instruction |= xn << 5;
   instruction |= 1 << 10;
 
   int16_t simm;
@@ -63,7 +72,21 @@ uint32_t instruction = 0;
 static uint32_t registerOffset(char **token){
 
   uint32_t instruction = 0;
-  instruction  |= ldrInstruction(token);
+   if (token[1][0] == 'x'){
+     instruction |= 1 << 30;
+   }
+
+   int rt = getNum(token[1], 1, 2);
+   instruction |= rt;
+   instruction |= SDT_INSTRUC;
+
+
+     if (strcmp(token[0], "ldr") == 0){
+       //ldr
+       instruction |= 1 << 22;
+     }
+ int xn = getNum(token[2], 2, 2);
+   instruction |= xn << 5;
 
 
   instruction |= REGISTER_OFFSET << 10;
@@ -75,8 +98,23 @@ static uint32_t registerOffset(char **token){
 
 static uint32_t unsignedOffset(char **token, int countToken){
   uint32_t instruction = 0;
+    if (token[1][0] == 'x'){
+      instruction |= 1 << 30;
+    }
 
-  instruction  |= ldrInstruction(token);
+    int rt = getNum(token[1], 1, 2);
+    instruction |= rt;
+
+    instruction |= SDT_INSTRUC;
+
+
+      if (strcmp(token[0], "ldr") == 0){
+        //ldr
+        instruction |= 1 << 22;
+      }
+      int xn = getNum(token[2], 2, 2);
+        instruction |= xn << 5;
+
 
   instruction |= 1 << 24;
 
