@@ -16,31 +16,25 @@ char **readFile(int lineNum, int *countLabel, char *filename) {
     assert(strings[i] != NULL);
   }
 
-  bool thisLineEmpty = true;
-//  bool prevCharNewline = true;
+  int ch;
+  bool isLineEmpty = 1;
   int stringIndex = 0;
   int indexInsideString = 0;
-  int c;
-  while ((c = fgetc(file)) != EOF) {
-    if (c != '\n' && !isspace(c)) {
-      thisLineEmpty = false;
-      strings[stringIndex][indexInsideString] = (char) c;
-      indexInsideString++;
-//      prevCharNewline = false;
-    } else if (c == '\n') {
-      if (!thisLineEmpty) {
+  while ((ch = fgetc(file)) != EOF) {
+    if (ch == '\n') {
+      if (!isLineEmpty) {
         strings[stringIndex][indexInsideString] = '\0';
         stringIndex++;
       }
+      isLineEmpty = 1;
       indexInsideString = 0;
-      thisLineEmpty = true;
-//      prevCharNewline = true;
-    } else { // isspace(c)
-      if (!thisLineEmpty) {
-        strings[stringIndex][indexInsideString] = (char) c;
-        indexInsideString++;
+    } else {
+      if (ch == ':') {
+        (*countLabel)++;
       }
-//      prevCharNewline = false;
+      isLineEmpty = 0;
+      strings[stringIndex][indexInsideString] = (char) ch;
+      indexInsideString++;
     }
   }
 
@@ -51,13 +45,14 @@ char **readFile(int lineNum, int *countLabel, char *filename) {
 void makeSymbolTable(row *table, int lineNum, char **lines) {
   int j = 0;
   int addr = 0;
+
   for (int i = 0; i < lineNum; i++) {
     if (containColon(lines[i])) {
-      table[j].address = addr * 4;
+      table[j].address = addr*4;
       deleteColon(lines[i], strlen(lines[i]));
       table[j].label = lines[i];
       j++;
-    } else {
+    } else if (strlen(lines[i]) > 2) {
       addr++;
     }
   }

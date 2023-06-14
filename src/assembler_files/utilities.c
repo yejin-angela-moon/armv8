@@ -4,26 +4,20 @@ int count_lines(char *inputFile) {
   FILE *file;
   int ch;
   int linesCount = 0;
-  bool nonSpaceCharInLine = false;
+  bool isLineEmpty = 1;
 
   file = fopen(inputFile, "r");
   assert(file != NULL);
 
   while ((ch = fgetc(file)) != EOF) {
     if (ch == '\n') {
-      if (nonSpaceCharInLine) {
+      if (!isLineEmpty) {
         linesCount++;
       }
-      nonSpaceCharInLine = false;
-    } else if (!isspace(ch)) {
-      nonSpaceCharInLine = true;
+      isLineEmpty = 1;
+    } else {
+      isLineEmpty = 0;
     }
-  }
-
-  // Handling the case when the file does not end with a newline character,
-  // but the last line contains some non-space characters.
-  if (nonSpaceCharInLine) {
-    linesCount++;
   }
 
   fclose(file);
