@@ -40,7 +40,7 @@ static uint32_t unsignedOffset(char **token, uint32_t instruction, int countToke
   instruction |= 1 << 24;
 
   if (countToken > 3){
-    if(token[1][0] == 'x'){
+    if(tolower(token[1][0]) == 'x'){
       instruction |= stringToNumber(token[3])/8 << 10;
     }else {
       instruction |= stringToNumber(token[3])/4 << 10;
@@ -80,7 +80,7 @@ uint32_t mode(char **token, uint32_t instruction, int countToken){
 uint32_t SDT(char **token, row *table, int countToken, uint32_t currAddress) {
 
   uint32_t instruction = 0;
-  if (token[1][0] == 'x'){
+  if (tolower(token[1][0]) == 'x'){
     instruction |= 1 << 30;
   }
 
