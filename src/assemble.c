@@ -88,16 +88,23 @@ void parse(row *table, int numLine, char **lines, char *outputFile) {
     int numToken = 0;
     char **tokens = tokenizer(lines[i], &numToken);
     //printf("tokens %s + %s + %s + %s + %s + %s\n ", tokens[0], tokens[1], tokens[2], tokens[3], tokens[4], tokens[5]);
-    //printf("tokens %s + %s\n ", tokens[0], tokens[1]);
+    //printf("tokens %s + %s + %s + %s\n ", tokens[0], tokens[1], tokens[2], tokens[3]);
+    if (tokens[0] == NULL) {
+      tokens[0] = "";
+    }
     tokens = alias(tokens, &numToken);
     // printf("tokens %s + %s + %s + %s + %s + %s\n ", tokens[0], tokens[1], tokens[2], tokens[3], tokens[4], tokens[5]);
-
     char *opcode = tokens[0];
-
     uint32_t result;
 
+    char *store_DP = (char *) malloc(33 * sizeof(char));
+    assert(store_DP != NULL);;
+
     if (isStringInSet(opcode, dpSet, dpSetSize)) {
-      result = binaryStringToNumber(DP(tokens, numToken));
+      //strcpy(store_DP, DP(tokens, numToken));
+      DP(tokens, numToken, store_DP);
+      result = binaryStringToNumber(store_DP);
+      //result = binaryStringToNumber(DP(tokens, numToken));
       currAddress += 4;
     } else if (isStringInSet(opcode, sdtSet, sdtSetSize)) {
       result = SDT(tokens, table, numToken, currAddress);
@@ -115,14 +122,19 @@ void parse(row *table, int numLine, char **lines, char *outputFile) {
         result = strtol(tokens[1], NULL, 10);
       }
       currAddress += 4;
-    } else { //label
+    } else {
+      //label
       free(tokens);
       continue;
     }
 
     printf("%x\n", result);
-    fwrite(&result, sizeof(uint32_t), 1, outFile);
+    fwrite(&result, sizeof(int32_t), 1, outFile);
+//    for (int t = 0; t < numToken; t++) {
+//      free(tokens[t]);
+//    }
     free(tokens);
+    free(store_DP);
   }
   fclose(outFile);
 }

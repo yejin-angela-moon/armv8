@@ -42,8 +42,13 @@ void deleteColon(char *line, unsigned long lineLength) {
 }
 
 char **tokenizer(char *line, int *numToken) {
+  char **tokens = malloc(MAX_TOKEN * sizeof(char *));
+  assert(tokens != NULL);
+//  for (int i = 0; i < MAX_TOKEN; i ++) {
+//    tokens[i] = malloc(sizeof(char *) * 5);
+//    assert(tokens[i] != NULL);
+//  }
   int i = 0;
-  char **tokens = malloc(MAX_TOKEN * sizeof(char*));
   tokens[0] = strtok(line, delimiter);
   while (tokens[i] != NULL) {
     i++;
