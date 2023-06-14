@@ -43,7 +43,7 @@ static char* getShiftCode(char* shift) {
   }
 }
 
-char* DPImm(char* tokens[], int numTokens) {
+char* DPImm(char* tokens[], int numTokens, char *res) {
   char* opcode = tokens[0];
   char* sf = getSF(tokens[1]);
   char* opi;
@@ -52,8 +52,8 @@ char* DPImm(char* tokens[], int numTokens) {
   assert(operand != NULL);
   char* rd = registerToBinary(tokens[1]);
 
-  char *res = (char *) malloc(33 * sizeof(char));
-  assert(res != NULL);
+  //char *res = (char *) malloc(33 * sizeof(char));
+  //assert(res != NULL);
 
   if (strcmp("movk", opcode) == 0 || strcmp("movn", opcode) == 0 || strcmp("movz", opcode) == 0) {
     opi = "101";
@@ -110,7 +110,7 @@ char* DPImm(char* tokens[], int numTokens) {
   return res;
 }
 
-char* DPReg(char* tokens[], int numTokens) {
+char* DPReg(char* tokens[], int numTokens, char *res) {
   char* opcode = tokens[0];
   char* sf = getSF(tokens[1]);
   char* opc;
@@ -123,8 +123,8 @@ char* DPReg(char* tokens[], int numTokens) {
   char* rn = registerToBinary(tokens[2]);
   char* rd = registerToBinary(tokens[1]);
 
-  char *res = (char *) malloc(33 * sizeof(char));
-  assert(res != NULL);
+  //char *res = (char *) malloc(33 * sizeof(char));
+  //assert(res != NULL);
 
   if (strcmp(opcode, "madd") == 0 || strcmp(opcode, "msub") == 0) {
     opc = "00";
@@ -199,9 +199,9 @@ char* DPReg(char* tokens[], int numTokens) {
   return res;
 }
 
-char* DP(char* tokens[], int numTokens) {
+char* DP(char* tokens[], int numTokens, char *res) {
   if (strcmp(tokens[0], "movn") == 0 || strcmp(tokens[0], "movk") == 0 || strcmp(tokens[0], "movz") == 0 ||!(isRegister(tokens[3]))) {
-    return DPImm(tokens, numTokens);
+    return DPImm(tokens, numTokens, res);
   }
-  return DPReg(tokens, numTokens);
+  return DPReg(tokens, numTokens, res);
 }

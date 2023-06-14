@@ -26,7 +26,7 @@ static uint32_t conditional(row *table, char **token, int cond, uint32_t *currAd
 uint32_t B(row *table, char **token, uint32_t *currAddress) {
   uint32_t instruction = 0;
   if (strcmp(token[0], "b") == 0) {
-    printf("token = b\n");
+    //printf("token = b\n");
     instruction += 0x14000000;
     //printf("mid ins %x", instruction);
     // add the address of simm26
@@ -35,11 +35,11 @@ uint32_t B(row *table, char **token, uint32_t *currAddress) {
     //strncpy(isHex, token[1], 2);
    // int num = getNum(token[1], 2, strlen(token[1]) - 2);
     if ((strcmp(token[1], "0x0") != 0 || strcmp(token[1], "0") != 0 ) && strtol(token[1], NULL, 0) == 0){
-      printf("get same\n");
+      //printf("get same\n");
       address = findAddressTable(token[1], table);
      // printf("another %x from table", address);
     } else {
-      printf("get addr\n");
+     // printf("get addr\n");
       address = strtol(token[1], NULL, 16);
     }
     int32_t offset = (address - *currAddress) / 4;
