@@ -103,7 +103,7 @@ void parse(row *table, int numLine, char **lines, char *outputFile) {
       result = SDT(tokens, table, numToken, currAddress);
       currAddress += 4;
     } else if (opcode[0] == 'b') {
-      result = B(table, tokens, &currAddress);
+      result = B(table, tokens, currAddress);
       currAddress += 4;
     } else if (strcmp("nop", opcode) == 0) {
       result = NOP_INSTRUCTION;
