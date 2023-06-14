@@ -6,11 +6,8 @@ static uint32_t preIndexed(char **token, uint32_t instruction){
   instruction |= 1 << 11;
 
   int32_t simm = stringToNumber(token[3]);
-    if (strchr( token[3],'-') != NULL) {
-        simm = (~simm) + 1;
-    }
+  instruction |= (simm & 0x01FF) << 12;
 
-  instruction |= simm << 12;
   return instruction;
 }
 
@@ -18,9 +15,6 @@ static uint32_t postIndexed(char **token, uint32_t instruction, int countToken){
   instruction |= 1 << 10;
 
     int16_t simm  = stringToNumber(token[3]);
-    if (strchr( token[3],'-') != NULL) {
-      simm = (~simm) + 1;
-    }
 
   instruction |= (simm & 0x01FF) << 12;
   return instruction;
