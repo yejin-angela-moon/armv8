@@ -194,7 +194,7 @@ char* DPReg(char* tokens[], int numTokens, char *res) {
   if (strcmp("madd", opcode) == 0 || strcmp("msub", opcode) == 0 || numTokens > 4) {
     free(operand);
   }
-  free(opr);
+  //free(opr);
 
 
   return res;
