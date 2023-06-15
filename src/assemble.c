@@ -1,23 +1,28 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
-#include "assembler_files/definition.h"
+#include "assembler_files/definitions.h"
 #include "assembler_files/ioutils.h"
 #include "assembler_files/utilities.h"
 #include "assembler_files/DP.h"
 #include "assembler_files/B.h"
 #include "assembler_files/SDT.h"
 
-char *dpSet[] = {"add", "adds", "sub", "subs", "movn", "movz", "movk", "and", "bic", "orr", "orn", "eon", "eor", "ands",
-                 "bics", "madd", "msub"};
+char *dpSet[] = {"add", "adds", "sub", "subs", "movn", "movz",
+                 "movk", "and", "bic", "orr", "orn", "eon",
+                 "eor", "ands", "bics", "madd", "msub"};
+// the collection of data processing instruction mnemonics
 char *sdtSet[] = {"ldr", "str"};
+// the collection of single data transfer instruction mnemonics
 #define dpSetSize 17
 #define sdtSetSize 2
 
+// translates the tokens to correct alias tokens
 static char **alias(char **tokens, int *numToken) {
   char *opcode = tokens[0];
   char **newTokens = calloc(*numToken + 1, sizeof(tokens));
   assert(newTokens != NULL);
+
   if (strcmp("cmp", opcode) == 0) {
     newTokens[0] = "subs";
     newTokens[1] = getZeroRegister(tokens[1]);
@@ -72,76 +77,56 @@ static char **alias(char **tokens, int *numToken) {
     free(newTokens);
     return tokens;
   }
+
   (*numToken)++;
   free(tokens);
   return newTokens;
 }
 
-void parse(row *table, int numLine, char **lines, char *outputFile) {
+// tokenises the string lines from the source file, parses into binary instruction, and writes into binary output file
+void parse(symbol_table_row *symbol_table, int numLine, char **lines, char *outputFile) {
   uint32_t currAddress = 0;
 
-  FILE *outFile = fopen(outputFile, "wb");
+  FILE *outFile = fopen(outputFile, "wb"); // opens the binary output file
   assert(outFile != NULL);
 
   for (int i = 0; i < numLine; i++) {
-
     int numToken = 0;
-    char **tokens = tokenizer(lines[i], &numToken);
-    //printf("tokens %s + %s + %s + %s + %s + %s\n ", tokens[0], tokens[1], tokens[2], tokens[3], tokens[4], tokens[5]);
-    //printf("tokens %s + %s + %s + %s\n ", tokens[0], tokens[1], tokens[2], tokens[3]);
+    char **tokens = malloc(MAX_TOKEN * sizeof(char *));
+    tokens = tokenizer(lines[i], &numToken, tokens);
     if (tokens[0] == NULL) {
       tokens[0] = "";
     }
     tokens = alias(tokens, &numToken);
-    // printf("tokens %s + %s + %s + %s + %s + %s\n ", tokens[0], tokens[1], tokens[2], tokens[3], tokens[4], tokens[5]);
+    // generates new set of tokens if opcode is an alias
+
     char *opcode = tokens[0];
     uint32_t result;
 
-    char *store_DP = (char *) malloc(33 * sizeof(char));
-    assert(store_DP != NULL);;
-
     if (isStringInSet(opcode, dpSet, dpSetSize)) {
-      //strcpy(store_DP, DP(tokens, numToken));
-      DP(tokens, numToken, store_DP);
-      result = binaryStringToNumber(store_DP);
-      //result = binaryStringToNumber(DP(tokens, numToken));
-      currAddress += 4;
+      result = DP(tokens, numToken);
     } else if (isStringInSet(opcode, sdtSet, sdtSetSize)) {
-      result = SDT(tokens, table, numToken, currAddress);
-      currAddress += 4;
+      result = SDT(tokens, symbol_table, numToken, currAddress);
     } else if (opcode[0] == 'b') {
-      result = B(table, tokens, &currAddress);
-      currAddress += 4;
+      result = B(symbol_table, tokens, currAddress);
     } else if (strcmp("nop", opcode) == 0) {
       result = NOP_INSTRUCTION;
-      currAddress += 4;
     } else if (strcmp(".int", opcode) == 0) {
-      if (strchr(tokens[1],'x') != NULL) {
-        result = strtol(tokens[1], NULL, 16);
-      } else {
-        result = strtol(tokens[1], NULL, 10);
-      }
-      currAddress += 4;
-    } else {
-      //label
-      free(tokens);
+      result = strtol(tokens[1], NULL, 0);
+    } else { //label
       continue;
     }
 
-    printf("%x\n", result);
+    currAddress += 4;
+
     fwrite(&result, sizeof(int32_t), 1, outFile);
-//    for (int t = 0; t < numToken; t++) {
-//      free(tokens[t]);
-//    }
     free(tokens);
-    free(store_DP);
   }
   fclose(outFile);
 }
 
 int main(int argc, char **argv) {
   assert(argc == 3);
-
   char *inputFile = argv[1];
   char *outputFile = argv[2];
 
@@ -149,11 +134,14 @@ int main(int argc, char **argv) {
 
   int countLabel = 0;
   char **lines = readFile(numLine, &countLabel, inputFile);
+  // counts the number of labels, returns the lines of input file as a list of strings
 
-  row *symbol_table = malloc(sizeof(row) * countLabel);
-  makeSymbolTable(symbol_table, numLine, lines);
+  symbol_table_row *symbol_table = malloc(sizeof(symbol_table_row) * countLabel);
+  // symbol_table is list of label-address pairs
+  makeSymbolTable(symbol_table, numLine, lines); // also deletes colon from every line with label
 
   parse(symbol_table, numLine, lines, outputFile);
+  // generates result (instruction) for each line
 
   free(symbol_table);
   freeLines(lines, numLine);

@@ -1,39 +1,36 @@
 #include "utilities.h"
 
+// count the number of lines in the file
 int count_lines(char *inputFile) {
   FILE *file;
   int ch;
   int linesCount = 0;
-  bool nonSpaceCharInLine = false;
+  bool isLineEmpty = true;
 
   file = fopen(inputFile, "r");
   assert(file != NULL);
 
   while ((ch = fgetc(file)) != EOF) {
     if (ch == '\n') {
-      if (nonSpaceCharInLine) {
+      if (!isLineEmpty) {
         linesCount++;
       }
-      nonSpaceCharInLine = false;
-    } else if (!isspace(ch)) {
-      nonSpaceCharInLine = true;
+      isLineEmpty = true;
+    } else {
+      isLineEmpty = false;
     }
-  }
-
-  // Handling the case when the file does not end with a newline character,
-  // but the last line contains some non-space characters.
-  if (nonSpaceCharInLine) {
-    linesCount++;
   }
 
   fclose(file);
   return linesCount;
 }
 
-bool containColon(char *line) {
+// returns true if string contains a colon - indicates a label
+bool containsColon(char *line) {
   return (strchr(line, ':') != NULL);
 }
 
+// deletes the colon from the string - to save label name only
 void deleteColon(char *line, unsigned long lineLength) {
   while (isspace(line[lineLength - 1]) || line[lineLength - 1] == ':') {
     line[lineLength - 1] = '\0';
@@ -41,15 +38,10 @@ void deleteColon(char *line, unsigned long lineLength) {
   }
 }
 
-char **tokenizer(char *line, int *numToken) {
-  char **tokens = malloc(MAX_TOKEN * sizeof(char *));
-  assert(tokens != NULL);
-//  for (int i = 0; i < MAX_TOKEN; i ++) {
-//    tokens[i] = malloc(sizeof(char *) * 5);
-//    assert(tokens[i] != NULL);
-//  }
+// splits a string up into 'tokens', which are labels, instruction mnemonics, or imm/reg values
+char **tokenizer(char *line, int *numToken, char **tokens) {
   int i = 0;
-  tokens[0] = strtok(line, delimiter);
+  tokens[0] = strtok(line, delimiter); // delimiters are comma, hashtag and whitespace
   while (tokens[i] != NULL) {
     i++;
     tokens[i] = strtok(NULL, delimiter);
@@ -58,6 +50,7 @@ char **tokenizer(char *line, int *numToken) {
   return tokens;
 }
 
+// frees the space allocated for each line
 void freeLines(char **lines, int numLines) {
   for (int i = 0; i < numLines; i++) {
     free(lines[i]);
@@ -65,87 +58,57 @@ void freeLines(char **lines, int numLines) {
   free(lines);
 }
 
+// returns true if the target string is found in the given set of strings
 bool isStringInSet(char *target, char *set[], size_t setSize) {
   for (size_t i = 0; i < setSize; i++) {
     if (strcmp(target, set[i]) == 0) {
-      return true; // found the string in the set
+      return true;
     }
   }
-  return false; // the string was not found in the set
+  return false;
 }
 
+// returns true if the string is identified as a register - if name starts with x or w
 bool isRegister(const char *reg) {
   return (tolower(reg[0]) == 'w' || tolower(reg[0]) == 'x');
 }
 
-char *decToBinary(uint32_t x, int nbits) {
-  char *res = (char *) malloc(32 * sizeof(char));
-  assert(res != NULL);
-  uint32_t mask = 1 << (nbits - 1);
-  if ((x & mask) == 0) {
-    strcpy(res, "0");
-  } else {
-    strcpy(res, "1");
-  }
-  mask = mask >> 1;
-  for (int i = 1; i < nbits; i++) {
-    if ((x & mask) == 0) {
-      strcat(res, "0");
-    } else {
-      strcat(res, "1");
-    }
-    mask = mask >> 1;
-  }
-  strcat(res, "\0");
-  return res;
-}
-
-uint32_t stringToNumber(char *string) {
-  return (uint32_t) strtol(string, NULL, 0);
-}
-
-
-char *stringToBinary(char *string, int nbits) {
-  return decToBinary(stringToNumber(string), nbits);
-}
-
-uint32_t binaryStringToNumber(char* string) {
-  return (uint32_t) strtoll(string, NULL, 2);
-}
-
-char *registerToBinary(char *reg) {
-  // ex: "x11" -> "1011"
+// extracts and returns the binary value for the register
+int registerToBinary(char *reg) {
+  // ex: "x11" -> 0b1011
   assert(isRegister(reg));
   if (strcmp(reg + 1, "zr") == 0) {
-    return "11111";
+    return ZERO_REGISTER_VALUE; // return 11111 for zero register
   }
-  return decToBinary(stringToNumber(reg + 1), 5);
+  return (int) strtol((reg + 1), NULL, 0);
 }
 
-char *getSF(const char *reg) {
+// returns the sf value corresponding to the register type - 0 for w register
+uint32_t getSF(const char *reg) {
   assert(isRegister(reg));
-  return tolower(reg[0] == 'w') ? "0" : "1";
+  return tolower(reg[0] == 'w') ? 0 : 1;
 }
 
-int getNum(char *string, int start, int size) {
+// converts part of the string (number written in string) into integer and returns it
+int getSubstringAsInt(char *string, int start, int size) {
   char substring[size];
   strncpy(substring, string + start, size);
-//  substring[--size];
-
-  return (int) stringToNumber(substring);
+  return (int) strtol(substring, NULL, 0);
 }
 
-uint32_t findAddressTable(char *label, row *table) {
+// returns the address of the target label in the symbol table
+uint32_t findAddressOfLabel(char *label, symbol_table_row *symbol_table) {
   int i = 0;
-  while (table[i].label[0] != '\0') {
-    if (strcmp(table[i].label, label) == 0) {
-      return table[i].address;
+  while (symbol_table[i].label[0] != '\0') {
+    if (strcmp(symbol_table[i].label, label) == 0) {
+      return symbol_table[i].address;
     }
     i++;
   }
   return i;
 }
 
+// returns the correct size zero integer
 char *getZeroRegister(const char *reg) {
   return tolower(reg[0]) == 'w' ? "wzr" : "xzr";
 }
