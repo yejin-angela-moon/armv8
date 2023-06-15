@@ -1,201 +1,179 @@
 #include "DP.h"
 
-static char *opcArithmetic(const char *opcode) {
-  if (strcmp("add", opcode) == 0) {
-    return "00";
-  } else if (strcmp("adds", opcode) == 0) {
-    return "01";
-  } else if (strcmp("sub", opcode) == 0) {
-    return "10";
-  } else if (strcmp("subs", opcode) == 0) {
-    return "11";
-  } else {
-    fprintf(stderr, "invalid opcode\n");
-    exit(1);
-  }
-}
-
-static char *opcWideMove(const char *opcode) {
-  if (strcmp("movk", opcode) == 0) {
-    return "11";
-  } else if (strcmp("movn", opcode) == 0) {
-    return "00";
-  } else if (strcmp("movz", opcode) == 0) {
-    return "10";
-  } else {
-    fprintf(stderr, "invalid opcode\n");
-    exit(1);
-  }
-}
-
-static char *getShiftCode(char *shift) {
-  if (strcmp("lsl", shift) == 0) {
-    return "00";
-  } else if (strcmp("lsr", shift) == 0) {
-    return "01";
-  } else if (strcmp("asr", shift) == 0) {
-    return "10";
-  } else if (strcmp("ror", shift) == 0) {
-    return "11";
-  } else {
-    fprintf(stderr, "invalid shift name\n");
-    exit(1);
-  }
-}
-
-char *DPImm(char *tokens[], int numTokens) {
-  char *opcode = tokens[0];
-  char *sf = getSF(tokens[1]);
-  char *opi;
-  char *opc;
-  char *operand = (char *) malloc(18 * sizeof(char));
-  assert(operand != NULL);
-  char *rd = registerToBinary(tokens[1]);
-
-  char *res = (char *) malloc(33 * sizeof(char));
-  assert(res != NULL);
-
-  if (strcmp("movk", opcode) == 0 || strcmp("movn", opcode) == 0 || strcmp("movz", opcode) == 0) {
-    opi = "101";
-    opc = opcWideMove(opcode);
-    char *hw = numTokens == 3 ? "00" : decToBinary(stringToNumber(tokens[4]) / 16, 2);
-    char *imm16 = stringToBinary(tokens[2], 16); // ???
-
-    strcpy(operand, hw);
-    strcat(operand, imm16);
-    if (numTokens != 3) {
-      free(hw);
-    }
-    free(imm16);
-  } else { // arithmetic
-    opi = "010";
-    opc = opcArithmetic(opcode);
-    char *sh;
-    if (numTokens == 4) {
-      sh = "0";
-    } else if (strcmp(tokens[5], "0") == 0) {
-      sh = "0";
-
+static uint32_t opcArithmetic(const char *opcode) {
+    if (strcmp("add", opcode) == 0) {
+        return 0;
+    } else if (strcmp("adds", opcode) == 0) {
+        return 1;
+    } else if (strcmp("sub", opcode) == 0) {
+        return 2;
+    } else if (strcmp("subs", opcode) == 0) {
+        return 3;
     } else {
-      sh = "1";
+        fprintf(stderr, "invalid opcode\n");
+        exit(1);
     }
-    char *imm12 = stringToBinary(tokens[3], 12);
-    char *rn = registerToBinary(tokens[2]);
-
-    strcpy(operand, sh);
-    strcat(operand, imm12);
-    strcat(operand, rn);
-
-    free(imm12);
-    free(rn);
-  }
-
-
-  strcpy(res, sf);
-  strcat(res, opc);
-  strcat(res, "100");
-  strcat(res, opi);
-  strcat(res, operand);
-  strcat(res, rd);
-  strcat(res, "\0");
-
-  free(operand);
-  return res;
 }
 
-char *DPReg(char *tokens[], int numTokens) {
-  char *opcode = tokens[0];
-  char *sf = getSF(tokens[1]);
-  char *opc;
-  char *M;
-  char *opr = (char *) malloc(4 * sizeof(char));
-  assert(opr != NULL);
-  char *rm = registerToBinary(tokens[3]);
-  char *operand = (char *) malloc(6 * sizeof(char));
-  assert(operand != NULL);
-  char *rn = registerToBinary(tokens[2]);
-  char *rd = registerToBinary(tokens[1]);
+static uint32_t opcWideMove(const char *opcode) {
+    if (strcmp("movk", opcode) == 0) {
+        return 3;
+    } else if (strcmp("movn", opcode) == 0) {
+        return 0;
+    } else if (strcmp("movz", opcode) == 0) {
+        return 2;
+    } else {
+        fprintf(stderr, "invalid opcode\n");
+        exit(1);
+    }
+}
 
-  char *res = (char *) malloc(33 * sizeof(char));
-  assert(res != NULL);
+static uint32_t getShiftCode(char *shift) {
+    if (strcmp("lsl", shift) == 0) {
+        return 0;
+    } else if (strcmp("lsr", shift) == 0) {
+        return 1;
+    } else if (strcmp("asr", shift) == 0) {
+        return 2;
+    } else if (strcmp("ror", shift) == 0) {
+        return 3;
+    } else {
+        fprintf(stderr, "invalid shift name\n");
+        exit(1);
+    }
+}
 
-  if (strcmp(opcode, "madd") == 0 || strcmp(opcode, "msub") == 0) {
-    opc = "00";
-    operand[0] = strcmp(opcode, "madd") == 0 ? '0' : '1';
-    strcat(operand, registerToBinary(tokens[4]));
-    M = "1";
-    opr = "1000";
-  } else {
-    char *shiftCode = numTokens > 4 ? getShiftCode(tokens[4]) : "00";
-    char *N;
+uint32_t DPImm(char **tokens, int numTokens) {
+    char *opcode = tokens[0];
+    uint32_t sf = strtol(getSF(tokens[1]), NULL, 2);
+    uint32_t opi;
+    uint32_t opc;
 
-    operand = numTokens > 4 ? stringToBinary(tokens[5], 6) : "000000";
-    M = "0";
-    if (strcmp("and", opcode) == 0) {
-      opc = "00";
-      strcpy(opr, "0");
-      N = "0";
-    } else if (strcmp("bic", opcode) == 0) {
-      opc = "00";
-      strcpy(opr, "0");
-      N = "1";
-    } else if (strcmp("orr", opcode) == 0) {
-      opc = "01";
-      strcpy(opr, "0");
-      N = "0";
-    } else if (strcmp("orn", opcode) == 0) {
-      opc = "01";
-      strcpy(opr, "0");
-      N = "1";
-    } else if (strcmp("eor", opcode) == 0) {
-      opc = "10";
-      strcpy(opr, "0");
-      N = "0";
-    } else if (strcmp("eon", opcode) == 0) {
-      opc = "10";
-      strcpy(opr, "0");
-      N = "1";
-    } else if (strcmp("ands", opcode) == 0) {
-      opc = "11";
-      strcpy(opr, "0");
-      N = "0";
-    } else if (strcmp("bics", opcode) == 0) {
-      opc = "11";
-      strcpy(opr, "0");
-      N = "1";
+    uint32_t operand = 0;
+    uint32_t rd = registerToBinary(tokens[1]);
+
+    if (strcmp("movk", opcode) == 0 || strcmp("movn", opcode) == 0 || strcmp("movz", opcode) == 0) {
+        opi = 5;
+        opc = opcWideMove(opcode);
+        uint32_t hw = numTokens == 3 ? 0 : strtol(tokens[4], NULL, 0) / 16;
+        uint32_t imm16 = strtol(tokens[2], NULL, 0);
+
+        operand += hw << 16;
+        operand += imm16;
+
     } else { // arithmetic
-      opc = opcArithmetic(opcode);
-      strcpy(opr, "1");
-      N = "0";
+        opi = 2;
+        opc = opcArithmetic(opcode);
+
+        uint32_t sh = numTokens == 4 || strcmp(tokens[5], "0") == 0 ? 0 : 1;
+
+        uint16_t imm12 = strtol(tokens[3], NULL, 0);
+        uint32_t rn = registerToBinary(tokens[2]);
+
+        operand += sh << 17;
+        operand += imm12 << 5;
+        operand += rn;
     }
 
-    strcat(opr, shiftCode);
-    strcat(opr, N);
-  }
+    uint32_t res = sf << 31;
+    res += opc << 29;
+    res += 1 << 28;
+    res += opi << 23;
+    res += operand << 5;
+    res += rd;
 
-  strcpy(res, sf);
-  strcat(res, opc);
-  strcat(res, M);
-  strcat(res, "101");
-  strcat(res, opr);
-  strcat(res, rm);
-  strcat(res, operand);
-  strcat(res, rn);
-  strcat(res, rd);
-  strcat(res, "\0");
-
-  if (strcmp("madd", opcode) == 0 || strcmp("msub", opcode) == 0 || numTokens > 4) {
-    free(operand);
-  }
-
-
-  return res;
+    return res;
 }
 
-char *DP(char *tokens[], int numTokens) {
-  if (strcmp(tokens[0], "movn") == 0 || strcmp(tokens[0], "movk") == 0 || strcmp(tokens[0], "movz") == 0 ||
-      !(isRegister(tokens[3]))) {
-    return DPImm(tokens, numTokens);
-  }
-  return DPReg(tokens, numTokens);
+uint32_t DPReg(char **tokens, int numTokens) {
+    char *opcode = tokens[0];
+    uint32_t sf = strtol(getSF(tokens[1]), NULL, 2);
+    uint32_t opc;
+    uint32_t M;
+
+    uint32_t opr;
+
+    uint32_t rm = registerToBinary(tokens[3]);
+
+    uint32_t operand = 0;
+
+    uint32_t rn = registerToBinary(tokens[2]);
+    uint32_t rd = registerToBinary(tokens[1]);
+
+
+    if (strcmp(opcode, "madd") == 0 || strcmp(opcode, "msub") == 0) {
+        opc = 0;
+        operand += (strcmp(opcode, "madd") == 0 ? 0 : 1) << 5;
+        operand += registerToBinary(tokens[4]);
+        M = 1;
+        opr = 8;
+    } else {
+        uint32_t shiftCode = numTokens > 4 ? getShiftCode(tokens[4]) : 0;
+        uint32_t N;
+
+        operand += numTokens > 4 ? strtol(tokens[5], NULL, 0) : 0;
+
+        M = 0;
+        if (strcmp("and", opcode) == 0) {
+            opc = 0;
+            opr = 0;
+            N = 0;
+        } else if (strcmp("bic", opcode) == 0) {
+            opc = 0;
+            opr = 0;
+            N = 1;
+        } else if (strcmp("orr", opcode) == 0) {
+            opc = 1;
+            opr = 0;
+            N = 0;
+        } else if (strcmp("orn", opcode) == 0) {
+            opc = 1;
+            opr = 0;
+            N = 1;
+        } else if (strcmp("eor", opcode) == 0) {
+            opc = 2;
+            opr = 0;
+            N = 0;
+        } else if (strcmp("eon", opcode) == 0) {
+            opc = 2;
+            opr = 0;
+            N = 1;
+        } else if (strcmp("ands", opcode) == 0) {
+            opc = 3;
+            opr = 0;
+            N = 0;
+        } else if (strcmp("bics", opcode) == 0) {
+            opc = 3;
+            opr = 0;
+            N = 1;
+        } else { // arithmetic
+            printf("arith\n");
+            opc = opcArithmetic(opcode);
+            opr = 1 << 3;
+            N = 0;
+        }
+
+        opr += shiftCode << 1;
+        opr += N;
+    }
+
+    uint32_t res = sf << 31;
+    res += opc << 29;
+    res += M << 28;
+    res += 0x5 << 25;
+    res += opr << 21;
+    res += rm << 16;
+    res += operand << 10;
+    res += rn << 5;
+    res += rd;
+
+    return res;
+}
+
+uint32_t DP(char **tokens, int numTokens) {
+    if (strcmp(tokens[0], "movn") == 0 || strcmp(tokens[0], "movk") == 0 || strcmp(tokens[0], "movz") == 0 ||
+        !(isRegister(tokens[3]))) {
+        return DPImm(tokens, numTokens);
+    }
+    return DPReg(tokens, numTokens);
 }
