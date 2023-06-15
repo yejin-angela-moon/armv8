@@ -26,11 +26,11 @@ char **readFile(int lineNum, int *countLabel, char *filename) {
 
     if (ch == '\n') {
       if (!isLineEmpty) {
-        strings[stringIndex][indexInsideString] = '\0'; // if line is not empty 
+        strings[stringIndex][indexInsideString] = '\0'; // if line is not empty
         stringIndex++;
       }
       isLineEmpty = true; // initialised to true for new line
-      indexInsideString = 0; 
+      indexInsideString = 0;
     } else {
       isLineEmpty = false; // false if there is non-space character in the line
       strings[stringIndex][indexInsideString] = (char) ch; // write the character to the string
