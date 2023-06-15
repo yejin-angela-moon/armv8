@@ -12,21 +12,27 @@
 #include "definition.h"
 
 int count_lines(char *inputFile);
-bool containColon(char* line);
+
+bool containsColon(char* line);
+
 void deleteColon(char *line, unsigned long lineLength);
+
 void freeLines(char **lines, int numLines);
-char **tokenizer(char *line, int *numToken);
-char* decToBinary(uint32_t x, int nbits);
-uint32_t stringToNumber(char* string);
-char* stringToBinary(char* string, int nbits);
-uint32_t binaryStringToNumber(char* string);
+
+char **tokenizer(char *line, int *numToken, char **tokens);
+
 bool isRegister(const char* reg);
-char* registerToBinary(char* reg);
+
+int registerToBinary(char* reg);
+
 char* getSF(const char* reg);
+
 bool isStringInSet(char *target, char *set[], size_t setSize);
-int getNum(char *string, int start, int size);
-uint32_t findAddressTable(char *label, row *table);
+
+int getSubstringAsInt(char *string, int start, int size);
+
+uint32_t findAddressOfLabel(char *label, symbol_table_row *symbol_table);
+
 char *getZeroRegister(const char *reg);
 
 #endif
-
