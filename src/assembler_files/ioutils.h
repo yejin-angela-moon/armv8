@@ -7,6 +7,6 @@ char** readFile(int lineNum, int *countLabel ,char *filename);
 
 void makeSymbolTable(symbol_table_row *symbol_table, int lineNum, char **lines);
 
-#include "definition.h"
+#include "definitions.h"
 
 #endif

@@ -11,6 +11,6 @@
 
 uint32_t DP(char** tokens, int numTokens);
 
-#include "definition.h"
+#include "definitions.h"
 
 #endif

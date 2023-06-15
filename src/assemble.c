@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
-#include "assembler_files/definition.h"
+#include "assembler_files/definitions.h"
 #include "assembler_files/ioutils.h"
 #include "assembler_files/utilities.h"
 #include "assembler_files/DP.h"

@@ -1,5 +1,6 @@
 #include "DP.h"
 
+// returns the binary opc value for each arithmetic instruction as defined
 static uint32_t opcArithmetic(const char *opcode) {
   if (strcmp("add", opcode) == 0) {
     return 0;
@@ -15,6 +16,7 @@ static uint32_t opcArithmetic(const char *opcode) {
   }
 }
 
+// returns the binary opc value for each wide move instruction as defined
 static uint32_t opcWideMove(const char *opcode) {
   if (strcmp("movk", opcode) == 0) {
     return 3;
@@ -28,6 +30,7 @@ static uint32_t opcWideMove(const char *opcode) {
   }
 }
 
+// returns the binary code for each shift type as defined
 static uint32_t getShiftCode(char *shift) {
   if (strcmp("lsl", shift) == 0) {
     return 0;
@@ -43,16 +46,16 @@ static uint32_t getShiftCode(char *shift) {
   }
 }
 
+// returns the 32-bit little endian binary for a data processing instruction (immediate)
 static uint32_t DPImm(char **tokens, int numTokens) {
   char *opcode = tokens[0];
   uint32_t sf = getSF(tokens[1]);
   uint32_t opi;
   uint32_t opc;
-
   uint32_t operand = 0;
   uint32_t rd = registerToBinary(tokens[1]);
 
-  if (strcmp("movk", opcode) == 0 || strcmp("movn", opcode) == 0 || strcmp("movz", opcode) == 0) {
+  if (strcmp("movk", opcode) == 0 || strcmp("movn", opcode) == 0 || strcmp("movz", opcode) == 0) { // wide move
     opi = 5;
     opc = opcWideMove(opcode);
     uint32_t hw = numTokens == 3 ? 0 : strtol(tokens[4], NULL, 0) / 16;
@@ -75,6 +78,7 @@ static uint32_t DPImm(char **tokens, int numTokens) {
     operand += rn;
   }
 
+  // result is a 32-bit little-endian binary with sf as the LSB
   uint32_t res = sf << 31;
   res += opc << 29;
   res += 1 << 28;
@@ -85,34 +89,29 @@ static uint32_t DPImm(char **tokens, int numTokens) {
   return res;
 }
 
+// returns the 32-bit little endian binary for a data processing instruction (register)
 static uint32_t DPReg(char **tokens, int numTokens) {
   char *opcode = tokens[0];
   uint32_t sf = getSF(tokens[1]);
   uint32_t opc;
   uint32_t M;
-
   uint32_t opr;
-
   uint32_t rm = registerToBinary(tokens[3]);
-
-  uint32_t operand = 0;
-
   uint32_t rn = registerToBinary(tokens[2]);
   uint32_t rd = registerToBinary(tokens[1]);
+  uint32_t operand = 0;
 
-
+  // identifies multiply instructions
   if (strcmp(opcode, "madd") == 0 || strcmp(opcode, "msub") == 0) {
     opc = 0;
     operand += (strcmp(opcode, "madd") == 0 ? 0 : 1) << 5;
     operand += registerToBinary(tokens[4]);
     M = 1;
     opr = 8;
-  } else {
+  } else { // binary logical instructions
     uint32_t shiftCode = numTokens > 4 ? getShiftCode(tokens[4]) : 0;
     uint32_t N;
-
     operand += numTokens > 4 ? strtol(tokens[5], NULL, 0) : 0;
-
     M = 0;
     if (strcmp("and", opcode) == 0) {
       opc = 0;
@@ -152,12 +151,12 @@ static uint32_t DPReg(char **tokens, int numTokens) {
       opr = 1 << 3;
       N = 0;
     }
-
     opr += shiftCode << 1;
     opr += N;
   }
 
-  uint32_t res = sf << 31; // sf is the LSB in the 32-bit instruction
+  // result is a 32-bit little-endian binary with sf as the LSB
+  uint32_t res = sf << 31;
   res += opc << 29;
   res += M << 28;
   res += 0x5 << 25;
@@ -171,9 +170,11 @@ static uint32_t DPReg(char **tokens, int numTokens) {
 }
 
 uint32_t DP(char **tokens, int numTokens) {
+  // the instruction is processing immediate value if the instruction is wide move, or the 4th token is not a register
   if (strcmp(tokens[0], "movn") == 0 || strcmp(tokens[0], "movk") == 0 || strcmp(tokens[0], "movz") == 0 ||
       !(isRegister(tokens[3]))) {
     return DPImm(tokens, numTokens);
   }
+  // the instruction is processing register otherwise
   return DPReg(tokens, numTokens);
 }

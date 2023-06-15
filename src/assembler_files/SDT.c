@@ -1,6 +1,7 @@
 #include "SDT.h"
-#include "definition.h"
+#include "definitions.h"
 
+// address code with '!', with signed immediate
 static uint32_t preIndexed(char **tokens) {
 
   uint32_t instruction = 0;
@@ -32,6 +33,7 @@ static uint32_t preIndexed(char **tokens) {
   return instruction;
 }
 
+// address code without '!', with signed immediate
 static uint32_t postIndexed(char **tokens) {
   uint32_t instruction = 0;
   if (tokens[1][0] == 'x') {
@@ -62,6 +64,7 @@ static uint32_t postIndexed(char **tokens) {
   return instruction;
 }
 
+// address code with register
 static uint32_t registerOffset(char **tokens) {
 
   uint32_t instruction = 0;
@@ -87,7 +90,8 @@ static uint32_t registerOffset(char **tokens) {
   return instruction;
 }
 
-static uint32_t unsignedOffset(char **tokens, int countToken) {
+// address code with unsigned immediate
+static uint32_t unsignedOffset(char **tokens, int countTokens) {
   uint32_t instruction = 0;
   if (tokens[1][0] == 'x') {
     instruction |= 1 << 30;
@@ -108,7 +112,7 @@ static uint32_t unsignedOffset(char **tokens, int countToken) {
 
   instruction |= 1 << 24;
 
-  if (countToken > 3) {
+  if (countTokens > 3) {
     if (tolower(tokens[1][0]) == 'x') {
       instruction |= strtol(tokens[3], NULL, 0) / 8 << 10;
     } else {
@@ -119,6 +123,7 @@ static uint32_t unsignedOffset(char **tokens, int countToken) {
   return instruction;
 }
 
+// encodes the binary for load literal instruction
 static uint32_t LL(char **tokens, symbol_table_row *symbol_table, uint32_t currAddress) {
   uint32_t instruction = 0;
   if (tolower(tokens[1][0]) == 'x') {
@@ -138,21 +143,22 @@ static uint32_t LL(char **tokens, symbol_table_row *symbol_table, uint32_t currA
   return instruction;
 }
 
-static uint32_t mode(char **tokens, int countToken) {
-  if (countToken >= 4 && strchr(tokens[3], '!') != NULL) {
+// determines the addressing mode
+static uint32_t mode(char **tokens, int countTokens) {
+  if (countTokens >= 4 && strchr(tokens[3], '!') != NULL) {
     return preIndexed(tokens);
-  } else if (countToken >= 4 && strchr(tokens[2], ']') != NULL) {
+  } else if (countTokens >= 4 && strchr(tokens[2], ']') != NULL) {
     return postIndexed(tokens);
-  } else if (countToken >= 4 && isRegister(strtok(tokens[3], "]"))) {
+  } else if (countTokens >= 4 && isRegister(strtok(tokens[3], "]"))) {
     return registerOffset(tokens);
   } else {
-    return unsignedOffset(tokens, countToken);
+    return unsignedOffset(tokens, countTokens);
   }
 }
 
-uint32_t SDT(char **tokens, symbol_table_row *symbol_table, int countToken, uint32_t currAddress) {
+uint32_t SDT(char **tokens, symbol_table_row *symbol_table, int countTokens, uint32_t currAddress) {
   if (strchr(tokens[2], '[') == NULL) {
     return LL(tokens, symbol_table, currAddress);
   }
-  return mode(tokens, countToken);
+  return mode(tokens, countTokens);
 }

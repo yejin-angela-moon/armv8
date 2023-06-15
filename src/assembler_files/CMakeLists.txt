@@ -8,7 +8,7 @@ include_directories(.)
 add_executable(assembler_files
         B.c
         B.h
-        definition.h
+        definitions.h
         DP.c
         DP.h
         ioutils.c

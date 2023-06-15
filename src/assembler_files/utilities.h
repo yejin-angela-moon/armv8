@@ -9,7 +9,7 @@
 #include <assert.h>
 #include <ctype.h>
 
-#include "definition.h"
+#include "definitions.h"
 
 #define ZERO_REGISTER_VALUE 0x1F
 

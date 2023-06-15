@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "definition.h"
+#include "definitions.h"
 
 #define CONDITIONAL_INSTRUCTION 0x54000000
 #define B_INCREMENT 0x14000000
