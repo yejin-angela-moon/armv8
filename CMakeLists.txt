@@ -9,7 +9,7 @@ include_directories(src/emulate_files)
 add_executable(armv8_48
         src/assembler_files/B.c
         src/assembler_files/B.h
-        src/assembler_files/definition.h
+        src/assembler_files/definitions.h
         src/assembler_files/DP.c
         src/assembler_files/DP.h
         src/assembler_files/ioutils.c
