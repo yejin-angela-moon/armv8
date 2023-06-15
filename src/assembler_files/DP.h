@@ -9,9 +9,7 @@
 
 #include "utilities.h"
 
-char* DPImm(char* tokens[], int numTokens);
-char* DPReg(char* tokens[], int numTokens);
-char* DP(char* tokens[], int numTokens);
+uint32_t DP(char** tokens, int numTokens);
 
 #include "definition.h"
 
