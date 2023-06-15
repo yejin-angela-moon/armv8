@@ -43,7 +43,7 @@ static uint32_t getShiftCode(char *shift) {
     }
 }
 
-uint32_t DPImm(char **tokens, int numTokens) {
+static uint32_t DPImm(char **tokens, int numTokens) {
     char *opcode = tokens[0];
     uint32_t sf = strtol(getSF(tokens[1]), NULL, 2);
     uint32_t opi;
@@ -85,7 +85,7 @@ uint32_t DPImm(char **tokens, int numTokens) {
     return res;
 }
 
-uint32_t DPReg(char **tokens, int numTokens) {
+static uint32_t DPReg(char **tokens, int numTokens) {
     char *opcode = tokens[0];
     uint32_t sf = strtol(getSF(tokens[1]), NULL, 2);
     uint32_t opc;
