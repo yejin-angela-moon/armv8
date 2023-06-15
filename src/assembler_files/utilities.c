@@ -104,7 +104,7 @@ uint32_t binaryStringToNumber(char* string) { //no need for this
   return (uint32_t) strtoll(string, NULL, 2);
 }
 */
-int registerToBinary(char *reg) { 
+int registerToBinary(char *reg) {
   // ex: "x11" -> "1011"
   assert(isRegister(reg));
   if (strcmp(reg + 1, "zr") == 0) {
