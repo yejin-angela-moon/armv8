@@ -21,7 +21,7 @@ char **readFile(int lineNum, int *countLabel, char *filename) {
 
   while ((ch = fgetc(file)) != EOF) {
     if (ch == ':') { // indicate colon after label name
-      (*countLabel)++; // count the number of labels
+      (*countLabel)++; // increment the number of labels
     }
 
     if (ch == '\n') {
