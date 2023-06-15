@@ -11,10 +11,13 @@
 char *dpSet[] = {"add", "adds", "sub", "subs", "movn", "movz",
                  "movk", "and", "bic", "orr", "orn", "eon",
                  "eor", "ands", "bics", "madd", "msub"};
+// the collection of data processing instruction mnemonics
 char *sdtSet[] = {"ldr", "str"};
+// the collection of single data transfer instruction mnemonics
 #define dpSetSize 17
 #define sdtSetSize 2
 
+// translates the tokens to correct alias tokens
 static char **alias(char **tokens, int *numToken) {
   char *opcode = tokens[0];
   char **newTokens = calloc(*numToken + 1, sizeof(tokens));
@@ -80,10 +83,11 @@ static char **alias(char **tokens, int *numToken) {
   return newTokens;
 }
 
+// tokenises the string lines from the source file, parses into binary instruction, and writes into binary output file
 void parse(symbol_table_row *symbol_table, int numLine, char **lines, char *outputFile) {
   uint32_t currAddress = 0;
 
-  FILE *outFile = fopen(outputFile, "wb");
+  FILE *outFile = fopen(outputFile, "wb"); // opens the binary output file
   assert(outFile != NULL);
 
   for (int i = 0; i < numLine; i++) {

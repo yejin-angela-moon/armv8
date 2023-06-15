@@ -11,6 +11,8 @@
 
 #include "definition.h"
 
+#define ZERO_REGISTER_VALUE 0x1F
+
 int count_lines(char *inputFile);
 
 bool containsColon(char* line);
@@ -25,7 +27,7 @@ bool isRegister(const char* reg);
 
 int registerToBinary(char* reg);
 
-char* getSF(const char* reg);
+uint32_t getSF(const char* reg);
 
 bool isStringInSet(char *target, char *set[], size_t setSize);
 

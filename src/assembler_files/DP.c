@@ -45,7 +45,7 @@ static uint32_t getShiftCode(char *shift) {
 
 static uint32_t DPImm(char **tokens, int numTokens) {
   char *opcode = tokens[0];
-  uint32_t sf = strtol(getSF(tokens[1]), NULL, 2);
+  uint32_t sf = getSF(tokens[1]);
   uint32_t opi;
   uint32_t opc;
 
@@ -87,7 +87,7 @@ static uint32_t DPImm(char **tokens, int numTokens) {
 
 static uint32_t DPReg(char **tokens, int numTokens) {
   char *opcode = tokens[0];
-  uint32_t sf = strtol(getSF(tokens[1]), NULL, 2);
+  uint32_t sf = getSF(tokens[1]);
   uint32_t opc;
   uint32_t M;
 
@@ -157,7 +157,7 @@ static uint32_t DPReg(char **tokens, int numTokens) {
     opr += N;
   }
 
-  uint32_t res = sf << 31;
+  uint32_t res = sf << 31; // sf is the LSB in the 32-bit instruction
   res += opc << 29;
   res += M << 28;
   res += 0x5 << 25;
