@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-#include "definition.h"
+#include "definitions.h"
 
 #define SDT_INSTRUCTION 0xB8000000
 #define LL_INSTRUCTION 0x18000000
