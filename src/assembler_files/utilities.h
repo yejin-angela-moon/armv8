@@ -9,7 +9,7 @@
 #include <assert.h>
 #include <ctype.h>
 
-#include "definition.h"
+#include "definitions.h"
 
 int count_lines(char *inputFile);
 
