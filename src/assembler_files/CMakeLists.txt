@@ -15,6 +15,5 @@ add_executable(assembler_files
         ioutils.h
         SDT.c
         SDT.h
-        symbol_table.c
         utilities.c
         utilities.h)
