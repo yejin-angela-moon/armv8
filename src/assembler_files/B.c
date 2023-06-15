@@ -1,12 +1,6 @@
 #include "B.h"
 #include "utilities.h"
 
-#define CONDITIONAL_INSTRUCTION 0x54000000
-#define B_INCREMENT 0x14000000
-#define BR_INCREMENT 0xD61F0000
-#define MASK_19_BIT 0x7FFFF
-#define MASK_26_BIT 0x3FFFFFF
-
 static uint32_t conditional(symbol_table_row *table, char **token, int cond, uint32_t currAddress) {
   uint32_t instruction = CONDITIONAL_INSTRUCTION; // binary instruction 01010100000000000000000000000000
   instruction += cond;
