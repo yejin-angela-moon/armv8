@@ -8,6 +8,6 @@
 
 #include "definition.h"
 
-uint32_t B(row *table, char **token, uint32_t currAddress);
+uint32_t B(symbol_table_row *symbol_table, char **tokens, uint32_t currAddress);
 
 #endif
