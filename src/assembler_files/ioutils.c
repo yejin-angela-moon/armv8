@@ -1,79 +1,62 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <ctype.h>
-#include "definitions.h"
+
 #include "utilities.h"
 
-char** readFile(int lineNum, int *countLabel ,char *filename) {
-    FILE *fp = fopen(filename, "r");
+char **readFile(int lineNum, int *countLabel, char *filename) {
+  FILE *file = fopen(filename, "r");
+  assert(file != NULL);
 
-    if (fp == NULL) {
-        fprintf(stderr, "can't open %s\n", filename);
-        exit(1);
+  char **strings = malloc(lineNum * sizeof(char *));
+  assert(strings != NULL);
+  for (int i = 0; i < lineNum; i++) {
+    strings[i] = malloc(MAX_LINE_LENGTH * sizeof(char)); // malloc for each string
+    assert(strings[i] != NULL);
+  }
+
+  int ch;
+  bool isLineEmpty = true;
+  int stringIndex = 0; // count lines
+  int indexInsideString = 0; // count characters within a line
+
+  while ((ch = fgetc(file)) != EOF) {
+    if (ch == ':') { // indicate colon after label name
+      (*countLabel)++; // increment the number of labels
     }
 
-    char buffer[MAX_LINE_LENGTH];
-    char **strings = calloc(lineNum, sizeof(char*));
-
-    for (int i = 0; i < lineNum; i++){
-        if (fgets(buffer, sizeof(buffer), fp) != NULL)
-        {
-            if(isspace(buffer[0])){
-                continue;
-            }
-            if (containColon(buffer[0])){
-                countLabel++;
-            }
-
-            buffer[strcspn(buffer, "\n")] ='\0';
-            strings[i] = (char*)calloc(MAX_LINE_LENGTH, sizeof(char));
-
-            strcpy(strings[i], buffer);
-        }  
+    if (ch == '\n') {
+      if (!isLineEmpty) {
+        strings[stringIndex][indexInsideString] = '\0'; // if line is not empty
+        stringIndex++;
+      }
+      isLineEmpty = true; // initialised to true for new line
+      indexInsideString = 0;
+    } else {
+      isLineEmpty = false; // false if there is non-space character in the line
+      strings[stringIndex][indexInsideString] = (char) ch; // write the character to the string
+      indexInsideString++; // count character within line
     }
-        
-    fclose(fp);
+  }
+
+  fclose(file);
+  return strings;
 }
 
-void makeSymbolArray(row *table, int lineNum, char **lines){
-    for (int i = 0; i < lineNum; i++){
-        if (containColon(lines[i])){
-            table[i].address = i * 4;
-            table[i].label = lines[i];
-            i--;
-        }
+void makeSymbolTable(symbol_table_row *symbol_table, int lineNum, char **lines) {
+  int j = 0;
+  int addr = 0;
+
+  for (int i = 0; i < lineNum; i++) {
+    if (containsColon(lines[i])) {
+      symbol_table[j].address = addr * 4;
+
+      deleteColon(lines[i], strlen(lines[i]));
+      // deletes colon from every line with label
+
+      symbol_table[j].label = lines[i];
+      j++;
+    } else if (strlen(lines[i]) > 2) {
+      addr++;
     }
+  }
 }
-
-
-// void printStateToFile(state *state, char *filename) {
-
-// }
-
-// void printToString(state *state) {
-
-//   //print registers
-//   printf("Register:\n");
-//   for (int i = 0; i < NUM_REGISTERS; i++) {
-//     if (i < 10) {
-//       printf("X0%d = %016lx\n", i, readRegister(i, 1, state->generalRegisters));
-//     } else {
-//       printf("X%d = %016lx\n", i, readRegister(i, 1, state->generalRegisters));
-//     }
-//   }
-
-//   printf("PC = %08x\n", state->currAddress);
-//   printf("PSTATE : %s%s%s%s\n",
-//          state->pstate.N ? "N" : "-",
-//          state->pstate.Z ? "Z" : "-",
-//          state->pstate.C ? "C" : "-",
-//          state->pstate.V ? "V" : "-");
-
-//   //print non-zero memory
-//   printf("Non-zero memory:\n");
-//   for (int i = 0; i < MEMORY_SIZE; i++) {
-//     if (state->memory[i] != 0) {
-//       printf("0x%08x: %08x\n", i * 4, state->memory[i]);
-//     }
-//   }
-// }
