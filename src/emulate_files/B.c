@@ -51,7 +51,7 @@ void B(uint32_t instruction, state *state) {
     simm19 += SIGN_EXTEND_19BITS;
   }
 
-  if (extractBits(instruction, 0, 4) == 0 && extractBits(instruction, 10, 31) == BRANCH_IDENTIFIER) {
+  if (extractBits(instruction, 0, 4) == 0 && extractBits(instruction, 10, 31) == BR_IDENTIFIER) {
     reg(xn, state);
   } else if (extractBits(instruction, 4, 4) == 0 && extractBits(instruction, 24, 31) == 0x54) {
     conditional(simm19, cond, state);

@@ -1,5 +1,4 @@
 #include "SDT.h"
-#include "definitions.h"
 
 // address code with '!', with signed immediate
 static uint32_t preIndexed(char **tokens) {

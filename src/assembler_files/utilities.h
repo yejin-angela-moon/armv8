@@ -11,8 +11,6 @@
 
 #include "definitions.h"
 
-#define ZERO_REGISTER_VALUE 0x1F
-
 int count_lines(char *inputFile);
 
 bool containsColon(char* line);
@@ -25,7 +23,7 @@ char **tokenizer(char *line, int *numToken, char **tokens);
 
 bool isRegister(const char* reg);
 
-int registerToBinary(char* reg);
+int registerIndexAsInt(char* reg);
 
 uint32_t getSF(const char* reg);
 

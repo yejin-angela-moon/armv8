@@ -73,12 +73,12 @@ bool isRegister(const char *reg) {
   return (tolower(reg[0]) == 'w' || tolower(reg[0]) == 'x');
 }
 
-// extracts and returns the binary value for the register
-int registerToBinary(char *reg) {
-  // ex: "x11" -> 0b1011
+// returns register index as int
+int registerIndexAsInt(char *reg) {
+  // ex: "x11" -> 11
   assert(isRegister(reg));
   if (strcmp(reg + 1, "zr") == 0) {
-    return ZERO_REGISTER_VALUE; // return 11111 for zero register
+    return ZERO_REGISTER_VALUE; // return 0b11111 for zero register
   }
   return (int) strtol((reg + 1), NULL, 0);
 }
@@ -86,10 +86,10 @@ int registerToBinary(char *reg) {
 // returns the sf value corresponding to the register type - 0 for w register
 uint32_t getSF(const char *reg) {
   assert(isRegister(reg));
-  return tolower(reg[0] == 'w') ? 0 : 1;
+  return tolower(reg[0]) == 'w' ? 0 : 1;
 }
 
-// converts part of the string (number written in string) into integer and returns it
+// converts substring (number written in string) into integer and returns it
 int getSubstringAsInt(char *string, int start, int size) {
   char substring[size];
   strncpy(substring, string + start, size);
