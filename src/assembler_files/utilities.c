@@ -41,7 +41,7 @@ void deleteColon(char *line, unsigned long lineLength) {
 // splits a string up into 'tokens', which are labels, instruction mnemonics, or imm/reg values
 char **tokenizer(char *line, int *numToken, char **tokens) {
   int i = 0;
-  tokens[0] = strtok(line, delimiter); // delimiters are comma, hashtag and whitespace
+  tokens[0] = strtok(line, delimiter); // delimiters are comma, hashtag, tab and whitespace
   while (tokens[i] != NULL) {
     i++;
     tokens[i] = strtok(NULL, delimiter);
