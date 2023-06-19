@@ -90,7 +90,8 @@ void parse(symbol_table_row *symbol_table, int numLine, char **lines, char *outp
       result = DP(tokens, numToken);
     } else if (isStringInSet(opcode, sdtSet, sdtSetSize)) {
       result = SDT(tokens, symbol_table, numToken, currAddress);
-    } else if (opcode[0] == 'b') {
+    } else if (tolower(opcode[0]) == 'b' && numToken > 1) {
+      // numToken > 1 condition needed to distinguish from label name starting with 'b'
       result = B(symbol_table, tokens, currAddress);
     } else if (strcmp("nop", opcode) == 0) {
       result = NOP_INSTRUCTION;
