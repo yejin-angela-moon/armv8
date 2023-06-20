@@ -77,9 +77,12 @@ void parse(symbol_table_row *symbol_table, int numLine, char **lines, char *outp
     int numToken = 0;
     char **tokens = malloc(MAX_TOKEN * sizeof(char *));
     tokens = tokenizer(lines[i], &numToken, tokens);
+
     if (tokens[0] == NULL) {
-      tokens[0] = "";
+      continue;
+      // line was empty with only spaces, and strtok(line, delimiter) returned NULL character
     }
+
     tokens = alias(tokens, &numToken);
     // generates new set of tokens if opcode is an alias
 
