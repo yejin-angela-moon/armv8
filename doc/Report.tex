@@ -1,21 +1,249 @@
-\documentclass[11pt]{article}
+\documentclass{article} 
+\usepackage{parskip}
+\usepackage{graphicx} % Required for inserting images 
+\usepackage[left=1.5cm,right=1.5cm,top=1.5cm,bottom=2cm]{geometry}
 
-\usepackage{fullpage}
+\title{C Project Final Report} 
 
-\begin{document}
+\author{Group 48} 
 
-\title{Our Extension...}
-\author{TODO}
+\date{26 May – 23 June, 2023} 
 
-\maketitle
+\begin{document} 
 
-\section{Introduction}
+\maketitle 
 
-Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor
-incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis
-nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
-fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-culpa qui officia deserunt mollit anim id est laborum.
+\section{Introduction} 
+
+Our C project is divided into four sections: 
+
+\begin{enumerate} 
+
+\item to build an AArch64 emulator that simulates the execution of binary files  
+
+\item to build an AArch64 assembler that translates an Assembly source file into machine code 
+
+\item to write an Assembly program to blink an LED light in a continuous loop on a Raspberry Pi 
+
+\item to implement an extension of our choice, a board-filling game inspired by IQ-fit 
+
+\end{enumerate} 
+
+\section*{2. Assembler}   
+\begin{enumerate}
+    \item Overview of structure
+    \item Work distribution
+    \item Walk-through of main function
+    \item Some technical challenges
+    \item Solutions to challenges
+\end{enumerate}
+
+\section*{3. Raspberry Pi} 
+\begin{enumerate}
+    \item Execution of main loop
+    \item Some technical challenges
+    \item Attempts to overcome challenges
+\end{enumerate}
+
+\section*{4. Extension: IQ-Fit} 
+\begin{enumerate}
+    \item Overview of game
+    \item Structure of code
+    \item Graphics
+    \item Testing
+\end{enumerate}
+
+\section*{5. Reflection}
+\begin{enumerate}
+    \item Group reflection
+    \item Individual reflections
+\end{enumerate}
+\clearpage
+
+\section{Assembler}
+\vspace{12pt}
+\subsection{Overview of structure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\textwidth]{assembler_dependency.drawio.png}
+    \caption{Dependency graph for Assembler}
+    \label{fig:image}
+\end{figure}
+
+The assembler takes in a source file as input and assembles it (that is, generating the appropriate 32-bit instruction binary per each line of the file). 
+
+Similarly to the emulator, the \textbf{assemble.c} file contains the main function as well as the function that performs the main execution of the task (parse). The other files that are used by its header file \textbf{assemble.h} are put in the assembler\_files directory, to distinguish from similar files used in the emulator. All source files have accompanying header files, separating the basic structure of each file from its implementation. \textbf{Utilities.c} contains functions that are used in other files but called independent of them, such as converting register names to their integer indices (this function in turn calls the isRegister function to assert that the input string is the name of a register). \textbf{Definitions.h} is a header file which defines types and constants used elsewhere. \textbf{Ioutils.c} has functions for the initial processing of the input file. Additionally, each instruction type is encapsulated into its own function, with appropriate static methods for sub-types. 
+
+%\vspace{12pt}
+
+\subsection{Work distribution}
+
+Each member was assigned to work on the instruction they did for the emulator
+
+\begin{itemize}
+
+\item \textbf{Felix and Angela:} Data Processing Instructions (some opcodes can represent both Immediate or Register instructions, so DP instructions were put under one file, with static DPImm and DPReg functions) 
+
+\item \textbf{Vania:} Branch instructions 
+
+\item \textbf{Memi:} Single Data Transfer instructions
+  
+\end{itemize}
+     
+\subsection{Walk-through of main function: }
+
+\begin{itemize}
+    \item   First, the number of lines in the input file is counted (since this value is used to loop through each line later on), and the readFile function takes in a filename and returns an array of strings, each array (which is itself an array of characters) representing a line of the input file. 
+    \item   We implement the two-pass method, meaning that all lines were read twice – the first pass (the makeSymbolTable function) constructs the symbol table (each element is a struct composed of a label string and its corresponding address; this structure of a row is defined inside definitions.h), and the second pass (the parse function) uses this symbol table, replacing label names in branch instructions with their actual addresses. This is needed as when a label name is encountered in a branch instruction, the assembler needs to know the actual address that the label refers to. This address is the address of the line where a label is defined. The two-pass method is a simple solution to the fact that label definitions may come later in the source code than their actual use. 
+    \item     Then, the lines are passed into the parse function, which loops through each line – each line is passed into the tokeniser function, which generates a new array of tokens (strings) based on a set of delimiters (spaces/commas/number signs). The first token (opcode) is used to identify the instruction type and call the appropriate function per instruction type. The result of this is the 32-bit instruction representing the line of source code, and is finally written to the output file. 
+\end{itemize} 
+
+\subsection{Some technical challenges: }
+
+\begin{itemize}
+    \item  We initially found that makeSymbolTable was not correctly matching labels with their uses – this was because label names are followed by a colon in their defintion. 
+
+    \item Initially, the count lines and readFile functions did not take empty lines into account, so counted them as a line and returned them to be used in the parse function. 
+
+    \item    The Data Processing file was initially written with strings to represent the parts of the resulting instruction (which were concatenated using the strcat function). However, memory allocation and freeing of pointers frequently led to errors such as segmentation faults (when accessing a string index beyond the array \emph{malloc}ed, for example). \emph{Strcat}ing into an uninitialised character array is undefined behaviour – this resulted in some tests only failing sometimes, which was difficult to debug. 
+
+\end{itemize}
+
+\subsection{Solutions to challenges: }
+
+\begin{itemize}
+    \item  The makeSymbolTable function was modified to delete the colon from lines with labels (which are identified by the presence of a colon).
+
+    \item We firstly changed the 2 functions to include the boolean variable isLineEmpty – if the current line was empty (meaning there are two consecutive newline characters), we do not increment the line counter. However, even after this change, we found there was one test case where an empty line contained whitespaces. However, as the whitespace character is part of our set of delimiters, this is ignored by the tokeniser function, which returns a NULL pointer as the first token (with the number of tokens as 0). So a simple change to the parse function – adding a continue statement in the loop if the first token is NULL – was sufficient to solve this problem.
+
+    \item We consequently decided to rewrite the Data Processing function using unsigned 32-bit integers and bit masking/shifts. This method solved the memory allocation issues and was also consistent with the other files. 
+
+\end{itemize}
+
+\vspace{20pt}
+
+\section{Raspberry Pi}
+
+The task was to write an Assembly program that instructs the Raspberry Pi to turn its LED on and off in an infinite loop, then assemble it to binary instructions using the assembler that we wrote, and run it. Making the LED turn on consists of storing the address of a buffer to the write register of the Raspberry Pi Mailbox (with the buffer values instructing the LED to turn on). The registers in the Mailbox are simply memory addresses at a certain offset from the base address of the Mailbox. Requesting the LED to turn off is done similarly. Responses to requests must be read so that the queue of messages is not filled. Also, appropriate flags in the status register's value must be set to clear before reading or writing can take place – this is to ensure that no request is already taking place. 
+
+
+\subsection{Execution of main loop:}
+ 
+
+\begin{enumerate}
+    \item Wait for the write-full (F) flag in the status register to be cleared
+    \item Write a request to turn the LED on 
+    \item Wait for some time
+    \item Wait for the read-empty (E) flag in the status register to be cleared 
+    \item Write a request to turn the LED off 
+    \item Wait for some time 
+
+\end{enumerate}
+
+\subsection{Some technical challenges:}
+
+\begin{itemize}
+    \item We needed to isolate the 31st/30th bits (F/E flags) from the status register value.
+    \item There is no Assembly instruction for waiting for a defined amount of time.
+    \item One possible issue was the F or E flags not being cleared.
+    \item Another problem was the location of the .int directives, since they must be only loaded using labels and not treated as actual instructions.
+\end{itemize}
+
+\subsection{Attempts to overcome challenges:}
+
+\begin{itemize}
+    \item We used two 32-bit constants (with only those bits set to 0) for bit masking, performing logical AND with the status value then having a conditional branch checking whether the result is 0 
+    \item We decided to use a loop counter (initially loaded as some large value) that decrements, with a conditional branch instruction checking if the counter is 0
+    \item Our first attempt involved an infinite loop waiting for the flags to change. We also attempted a method where reading is done when the write-full flag is set (and vice versa), since the write-full flag indicates whether the read register is currently full.
+    \item We tried moving the labels to the end of the source code, as well as having branch statements to skip over labels that are not loaded. We also had to make sure the addresses of buffer labels were 16-byte aligned (ending in 0 in hexadecimal) by padding with nop instructions if necessary.
+\end{itemize}
+
+\vspace{20pt}
+
+\section{Extension}
+
+It is inspired by the game \emph{IQ-fit}\footnote{https://www.smartgamesandpuzzles.com/iq-fit.html}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{iq_fit.jpg}
+    \caption{Example of a problem (left) and solution (right) of IQ-fit}
+    \label{fig:image 2}
+\end{figure}
+
+\subsection{Overview of game}
+As the player runs the game, a board is randomly generated with pieces fit in, and the list of all possible questions are computed. One question is randomly chosen and the solution is not displayed to the user. The user can choose the number of pieces to be removed from the board, then pieces are randomly chosen and removed from the board. The updated board with removed pieces are displayed both textually (on terminal) and graphically (on window). The removed pieces and the initial "HP", which is the number of attempts allowed to the user, are displayed only textually. \\
+The user is prompted to enter a solution each time using the Command Line, in a certain format: (Column) (Row) (Piece name) (Rotation). Here, the column and row numbers should be the coordinates of the top left corner of the empty space to be filled in, piece name be the alphabet, and rotation the number of 90° anticlockwise rotations to be applied on the piece. For each user input, the program waits for exactly four parts of input because we use scanf function to accept formatted input, which are integer, integer, character and integer. Validation check is done after the input, so if the number of scanned results is not four then the user is promted again for input. \\
+If the solution is valid, that is, the updated board matches one of the computed possible solutions (checked with the canPlacePiece function), the piece is added to the board accordingly and the updated board is displayed to the user. Otherwise, the solution is treated as invalid, so the HP of the user decrements by 1 and the user is prompted again for a new valid solution. As the HP hits 0, the user loses the game. If the user successfully fills the board before the HP hits 0, the user wins the game and is congratulated. 
+
+\subsection{Structure of code}
+
+The main execution is handled inside the iq\_fit.c file, with the main function including static functions for user I/O and the execution of the game, such as printBoard and setUpGame. The definitions.h file defines constants as well as a struct PuzzlePiece with fields width, height and empty (an int representing the number of consecutive empty shapes removed from the rectangle with area $width \times height$ in order to create the shape of the piece). Just like with the assembler and emulator, we avoided using global variables, instead initialising the board and pieces inside the main function. The board and piece files contain methods to be used on board and piece variables, while the utilities file contains more generic methods, such as removeEle (which removes an element from an array by left shifting all elements to the right and decrementing the size of the array).
+
+\subsection{Graphics}
+
+We included the SDL2 (Simple DirectMedia Layer 2) library to implement graphical features for the game. Raylib was a more beginner-friendly option, but we chose SDL for more extensive functionality. Based on the code for the textual game, we added graphical features to display the board and pieces on a window. The first step was to create a window for display and an SDL renderer to render shapes. The functionality was mostly low-level programming, so it was initially challenging to figure out the most suitable structure. We decided to reuse the general structure for the printBoard function, which uses a nested for loop to go through the rows and columns of the board to print out each piece. The function displayBoard takes in two arguments: in addition to a two-dimensional array board, an SDL renderer pointer. As the function goes through the rows and columns of the input board, the renderer colour is set differently for empty space, which is indicated by a whitespace character and a piece. The displayBoard function is reused in the rest of the main function as well, every time the board is updated. Its purpose is to visualise the board geometrically to help the player solve the puzzle. For each piece block, a rectangle and a border are rendered separately, and they are presented onto the window at once. After displaying every piece, the screen is delayed for a certain amount of time.
+
+\subsection{Testing}
+
+We tested our program by randomly generating different boards every round and playing the game to ensure that the placement of pieces as well as the verification of the board being filled worked correctly. We also ensured that there is a valid solution at every round, and that the number of spaces in the pieces is the same as the number of remaining spaces in the board. Overall, these tests were effective as the Command Line printing of the board state/remaining pieces at every turn allowed us to easily check for errors.
+
+\subsection{Some technical challenges:}
+
+\begin{itemize}
+    \item Since SDL is a low-level library, we faced difficulties in rendering the border of each rectangular piece. Either the border was not presented or the piece was not filled in. 
+    \item The function to display the board graphically had to be a separate helper function because it was to be used more than once throughout the execution. However, the window and renderer were created and destroyed once each, because the same window and renderer must be used every time. 
+\end{itemize}
+
+\subsection{Solutions to challenges:}
+
+\begin{itemize}
+    \item We used the SDL\_RenderPresent function only once for each block, after rendering the border and the rectangle separately. This ensured that none of them was overwritten by each other. 
+    \item We made a helper function displayBoard which differentiated from the printBoard function which textually printed the board. It took a renderer pointer as an argument in addition to a two-dimensioanl array board, so that the renderer created in the main function is used throughout the execution.  
+\end{itemize}
+
+\vspace{20pt}
+
+\section{Reflection}
+
+\subsection{Group reflection}
+
+\subsubsection{Difficulties with Git:}
+
+Initially, we faced difficulties in utilising Git for version control and resolving conflicts. The unfamiliarity with Git led to some confusion and delays in our workflow. However, as we progressed and gained experience, we became more comfortable with Git. For the second task, we found that working with Git was significantly easier, allowing us to navigate through merges and conflicts more smoothly. Another facet to improve on was creating concise but clear commit messages to illustrate important changes in the code.
+
+\subsubsection{Communication:}
+
+To facilitate effective communication, we employed a combination of in-person meetings, WhatsApp, Office 365 documents, and Trello. In-person meetings proved beneficial for discussing ideas and establishing the project's main functions. WhatsApp served as a convenient platform for online discussions, while Office 365 documents and Trello provided collaborative spaces for note-taking and task management. Additionally, we often worked together in the lab, fostering direct collaboration and real-time problem-solving. 
+
+\subsubsection{Work distribution:}
+
+For efficient work distribution, we implemented a random assignment of instructions to each group member.\\
+For the assembler, we had a branch for each functionality, such as assembler-DP etc, with the assembler branch being the main branch containing the universal function and file. After completing their assigned functions, we merged the branches into the main assembler branch, followed by thorough testing and debugging. Members focus on debugging their instruction in their own branch. Finally, we conducted a collective code cleanup to address duplicated functions, eliminate magic numbers, and improve coding style. 
+
+\subsubsection{Things we would do differently:}
+
+Better Planning for Function Sets: To avoid duplicated functions, it would be beneficial to establish a predefined set of functions from the outset. This proactive planning can help streamline the development process and minimise redundancies. 
+
+Mitigating Git Conflicts: To reduce the occurrence of Git conflicts, we should adopt strategies such as regular code integration and proactive communication. Regularly merging individual branches into the main branch can help identify conflicts early on, allowing for timely resolution. Open and transparent communication among team members about code changes can also prevent conflicts from arising. 
+
+\subsection{Individual reflections}
+
+\textbf{Memi: }
+
+Our group experience demonstrated the effectiveness and efficiency of working collaboratively. Initially, we faced challenges in effectively splitting the work and ended up working individually on our own versions of the emulator. This approach proved to be ineffective and hindered our progress. However, as we started utilising Git and improving our communication, the dynamics of the group improved significantly. One of the key strengths of our group was the commitment to assigned tasks. Each member took responsibility for their designated work, which allowed us to work efficiently towards our collective goals. Regular in-person meetings played a crucial role in fostering effective communication and ensuring that everyone was on the same page. One weakness we identified was the time spent on resolving conflicts. While using Git, we encountered conflicts due to the lack of communication regarding the changes made to different files. To mitigate this issue, we recognise the importance of improving communication within the group. 
+
+\textbf{Felix:}
+
+Throughout the course of this project, I had the opportunity to improve my understanding of C and assembly language programming. I found my strengths lay in initiating and planning, such as proposing the data structures that we implemented. I also enjoyed debugging and performing some code optimisation, although persevering when there was no progress and looking for different approaches was something I found difficult. A significant area for improvement was the use of version control (Git), as my initial lack of experience with it led to some conflicts. In the future, an improvement as a group would be to establish clear communication protocols from the onset, as well as planning the structure of each section in more detail at the start. Even though we had regular in-person meetings while coordinating and splitting the work, the lack of initial planning meant our individual sub-sections would sometimes not fit into the overall structure. Another improvement would be adding more comments to describe the structure/function of source code, so that members would be better able to understand and hence debug the code written by others. 
+
+\textbf{Vania:}
+
+Reflecting on our group work for the project, I am satisfied with the task distribution and coordination we achieved throughout the entire duration. Personally, I found great enjoyment and gained valuable experience from debugging the code. It is also a fantastic opportunity to learn the programming language C. However, I recognized that writing comments and managing input and output files were not my strong suits. Thankfully, my group mates excelled in these areas, allowing us to allocate tasks based on our strengths. Moving forward, I aim to maintain the same type of task distribution in future projects, ensuring that each team member is assigned tasks aligning with their strengths. One the other hand, one area where we could make improvements is time management. After the first checkpoint, we found ourselves pressed for time and upite our fast p nable to allocate sufficient focus to each part, des ace of work. We can build a timetable at the very beginning, which will provide us with a clear roadmap and help us allocate sufficient time to each part effectively. 
+
+\textbf{Angela:}
+
+The group project was my first thorough experience of collaborative coding. It was essential to communicate frequently about workload division and ideas about plans. My teammates and I improved in remote and face-to-face work throughout the project. Using Git for remote collaborative working was unfamiliar to all of us. Still, we gradually became used to it by writing more informative commit messages and detailed code comments. The project has been a valuable experience in grabbing low-level programming skills, including file dependency, dynamic memory allocation, assembly language and debugging using GDB. Understanding each task and designing our structure to implement it took a lot of work, and it was similarly hard to debug the written code. However, it was beneficial for me to familiarise myself with GDB since the debugging process became significantly faster and more precise over the period. Building the ARMv8 and the assembler required creativity to design the flow and a thorough understanding of the flow to debug the code to perfection. We tried our best to increase the maintainability of the code by minimising the use of magic numbers and maximising the number of comments. The experience in completing those tasks was beneficial for doing the extension. Our attempt to complete the third task (Raspberry Pi) was also helpful for understanding the assembly language and the behaviour of the 'mailbox' in detail. Still, I found the most significant difficulty in this task because the concept still needed clarification. Meanwhile, attempting to adopt graphical features to our extension was another challenge. Using SDL to display the board, I enhanced my view in low-level graphics. For instance, I newly learnt that the shapes needed to be rendered individually before being presented to the window, which was unimaginable when using high-level IDE. It has been a delightful experience to implement the features out of our interest and imagination using the skills we developed over the past few weeks. 
 
 \end{document}

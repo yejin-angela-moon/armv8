@@ -77,9 +77,12 @@ void parse(symbol_table_row *symbol_table, int numLine, char **lines, char *outp
     int numToken = 0;
     char **tokens = malloc(MAX_TOKEN * sizeof(char *));
     tokens = tokenizer(lines[i], &numToken, tokens);
+
     if (tokens[0] == NULL) {
-      tokens[0] = "";
+      continue;
+      // line was empty with only spaces, and strtok(line, delimiter) returned NULL character
     }
+
     tokens = alias(tokens, &numToken);
     // generates new set of tokens if opcode is an alias
 
@@ -90,7 +93,8 @@ void parse(symbol_table_row *symbol_table, int numLine, char **lines, char *outp
       result = DP(tokens, numToken);
     } else if (isStringInSet(opcode, sdtSet, sdtSetSize)) {
       result = SDT(tokens, symbol_table, numToken, currAddress);
-    } else if (opcode[0] == 'b') {
+    } else if (tolower(opcode[0]) == 'b' && numToken > 1) {
+      // numToken > 1 condition needed to distinguish from label name starting with 'b'
       result = B(symbol_table, tokens, currAddress);
     } else if (strcmp("nop", opcode) == 0) {
       result = NOP_INSTRUCTION;
