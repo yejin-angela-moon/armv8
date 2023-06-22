@@ -68,13 +68,9 @@ int modifyEmpty(PuzzlePiece piece, int rt) {
   if (piece.empty < 0 || rt == 0) {
     return piece.empty;
   }
-  //printf("piece empty = %d\n", piece.empty);
   int pos_x = piece.empty % piece.width;
   int pos_y = piece.empty / piece.width;
-  // printf("piece x = %d\n", pos_x);
-  //printf("piece y = %d\n", pos_y);
 
-  //  printf("piece y = %d\n", pos_y);
   int store_pos;
   if (rt > 0) {
     store_pos = pos_x;
@@ -93,10 +89,6 @@ int modifyEmpty(PuzzlePiece piece, int rt) {
   }
 
   int no_row = rt % 2 == 0? piece.width : piece.height;
-  // printf("after x = %d\n", pos_x);
-  //printf("after y = %d\n", pos_y);
-  //printf("row = %d\n", no_row);
-  //printf("rt 1 empty = %d\n", pos_y * no_row + pos_x);
   return pos_y * no_row + pos_x;
 }
 
