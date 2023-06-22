@@ -3,7 +3,7 @@
 
 #include "definitions.h"
 
-void duplicateBoard(int source[BOARD_SIZE][BOARD_SIZE], int destination[BOARD_SIZE][BOARD_SIZE]);
+void duplicateBoard(int from[BOARD_SIZE][BOARD_SIZE], int to[BOARD_SIZE][BOARD_SIZE]);
 
 bool isBoardFull(int board[BOARD_SIZE][BOARD_SIZE]);
 

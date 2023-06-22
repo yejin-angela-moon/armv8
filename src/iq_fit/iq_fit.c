@@ -1,6 +1,6 @@
 #include "iq_fit.h"
 
-void printBoard(int board[BOARD_SIZE][BOARD_SIZE]) {
+static void printBoard(int board[BOARD_SIZE][BOARD_SIZE]) {
   printf("  0 1 2 3 4 5\n");
   for (int row = 0; row < BOARD_SIZE; row++) {
     printf("%d ", row);
@@ -12,56 +12,47 @@ void printBoard(int board[BOARD_SIZE][BOARD_SIZE]) {
   printf("\n");
 }
 
-bool solvePuzzle(int board[BOARD_SIZE][BOARD_SIZE], PuzzlePiece pieces[], int index, int* solutionCount, int possible_board[MAX_SOLUTIONS][BOARD_SIZE][BOARD_SIZE]) {
+static bool solvePuzzle(int board[BOARD_SIZE][BOARD_SIZE], PuzzlePiece pieces[], int index, int* solutionCount, int possible_board[MAX_SOLUTIONS][BOARD_SIZE][BOARD_SIZE]) {
   if (index == NUM_PIECES) {
-    if (isBoardFull(board)) {
-      if (*solutionCount < MAX_SOLUTIONS) {
-        duplicateBoard(board, possible_board[*solutionCount]);
-        (*solutionCount)++;
+      if (isBoardFull(board)) {
+          if (*solutionCount < MAX_SOLUTIONS) {
+              duplicateBoard(board, possible_board[*solutionCount]);
+              (*solutionCount)++;
+          }
+          if (*solutionCount == MAX_SOLUTIONS){
+              return true;
+          }
       }
-      if (*solutionCount == MAX_SOLUTIONS){
-        return true;
-      }
-    }
-    return false;
+      return false;
   }
-
   for (int row = 0; row < BOARD_SIZE; row++) {
-    for (int col = 0; col < BOARD_SIZE; col++) {
-      if (pieces[index].empty < 0) {
-        for (int rt = 0; rt < 2; rt++) {
-          if (canPlacePiece(board, pieces[index], row, col, rt)) {
-            placePiece(board, pieces[index], row, col, index + 1, rt);
-            if (solvePuzzle(board, pieces, index + 1, solutionCount, possible_board)) {
-              return true;
-            }
-            removePiece(board, pieces[index], row, col, rt);
+      for (int col = 0; col < BOARD_SIZE; col++) {
+          for (int rt = 0; rt < 4; rt++) {
+              if (canPlacePiece(board, pieces[index], row, col, rt)) {
+                  placePiece(board, pieces[index], row, col, index + 1, rt);
+                  if (solvePuzzle(board, pieces, index + 1, solutionCount, possible_board)) {
+                      return true;
+                  }
+                  removePiece(board, pieces[index], row, col, rt);
+              }
+              if (pieces[index].height == pieces[index]. width && pieces[index].empty < 0) {
+                  break;
+              }
+              if (pieces[index].empty < 0 && rt == 1) {
+                  break;
+              }
           }
-          if (pieces[index].height == pieces[index]. width) {
-            break;
-          }
-        }
-      } else {
-        for (int rt = 0; rt < 4; rt++) {
-          if (canPlacePiece(board, pieces[index], row, col, rt)) {
-            placePiece(board, pieces[index], row, col, index + 1, rt);
-            if (solvePuzzle(board, pieces, index + 1, solutionCount, possible_board)) {
-              return true;
-            }
-            removePiece(board, pieces[index], row, col, rt);
-          }
-        }
       }
-    }
   }
   return false;
 }
 
-void setUpGame(int question[BOARD_SIZE][BOARD_SIZE], char missing[],  int noOfRemove) {
+static void setUpGame(int question[BOARD_SIZE][BOARD_SIZE], char missing[],  int noOfRemove) {
   int count = 0;
   while (count != noOfRemove) {
     int r = rand() % NUM_PIECES + 1;
     while (foundEleChar(missing, switchToChar(r), count)) {
+        r = rand() % NUM_PIECES + 1;
     }
     removePieceSec(question, r);
     missing[count] = switchToChar(r);
@@ -69,7 +60,7 @@ void setUpGame(int question[BOARD_SIZE][BOARD_SIZE], char missing[],  int noOfRe
   }
 }
 
-void displayBoard(int board[BOARD_SIZE][BOARD_SIZE], SDL_Renderer* renderer) {
+static void displayBoard(int board[BOARD_SIZE][BOARD_SIZE], SDL_Renderer* renderer) {
   int curr_x = X_POS;
   int curr_y = Y_POS;
 
@@ -115,7 +106,18 @@ void displayBoard(int board[BOARD_SIZE][BOARD_SIZE], SDL_Renderer* renderer) {
   SDL_RenderClear(renderer);
 }
 
-void printPiece(PuzzlePiece piece, char name) {
+static bool noEmptySpace(PuzzlePiece pieces[]) {
+  int sum = 0 ;
+  for (int i = 0; i < NUM_PIECES; i++) {
+    sum += pieces[i].width * pieces[i].height;
+    if (pieces[i].empty != -1) {
+      sum -= 1;
+    }
+  }
+  return sum == BOARD_SIZE * BOARD_SIZE;
+}
+
+static void printPiece(PuzzlePiece piece, char name) {
   int count = 0;
   for (int i = 0; i < piece.height; i++) {
     for (int j = 0; j < piece.width; j++) {
@@ -138,6 +140,11 @@ int main() {
   int board[BOARD_SIZE][BOARD_SIZE] = {0};
   PuzzlePiece pieces[NUM_PIECES] = {{2, 3, 4}, {1, 4, -1}, {3, 2, -1}, {1, 1, -1}, {2, 2, -1}, {5, 1, -1}, {4, 2, -1}, {2, 2, 1}};
 
+  if (!noEmptySpace(pieces)) {
+      printf("This set of pieces can not fill in all the space on the board.\n");
+      return 1;
+  }
+
   int solutionCount = 0;
   int possible_board[MAX_SOLUTIONS][BOARD_SIZE][BOARD_SIZE];
 
@@ -151,18 +158,14 @@ int main() {
   int question[BOARD_SIZE][BOARD_SIZE];
   randomlyPickBoard(possible_board, question, solutionCount);
 
-  int hp = 3;
+  int hp = 7;
 
-  printBoard(question);
-
-  printf("You can choose to remove 1 or 2 pieces from the board.\nThe pieces to be removed are random.\n");
+  printf("You can choose to remove a maximum of %d pieces from the board.\nThe pieces to be removed are random.\n", NUM_PIECES);
 
   int no_missing;
 
-  do {
-    printf("Do you want to remove 1 piece or 2 pieces?\n");
-    scanf("%d", &no_missing);
-  } while (no_missing != 1 && no_missing != 2);
+  printf("How many pieces you want to remove?\n");
+  scanf("%d", &no_missing);
 
   printf("You chose to remove %d pieces\n", no_missing);
 
@@ -170,8 +173,14 @@ int main() {
 
   setUpGame(question, missing, no_missing);
 
-  char added[NUM_PIECES + 1];
+  char added[NUM_PIECES];
   int no_added = 0;
+
+  printf("In the game, you will need to put all the pieces on the board.\n");
+  printf("You can also remove a specific piece you put before by entering the format of <-1> <-1> <Piece Name> <0>.\n\n");
+  printf("Your HP is %d at the beginning.\n", hp);
+  printf("If you enter invalid input, your HP will be deducted by 2.\n");
+  printf("If you remove a piece, your HP will be deducted by 1.\n");
 
   printBoard(question);
 
@@ -222,31 +231,38 @@ int main() {
 
     scanResult = scanf("%d %d %c %d", &inputCol, &inputRow, &inputPiece, &inputRt);
 
+    inputPiece = toupper(inputPiece);
+
     // Checking if 4 items were successfully read
-    while (scanResult != 4) {
-      printf("Invalid input format. Please type: <Column> <Row> <Piece name> <Rotation>\n");
-      scanResult = scanf("%d %d %c %d", &inputCol, &inputRow, &inputPiece, &inputRt);
+    if (scanResult != 4) {
+      hp -= 2;
+      printf("Invalid input format.\nHP: %d\n", hp);
+      printf("The board\n");
+      printBoard(question);
+      displayBoard(question, renderer);
+      continue;
     }
 
-    if (inputRow == -1 && foundEleChar(added, inputPiece, no_added)) {
+    if (inputRow == -1 && inputCol == -1 && foundEleChar(added, inputPiece, no_added) && inputRt == 0) {
       removePieceSec(question, inputPiece - 'A' + 1);
+      hp--;
       printf("The piece has been removed\nHP: %d\n", hp);
       printBoard(question);
       displayBoard(question, renderer);
       missing[no_missing] = inputPiece;
       no_missing++;
-      removeEle(added, inputPiece, &no_added);
+      removeEle(added, inputPiece, no_added);
       no_added--;
-    } else if (inputCol < 0 || inputRow < 0 || inputRt < 0 || inputPiece - 'A' < 0 || inputPiece - 'A' > NUM_PIECES - 1) {
-      hp--;
-      printf("Invalid input.\nHP: %d\n", hp);
+    } else if (inputPiece - 'A' < 0 || inputPiece - 'A' > NUM_PIECES - 1) {
+      hp -= 2;
+      printf("Invalid piece name.\nHP: %d\n", hp);
       printf("The board\n");
       printBoard(question);
       displayBoard(question, renderer);
     } else if (canPlacePiece(question, pieces[inputPiece - 'A'], inputRow, inputCol, inputRt) && foundEleChar(missing, inputPiece, no_missing)) {
       printf("Well done! You successfully added piece %c\n", inputPiece);
       placePiece(question, pieces[inputPiece - 'A'], inputRow, inputCol, inputPiece - 'A' + 1, inputRt);
-      removeEle(missing, inputPiece, &no_missing);
+      removeEle(missing, inputPiece, no_missing);
       no_missing--;
       added[no_added] = inputPiece;
       no_added++;
@@ -254,15 +270,15 @@ int main() {
       printBoard(question);
       displayBoard(question, renderer);
     } else {
-      hp--;
+      hp -= 2;
       printf("Invalid input.\nHP: %d\n", hp);
       printf("The board\n");
       printBoard(question);
       displayBoard(question, renderer);
     }
   }
-  if (hp == 0) {
-    printf("Game over - You've used up all your hp\n");
+  if (hp <= 0) {
+    printf("Game over - You've used up all your HP.\n");
     return 0;
   }
   printf("You won - You filled in all the empty spaces!\n");

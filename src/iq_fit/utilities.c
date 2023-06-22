@@ -16,17 +16,14 @@ bool foundEleChar(char array[], char letter, int size) {
   return false;
 }
 
-void removeEle(char array[], char letter, int *size) {
+void removeEle(char array[], char letter, int size) {
   bool replace = false;
-  for (int i = 0; i < *size - 1; i++) {
+  for (int i = 0; i < size - 1; i++) {
     if (array[i] == letter) {
       replace = true;
     }
     if (replace) {
       array[i] = array[i + 1];
     }
-  }
-  if (array[*size - 1] == letter) {
-    (*size)--;
   }
 }

@@ -3,7 +3,7 @@
 bool canPlacePiece(int board[BOARD_SIZE][BOARD_SIZE], PuzzlePiece piece, int row, int col, int rt) {
   int width = rt % 2 == 0? piece.width : piece.height;
   int height = rt % 2 == 0? piece.height : piece.width;
-  if (row < 0 || row + height > BOARD_SIZE || col < 0 || col + width > BOARD_SIZE) {
+  if (row < 0 || row + height > BOARD_SIZE || col < 0 || col + width > BOARD_SIZE || rt < 0 || rt > 3) {
     return false;
   }
   int count = 0;
