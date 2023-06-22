@@ -1,30 +1,38 @@
-\documentclass[11pt]{article}
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage[parfill]{parskip}
 
-\usepackage{fullpage}
+\title{Final Report}
+\author{Vania Chan, Yejin Moon, Memi Sawatyanon, Felix Bae}
+\date{June 22, 2023}
 
 \begin{document}
 
-\title{ARM Checkpoint... }
-\author{TODO}
-
 \maketitle
 
-\section{Group Organisation}
+\section{Overview}
 
-Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor
-incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis
-nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
-fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-culpa qui officia deserunt mollit anim id est laborum.
+Everyone agreed on the implementation of the fundamental functions: a loop in the main function to fetch and decode instructions until the halt instruction is reached, and 5 files for each instruction type. Subsequently, each team member was assigned specific instruction types to work on. Angela worked on Data Processing Immediate, Felix on Data Processing Register and the main function, Vania on Branch and special instructions, and Memi on Single Data Transfer. After everyone wrote their functions, we spent time debugging failed cases. We used the provided test suite on the command line, as well as using GDB for individual cases (this allowed for decoding of variable values and function outputs at arbitrary points). Furthermore, we created our own testing file which takes in binary instructions as inputs and generates corresponding decoded states as output.
 
-\section{Implementation Strategies}
+We used Git to record our work in separate branches – we made one for each group member, but since we ended up editing the same files some of the time, content was duplicated and merging the code together became more difficult. We realised later that making a branch for each sub-task would have been more efficient. This way, each team member can work on their designated task without directly affecting the work of others. Still, this proved to be not too big of a problem as the group size was small – we verbally communicated what task each person was working on and pulled or manually copied revisions as we progressed.
 
-Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor
-incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis
-nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
-fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-culpa qui officia deserunt mollit anim id est laborum.
+\section{Structure of emulator}
+
+The emulator has been structured in a way that separates each instruction set into their respective files, alongside utility and definition files. The main emulator.c file handles the fetch, decode and execute stages of the emulation process. The definitions.h file declares the variable state that describes the running state of the emulator, as well as special constants such as bits used for masking – we tried to avoid magic numbers which can be confusing to read and maintain. The utilities.c file contains some methods that are used in instruction decoding but can be called independent of any instruction or state. The ioutils.c file contains methods for reading the input files and printing the final states into output files.
+
+\subsection{Some technical challenges}
+\begin{itemize}
+  \item Choosing the right sizes for int variables - W/X mode of registers had to be taken into account. Choosing sizes that were too small led to many errors as upper bit values were lost (especially in shifts), but we also tried to choose suitable sizes to distinguish between variables (for example choosing the \emph{bool} type for single bit values)
+  \item We initially had global variables, but decided that it was better to have local variables declared in the main function and pass around pointers to them - global variables may cause linkage and could be more difficult to test/maintain
+  \item Encapsulating into different files/functions. We started out by writing everything in the emulate.c file, but this proved unworkable as the work expanded in size. In addition, sub-tasks were separated into own functions (appropriately declared static). For example, we initially were not sure how the register modes should be represented, but first writing read/write functions for registers helped to encapsulate this behaviour: a boolean representing the mode could simply be passed in
+\end{itemize}
+
+\section{Planning of assembler}
+
+For the assembler, we could adopt a similar structure to the emulator, wherein each instruction has its own dedicated file, including the utilities. The assembler is the conversion of strings representing the instructions into their binary format - the emulator files already contain representations of how each instruction type affects the internal state. By reusing the structure of the emulator, we can streamline the process of converting strings into binary code for each instruction in the assembler.
+
+\section{Possible future challenges}
+
+As the size of the project expands and tasks get more complicated, the division of workload would be more challenging. We need to be more careful about how to communicate while working on different parts, so that fewer conflicts occur. Also, we need to familiarise ourselves with Git more, by creating task-specific branches for example, in order to stay updated with other people’s changes without causing conflicts. We have also started exploring project-management tools, such as Trello, in order to coordinate notes and planning. 
 
 \end{document}
