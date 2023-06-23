@@ -173,7 +173,7 @@ It is inspired by the game \emph{IQ-fit}\footnote{https://www.smartgamesandpuzzl
 \end{figure}
 
 \subsection{Overview of game}
-As the player runs the game, a board is randomly generated with pieces fit in, and the list of all possible questions are computed. One question is randomly chosen and the solution is not displayed to the user. The user can choose the number of pieces to be removed from the board, then pieces are randomly chosen and removed from the board. The updated board with removed pieces are displayed both textually (on terminal) and graphically (on window). The removed pieces and the initial "HP", which is the number of attempts allowed to the user, are displayed only textually. \\
+As the player runs the game, a board is randomly generated with pieces fit in, and the list of all possible questions is computed. One question is randomly chosen and the solution is not displayed to the user. The user can choose the number of pieces to be removed from the board, then that specific number of pieces are randomly chosen and removed from the board. The updated board with removed pieces is displayed both textually (on terminal) and graphically (on window). The removed pieces and the initial "HP", which is the number of attempts allowed to the user, are displayed only textually. \\
 The user is prompted to enter a solution each time using the Command Line, in a certain format: (Column) (Row) (Piece name) (Rotation). Here, the column and row numbers should be the coordinates of the top left corner of the empty space to be filled in, piece name be the alphabet, and rotation the number of 90° anticlockwise rotations to be applied on the piece. For each user input, the program waits for exactly four parts of input because we use scanf function to accept formatted input, which are integer, integer, character and integer. Validation check is done after the input, so if the number of scanned results is not four then the user is promted again for input. \\
 If the solution is valid, that is, if the updated board matches one of the computed possible solutions (checked with the canPlacePiece function), the piece is added to the board accordingly, and the updated board is displayed to the user. Otherwise, the solution is treated as invalid, so the HP of the user is decreased by two and the user is prompted again for a new valid solution. If the player changed their mind, they can remove the piece they have added, with their HP deducted by one. As the HP hits zero, the user loses the game. If the user successfully fills the board before the HP hits zero, the user wins the game and is congratulated. 
 
@@ -192,6 +192,8 @@ We tested our program by randomly generating different boards every round and pl
 \subsection{Some technical challenges:}
 
 \begin{itemize}
+    \item Although the total number of solutions was shown, we could not check the solution one by one to ensure that no solution was missed or repeated.
+    \item Rotation of piece should be allowed when placing. However, if allowing 4 rotations (90 degrees each) for every piece, the program generated repeat solutions since the shape of the rotation of some pieces are identical to the original shape (such as square).
     \item Since SDL is a low-level library, we faced difficulties in rendering the border of each rectangular piece. Either the border was not presented or the piece was not filled in. 
     \item The function to display the board graphically had to be a separate helper function because it was to be used more than once throughout the execution. However, the window and renderer were created and destroyed once each, because the same window and renderer must be used every time. 
 \end{itemize}
@@ -199,6 +201,8 @@ We tested our program by randomly generating different boards every round and pl
 \subsection{Solutions to challenges:}
 
 \begin{itemize}
+    \item We simplified the set of the pieces used in the game while testing the solvePuzzle function. Thus we could ensure all solutions could be found using this function.
+    \item We break the rotation loop for specific cases to avoid considering every different rotation as a new shape for the piece if the shapes were identical.
     \item We used the SDL\_RenderPresent function only once for each block, after rendering the border and the rectangle separately. This ensured that none of them was overwritten by each other. 
     \item We made a helper function displayBoard which differentiated from the printBoard function which textually printed the board. It took a renderer pointer as an argument in addition to a two-dimensioanl array board, so that the renderer created in the main function is used throughout the execution.  
 \end{itemize}
