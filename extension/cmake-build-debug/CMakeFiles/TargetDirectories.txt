@@ -1,0 +1,3 @@
+/homes/ym1721/armv8_48/src/extension/cmake-build-debug/CMakeFiles/extension.dir
+/homes/ym1721/armv8_48/src/extension/cmake-build-debug/CMakeFiles/edit_cache.dir
+/homes/ym1721/armv8_48/src/extension/cmake-build-debug/CMakeFiles/rebuild_cache.dir
